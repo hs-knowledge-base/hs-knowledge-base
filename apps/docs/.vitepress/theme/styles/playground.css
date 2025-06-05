@@ -1,0 +1,125 @@
+/* 代码演练场的全局样式 */
+
+/* 代码块样式增强 */
+.vp-code {
+  position: relative;
+}
+
+/* 代码组样式 */
+.vp-code-group .tabs {
+  margin-bottom: 0 !important;
+}
+
+/* 演练场相关样式 */
+.playground-container {
+  margin: 1rem 0;
+}
+
+/* 代码编辑器字体 */
+@font-face {
+  font-family: 'Fira Code';
+  src: url('https://cdn.jsdelivr.net/npm/firacode@6.2.0/distr/woff2/FiraCode-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* 代码块运行按钮 */
+.code-run-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: var(--vp-c-brand);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: none;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s, transform 0.1s;
+  z-index: 2;
+}
+
+.code-run-button:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+/* 代码输出容器 */
+.code-output {
+  margin: 0.5rem 0 1.5rem;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  overflow-x: auto;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.output-header {
+  font-weight: 500;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.output-item {
+  margin-bottom: 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.output-error {
+  color: #e74c3c;
+}
+
+.output-warn {
+  color: #f39c12;
+}
+
+.output-info {
+  color: #3498db;
+}
+
+/* CSS预览容器 */
+.css-preview {
+  padding: 12px;
+  background-color: white;
+  border-radius: 4px;
+  margin-top: 12px;
+}
+
+.preview-label {
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--vp-c-text-2);
+}
+
+.preview-content {
+  min-height: 100px;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+}
+
+/* 暗黑模式适配 */
+.dark .output-error {
+  color: #ff6b6b;
+}
+
+.dark .output-warn {
+  color: #feca57;
+}
+
+.dark .output-info {
+  color: #54a0ff;
+}
+
+.dark .css-preview {
+  background-color: #1e1e1e;
+}
+
+.dark .preview-content {
+  background-color: #2d2d2d;
+} 

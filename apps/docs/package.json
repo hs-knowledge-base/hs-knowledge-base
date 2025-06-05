@@ -1,0 +1,19 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "火山知识库 - 客户端、服务端、系统底层及DevOps的技术知识整理与分享",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "dependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "fs-extra": "^11.3.0",
+    "vitepress": "^1.6.3"
+  },
+  "devDependencies": {
+    "vue": "^3.5.16"
+  }
+}

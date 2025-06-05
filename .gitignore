@@ -53,3 +53,7 @@ coverage
 
 # Turborepo
 .turbo
+
+# VitePress
+apps/docs/.vitepress/cache
+apps/docs/.vitepress/dist

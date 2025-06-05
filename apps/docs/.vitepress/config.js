@@ -10,7 +10,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const rootDir = resolve(__dirname, '../../..')
 
 export default defineConfig({
-  base: '/',
+  base: '/hs-knowledge-base',
   title: '火山知识库',
   description: '客户端、服务端、系统底层及DevOps的技术知识整理与分享',
   head: [

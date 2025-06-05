@@ -1,0 +1,14 @@
+{
+  "name": "volcano-knowledge-base",
+  "version": "1.0.0",
+  "description": "火山知识库",
+  "private": true,
+  "scripts": {
+    "docs:dev": "pnpm --filter docs dev",
+    "docs:build": "pnpm --filter docs build",
+    "docs:preview": "pnpm --filter docs preview"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.2"
+  }
+}

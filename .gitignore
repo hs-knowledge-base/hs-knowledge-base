@@ -1,0 +1,55 @@
+# 依赖相关
+node_modules
+.pnpm-store
+
+# 构建输出
+dist
+build
+lib
+*.tgz
+
+# 日志
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 环境变量和配置
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 编辑器和IDE相关
+.idea
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 操作系统相关
+.DS_Store
+Thumbs.db
+
+# 测试覆盖率报告
+coverage
+
+# 缓存目录
+.cache
+.temp
+.tmp
+
+# Vite/Vue相关
+*.local
+
+# Turborepo
+.turbo

@@ -160,17 +160,25 @@ function createNavigationLinks(currentPath) {
   // 添加父级导航链接
   if (parts.length > 0) {
     const topDir = parts[0];
-    navItems.push({
-      text: formatDirTitle(topDir),
-      link: `/${topDir}/`
-    });
     
-    // 如果有更多层级，添加返回上级
-    if (parts.length > 1) {
+    // 如果是二级目录，只添加返回顶级目录的链接
+    if (parts.length === 2) {
+      navItems.push({
+        text: `返回 ${formatDirTitle(topDir)}`,
+        link: `/${topDir}/`
+      });
+    } 
+    // 如果是更深层级，添加返回顶级目录和上级目录的链接
+    else if (parts.length > 2) {
+      navItems.push({
+        text: formatDirTitle(topDir),
+        link: `/${topDir}/`
+      });
+      
       // 构建上级目录路径
       const parentPath = parts.slice(0, -1).join('/');
       navItems.push({
-        text: `↩️ 返回上级`,
+        text: `返回上级`,
         link: `/${parentPath}/`
       });
     }

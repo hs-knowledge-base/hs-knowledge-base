@@ -191,7 +191,7 @@ export function generateSidebars() {
   const sidebars = {};
   
   // 获取顶级目录
-  const topDirs = ['client', 'server', 'systems', 'devops'];
+  const topDirs = ['client', 'server', 'systems', 'devops', 'ai'];
   
   // 为每个顶级目录生成侧边栏
   for (const dir of topDirs) {
@@ -253,6 +253,7 @@ export function generateSidebars() {
         { text: '服务端', link: '/server/' },
         { text: '系统与底层', link: '/systems/' },
         { text: 'DevOps', link: '/devops/' },
+        { text: 'AI应用与大模型', link: '/ai/' },
         { text: '关于', link: '/about' }
       ]
     }

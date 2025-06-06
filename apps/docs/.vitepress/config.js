@@ -55,6 +55,7 @@ export default defineConfig({
       {text: '服务端', link: '/server/'},
       {text: '系统与底层', link: '/systems/'},
       {text: 'DevOps', link: '/devops/'},
+      {text: 'AI应用与大模型', link: '/ai/'},
       {text: '关于', link: '/about'}
     ],
 

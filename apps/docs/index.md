@@ -37,6 +37,11 @@ features:
     title: DevOps与云原生
     details: CI/CD、容器化、Kubernetes、云服务、监控与可观测性
     link: /devops/
+  - icon:
+      src: svg/ai.svg
+    title: AI应用与大模型
+    details: LLM、ChatGPT、Prompt工程、AI集成开发、模型部署与优化
+    link: /ai/
 ---
 
 <div class="custom-block">
@@ -58,6 +63,7 @@ features:
 - [服务端技术](/server/) - API开发、数据处理、微服务架构、云服务
 - [系统与底层](/systems/) - Rust、系统编程、性能优化、编译原理
 - [DevOps与云原生](/devops/) - 自动化部署、容器编排、监控告警、基础设施即代码
+- [AI应用与大模型](/ai/) - LLM、ChatGPT、Prompt工程、AI集成开发、模型部署与优化
 
 ## 关于本项目
 

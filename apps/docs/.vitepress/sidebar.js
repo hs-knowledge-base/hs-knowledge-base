@@ -9,8 +9,8 @@ import {fileURLToPath} from 'url'
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 /**
-   * 项目根目录
-   */
+ * 项目根目录
+ */
 const rootDir = resolve(__dirname, '../../..')
 
 /**
@@ -41,14 +41,16 @@ function formatDirTitle(dirName) {
  * 递归扫描目录，生成侧边栏结构
  * @param {*} dir 目录路径
  * @param {*} rootPath 根路径
+ * @param {*} maxDepth 最大递归深度，-1表示无限制
+ * @param {*} currentDepth 当前递归深度
  * @returns 侧边栏结构数组
  */
-function scanDirRecursive(dir, rootPath) {
+function scanDirRecursive(dir, rootPath, maxDepth = -1, currentDepth = 0) {
   const fullPath = path.join(rootPath, dir)
   const relativePath = dir // 相对于docs目录的路径
 
-  // 如果目录不存在，则返回空数组
-  if (!fileExists(fullPath)) {
+  // 如果目录不存在或者超过最大深度，则返回空数组
+  if (!fileExists(fullPath) || (maxDepth !== -1 && currentDepth > maxDepth)) {
     return []
   }
 
@@ -119,12 +121,12 @@ function scanDirRecursive(dir, rootPath) {
     const hasIndex = fileExists(path.join(subDirPath, 'index.md'))
     
     // 递归扫描子目录
-    const subItems = scanDirRecursive(subDirRelPath, rootPath)
+    const subItems = scanDirRecursive(subDirRelPath, rootPath, maxDepth, currentDepth + 1)
     
-    if (subItems.length > 0) {
+    if (subItems.length > 0 || hasIndex) {
       const subGroup = {
         text: formatDirTitle(subDir),
-        collapsed: true,
+        collapsed: false,
         items: subItems
       }
       
@@ -141,6 +143,43 @@ function scanDirRecursive(dir, rootPath) {
 }
 
 /**
+ * 创建返回上级的导航项
+ * @param {*} currentPath 当前路径
+ * @returns 导航项数组
+ */
+function createNavigationLinks(currentPath) {
+  const parts = currentPath.split('/').filter(Boolean);
+  const navItems = [];
+  
+  // 添加返回首页
+  navItems.push({
+    text: '首页',
+    link: '/'
+  });
+  
+  // 添加父级导航链接
+  if (parts.length > 0) {
+    const topDir = parts[0];
+    navItems.push({
+      text: formatDirTitle(topDir),
+      link: `/${topDir}/`
+    });
+    
+    // 如果有更多层级，添加返回上级
+    if (parts.length > 1) {
+      // 构建上级目录路径
+      const parentPath = parts.slice(0, -1).join('/');
+      navItems.push({
+        text: `↩️ 返回上级`,
+        link: `/${parentPath}/`
+      });
+    }
+  }
+  
+  return navItems;
+}
+
+/**
  * 生成主要目录的侧边栏
  * @returns 所有侧边栏配置
  */
@@ -153,14 +192,51 @@ export function generateSidebars() {
   
   // 为每个顶级目录生成侧边栏
   for (const dir of topDirs) {
-    const sidebarItems = scanDirRecursive(dir, docsPath);
+    // 顶级目录显示所有一级子目录，但不递归更深层次
+    const sidebarItems = scanDirRecursive(dir, docsPath, 0);
     if (sidebarItems.length > 0) {
       sidebars[`/${dir}/`] = [
+        {
+          text: '导航',
+          items: [
+            { text: '首页', link: '/' }
+          ]
+        },
         {
           text: formatDirTitle(dir),
           items: sidebarItems
         }
       ];
+    }
+    
+    // 为每个一级子目录生成独立侧边栏
+    const dirPath = path.join(docsPath, dir);
+    if (fileExists(dirPath)) {
+      const subDirs = fs.readdirSync(dirPath).filter(item => {
+        const itemPath = path.join(dirPath, item);
+        return fs.statSync(itemPath).isDirectory() && 
+               !item.startsWith('.') && 
+               item !== 'node_modules' && 
+               item !== 'public';
+      });
+      
+      for (const subDir of subDirs) {
+        const subDirPath = `${dir}/${subDir}`;
+        const subItems = scanDirRecursive(subDirPath, docsPath, -1); // 无限深度扫描子目录
+        
+        if (subItems.length > 0) {
+          sidebars[`/${subDirPath}/`] = [
+            {
+              text: '导航',
+              items: createNavigationLinks(subDirPath)
+            },
+            {
+              text: formatDirTitle(subDir),
+              items: subItems
+            }
+          ];
+        }
+      }
     }
   }
   

@@ -89,15 +89,10 @@ function scanDirRecursive(dir, rootPath, maxDepth = -1, currentDepth = 0) {
 
   // 处理其他markdown文件
   for (const file of files) {
-    const filePath = path.join(fullPath, file)
-    const content = fs.readFileSync(filePath, 'utf-8')
-
-    // 尝试从文件内容中提取标题
-    const titleMatch = content.match(/^#\s+(.*?)$/m)
     const fileName = file.replace(/\.md$/, '')
-    const title = titleMatch ? titleMatch[1] : formatDirTitle(fileName)
-
+    const title = formatDirTitle(fileName)
     const linkPath = `/${path.join(relativePath, fileName)}`
+    
     result.push({
       text: title,
       link: linkPath

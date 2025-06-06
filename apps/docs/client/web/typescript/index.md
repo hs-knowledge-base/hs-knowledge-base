@@ -7,7 +7,7 @@ TypeScript是JavaScript的超集，添加了静态类型系统和其他高级特
 ## 类型系统基础
 
 ### 基本类型
-- 原始类型（string, number, boolean）
+- 原始类型（string, number, boolean, symbol, bigint）
 - 特殊类型（null, undefined, void, any, unknown, never）
 - 字面量类型与联合类型
 - 类型别名与类型断言
@@ -105,19 +105,241 @@ TypeScript是JavaScript的超集，添加了静态类型系统和其他高级特
 - 动态导入
 - 模块解析策略
 
+TypeScript完全支持ES模块系统，提供了丰富的模块导入导出语法。
+
+```typescript
+// 命名导出 (math.ts)
+export const PI = 3.14159;
+export function add(x: number, y: number): number {
+  return x + y;
+}
+export class Calculator {
+  add(x: number, y: number): number {
+    return x + y;
+  }
+}
+
+// 默认导出 (logger.ts)
+export default class Logger {
+  log(message: string): void {
+    console.log(`[LOG]: ${message}`);
+  }
+}
+
+// 导入示例 (app.ts)
+import Logger from './logger'; // 默认导入
+import { PI, add, Calculator } from './math'; // 命名导入
+import * as MathUtils from './math'; // 命名空间导入
+import { add as addNumbers } from './math'; // 重命名导入
+
+// 类型导入导出
+export interface User {
+  id: string;
+  name: string;
+}
+
+export type UserRole = 'admin' | 'user' | 'guest';
+
+// 在另一个文件中导入类型
+import type { User, UserRole } from './types';
+// 或者混合导入
+import { User, type UserRole } from './types';
+
+// 动态导入
+async function loadModule() {
+  const module = await import('./dynamic-module');
+  module.doSomething();
+}
+```
+
+**模块解析策略**
+
+TypeScript支持多种模块解析策略，可在tsconfig.json中配置：
+
+```json
+{
+  "compilerOptions": {
+    "moduleResolution": "node", // 或 "classic", "node16", "nodenext"
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  }
+}
+```
+
 ### 命名空间
-- 命名空间定义与嵌套
-- 命名空间合并
-- 命名空间导出
-- 与模块的对比
-- 三斜线指令
+
+命名空间是TypeScript特有的功能，用于组织代码并防止命名冲突。
+
+```typescript
+// 基本命名空间
+namespace Validation {
+  export interface StringValidator {
+    isValid(s: string): boolean;
+  }
+  
+  // 非导出成员仅在命名空间内可见
+  const lettersRegexp = /^[A-Za-z]+$/;
+  
+  // 导出类可在命名空间外使用
+  export class LettersValidator implements StringValidator {
+    isValid(s: string): boolean {
+      return lettersRegexp.test(s);
+    }
+  }
+}
+
+// 使用命名空间成员
+const validator = new Validation.LettersValidator();
+const valid = validator.isValid("Hello");
+
+// 嵌套命名空间
+namespace Shapes {
+  export namespace Polygons {
+    export class Triangle {
+      // ...
+    }
+    export class Square {
+      // ...
+    }
+  }
+}
+
+// 使用嵌套命名空间
+const triangle = new Shapes.Polygons.Triangle();
+
+// 命名空间合并
+namespace Animals {
+  export class Cat { }
+}
+
+namespace Animals {
+  export class Dog { }
+}
+
+// 两个声明合并为一个
+const cat = new Animals.Cat();
+const dog = new Animals.Dog();
+
+// 命名空间别名
+import Poly = Shapes.Polygons;
+const square = new Poly.Square();
+```
+
+**命名空间与模块对比**
+
+| 特性 | 命名空间 | ES模块 |
+|------|----------|--------|
+| 作用域 | 全局/文件级 | 文件级 |
+| 依赖管理 | 手动 | 自动 |
+| 懒加载 | 不支持 | 支持 |
+| 工具支持 | 有限 | 完善 |
+| 推荐用途 | 旧项目/内部组织 | 现代应用开发 |
 
 ### 声明文件
-- 全局声明与模块声明
-- 命名空间声明
-- 类型定义文件（.d.ts）
-- 第三方库类型定义
-- DefinitelyTyped与@types
+
+声明文件（.d.ts）用于为JavaScript库提供类型信息，不包含实现代码。
+
+```typescript
+// 全局声明 (global.d.ts)
+declare global {
+  interface Window {
+    myGlobalAPI: {
+      getData(): Promise<any>;
+      setData(data: any): void;
+    }
+  }
+  
+  // 全局函数
+  function setTimeout(callback: () => void, ms: number): number;
+  
+  // 全局变量
+  var process: {
+    env: {
+      NODE_ENV: 'development' | 'production';
+    }
+  };
+}
+
+// 模块声明 (jquery.d.ts)
+declare module 'jquery' {
+  function $(selector: string): any;
+  namespace $ {
+    function ajax(url: string, settings?: any): Promise<any>;
+  }
+  export = $;
+}
+
+// 使用第三方库
+import $ from 'jquery';
+$('#element').show();
+
+// 命名空间声明
+declare namespace GreetingLib {
+  function greet(name: string): string;
+  namespace Options {
+    interface GreetingOptions {
+      verbose?: boolean;
+    }
+  }
+}
+
+// 增强现有模块
+import * as React from 'react';
+
+declare module 'react' {
+  interface ComponentProps<T> {
+    theme?: string;
+  }
+}
+
+// 三斜线指令
+/// <reference path="./other-file.d.ts" />
+/// <reference types="node" />
+/// <reference lib="es2020" />
+```
+
+**DefinitelyTyped与@types**
+
+TypeScript社区维护了DefinitelyTyped仓库，为成千上万的JavaScript库提供类型定义。可通过npm安装：
+
+```bash
+npm install --save-dev @types/jquery
+npm install --save-dev @types/react
+```
+
+安装后，TypeScript编译器会自动识别这些类型定义，无需额外导入。
+
+**编写高质量声明文件**
+
+```typescript
+// 库的公共API (my-lib.d.ts)
+declare module 'my-lib' {
+  // 导出的函数
+  export function calculate(value: number): number;
+  
+  // 导出的类
+  export class Helper {
+    constructor(options?: HelperOptions);
+    process(data: any): any;
+    static version: string;
+  }
+  
+  // 导出的接口
+  export interface HelperOptions {
+    debug?: boolean;
+    timeout?: number;
+  }
+  
+  // 导出的类型
+  export type ProcessCallback = (result: any) => void;
+  
+  // 默认导出
+  const defaultExport: Helper;
+  export default defaultExport;
+}
+```
 
 ## 高级类型模式
 

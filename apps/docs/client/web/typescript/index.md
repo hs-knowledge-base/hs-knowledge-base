@@ -67,11 +67,11 @@ TypeScript是JavaScript的超集，添加了静态类型系统和其他高级特
 - 模板字面量类型
 
 ### 内置工具类型
-- Partial<T>与Required<T>
-- Readonly<T>与Pick<T, K>
-- Omit<T, K>与Record<K, T>
-- Exclude<T, U>与Extract<T, U>
-- NonNullable<T>与ReturnType<F>
+- `Partial<T>`与`Required<T>`
+- `Readonly<T>`与`Pick<T, K>`
+- `Omit<T, K>`与`Record<K, T>`
+- `Exclude<T, U>`与`Extract<T, U>`
+- `NonNullable<T>`与`ReturnType<F>`
 
 ## 类与面向对象
 
@@ -326,3 +326,4 @@ userState.setState({
   name: 'Jane Doe',
   role: UserRole.Admin,
 });
+```

@@ -14,7 +14,7 @@ hero:
       link: /client/
     - theme: alt
       text: 在 GitHub 上查看
-      link: https://github.com/your-username/volcano-knowledge-base
+      link: https://github.com/huoshan25/hs-knowledge-base
 
 features:
   - icon: 

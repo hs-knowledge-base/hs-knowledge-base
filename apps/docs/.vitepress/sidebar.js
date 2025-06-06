@@ -39,11 +39,11 @@ function formatDirTitle(dirName) {
 
 /**
  * 递归扫描目录，生成侧边栏结构
- * @param {*} dir 目录名
+ * @param {*} dir 目录路径
  * @param {*} rootPath 根路径
- * @returns 侧边栏结构
+ * @returns 侧边栏结构数组
  */
-function scanDir(dir, rootPath) {
+function scanDirRecursive(dir, rootPath) {
   const fullPath = path.join(rootPath, dir)
   const relativePath = dir // 相对于docs目录的路径
 
@@ -85,22 +85,6 @@ function scanDir(dir, rootPath) {
     files.splice(files.indexOf(indexFile), 1)
   }
 
-  // 处理目录（递归）
-  for (const subDir of dirs) {
-    // 检查子目录是否包含index.md
-    const subDirPath = path.join(fullPath, subDir)
-    const hasIndex = fileExists(path.join(subDirPath, 'index.md'))
-
-    if (hasIndex) {
-      // 如果是生成子目录侧边栏，则不需要递归扫描
-      const linkPath = `/${path.join(relativePath, subDir)}/`
-      result.push({
-        text: formatDirTitle(subDir),
-        link: linkPath
-      })
-    }
-  }
-
   // 处理其他markdown文件
   for (const file of files) {
     const filePath = path.join(fullPath, file)
@@ -118,104 +102,82 @@ function scanDir(dir, rootPath) {
     })
   }
 
+  // 处理子目录（递归）
+  for (const subDir of dirs) {
+    // 跳过特殊目录
+    if (
+      subDir.startsWith('.') ||
+      subDir === 'node_modules' ||
+      subDir === 'public'
+    ) {
+      continue;
+    }
+
+    // 检查子目录是否包含markdown文件
+    const subDirPath = path.join(fullPath, subDir)
+    const subDirRelPath = path.join(relativePath, subDir)
+    const hasIndex = fileExists(path.join(subDirPath, 'index.md'))
+    
+    // 递归扫描子目录
+    const subItems = scanDirRecursive(subDirRelPath, rootPath)
+    
+    if (subItems.length > 0) {
+      const subGroup = {
+        text: formatDirTitle(subDir),
+        collapsed: true,
+        items: subItems
+      }
+      
+      // 如果存在index.md，则添加链接
+      if (hasIndex) {
+        subGroup.link = `/${subDirRelPath}/`
+      }
+      
+      result.push(subGroup)
+    }
+  }
+
   return result
 }
 
 /**
- * 动态生成子目录侧边栏
- * @param {*} parentDir 父目录
- * @returns 子目录侧边栏
- */
-function generateSubDirSidebar(parentDir) {
-  const fullParentPath = path.resolve(rootDir, 'apps/docs')
-  const items = scanDir(parentDir, fullParentPath)
-
-  if (items.length > 0) {
-    // 获取目录的最后一部分作为标题
-    const dirParts = parentDir.split('/');
-    const dirTitle = formatDirTitle(dirParts[dirParts.length - 1]);
-
-    // 创建一个返回上级目录的链接
-    const backItems = [];
-    
-    // 如果不是顶级目录，添加返回上级链接
-    if (dirParts.length > 1) {
-      // 构建父目录路径
-      const parentPath = dirParts.slice(0, -1).join('/');
-      // 获取父目录名称并格式化
-      const parentDirName = formatDirTitle(dirParts[dirParts.length - 2]);
-      backItems.push({
-        text: `↩️ 返回 ${parentDirName}`,
-        link: `/${parentPath}/`
-      });
-    } else {
-      // 如果是顶级目录，返回首页
-      backItems.push({
-        text: '↩️ 返回首页',
-        link: '/'
-      });
-    }
-
-    // 创建一个顶层分组，包含返回链接和原有内容
-    return [
-      {
-        text: '导航',
-        collapsed: false,
-        items: backItems
-      },
-      {
-        text: dirTitle,
-        collapsed: false,
-        items: items
-      }
-    ]
-  }
-
-  return []
-}
-
-  /**
- * 生成所有可能的路径侧边栏配置
- * @returns 侧边栏配置
+ * 生成主要目录的侧边栏
+ * @returns 所有侧边栏配置
  */
 export function generateSidebars() {
   const docsPath = path.resolve(rootDir, 'apps/docs')
   const sidebars = {};
-
-  // 扫描所有可能的路径并生成侧边栏配置
-  function addSidebarsForPath(currentPath = '', physicalPath = docsPath) {
-    // 跳过特殊目录
-    if (
-        currentPath.startsWith('.') ||
-        currentPath === 'node_modules' ||
-        currentPath === 'public'
-    ) {
-      return;
-    }
-
-    // 只为有index.md的目录生成侧边栏
-    const hasIndex = fileExists(path.join(physicalPath, 'index.md'));
-    if (hasIndex && currentPath) {
-      sidebars[`/${currentPath}/`] = generateSubDirSidebar(currentPath);
-    }
-
-    // 递归处理子目录
-    try {
-      const items = fs.readdirSync(physicalPath);
-      for (const item of items) {
-        const itemPath = path.join(physicalPath, item);
-        if (fs.statSync(itemPath).isDirectory()) {
-          const newPath = currentPath ? `${currentPath}/${item}` : item;
-          addSidebarsForPath(newPath, itemPath);
+  
+  // 获取顶级目录
+  const topDirs = ['client', 'server', 'systems', 'devops'];
+  
+  // 为每个顶级目录生成侧边栏
+  for (const dir of topDirs) {
+    const sidebarItems = scanDirRecursive(dir, docsPath);
+    if (sidebarItems.length > 0) {
+      sidebars[`/${dir}/`] = [
+        {
+          text: formatDirTitle(dir),
+          items: sidebarItems
         }
-      }
-    } catch (err) {
-      console.error(`Error reading directory: ${physicalPath}`, err);
+      ];
     }
   }
-
-  // 开始递归扫描
-  addSidebarsForPath();
-
+  
+  // 添加默认侧边栏（用于首页和其他页面）
+  sidebars['/'] = [
+    {
+      text: '导航',
+      items: [
+        { text: '首页', link: '/' },
+        { text: '客户端', link: '/client/' },
+        { text: '服务端', link: '/server/' },
+        { text: '系统与底层', link: '/systems/' },
+        { text: 'DevOps', link: '/devops/' },
+        { text: '关于', link: '/about' }
+      ]
+    }
+  ];
+  
   return sidebars;
 } 

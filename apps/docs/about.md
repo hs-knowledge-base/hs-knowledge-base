@@ -13,7 +13,7 @@
 - 按技术领域分类组织内容，便于查找和学习
 
 ```
-knowledge-base/
+hs-knowledge-base/
 ├── apps/
 │   └── docs/              # VitePress 主应用
 │       ├── client/        # 客户端知识

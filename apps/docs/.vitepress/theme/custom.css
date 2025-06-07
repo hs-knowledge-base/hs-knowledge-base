@@ -1,10 +1,43 @@
 /* 首页卡片布局 - 全新简洁版 */
 
+/* 全局变量定义 - 科技感主题 */
+:root {
+  /* 品牌主色调 - 科技蓝渐变 */
+  --brand-gradient: linear-gradient(120deg, #3f87ff, #00d2ff);
+  --hover-gradient: linear-gradient(120deg, #00d2ff, #3f87ff);
+  
+  /* 高亮和强调色 */
+  --accent-color: #00c3ff;
+  --accent-color-hover: #00e5ff;
+  
+  /* 动画时间 */
+  --transition-fast: 0.2s;
+  --transition-normal: 0.3s;
+  --transition-slow: 0.5s;
+  
+  /* 阴影效果 */
+  --shadow-normal: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.18);
+  
+  /* 圆角 */
+  --radius-small: 6px;
+  --radius-normal: 10px;
+  --radius-large: 16px;
+}
+
+.dark {
+  /* 暗色模式下的渐变和颜色调整 */
+  --brand-gradient: linear-gradient(120deg, #0050e6, #00a3cc);
+  --hover-gradient: linear-gradient(120deg, #00a3cc, #0050e6);
+  --accent-color: #0094c2;
+  --accent-color-hover: #00b3e0;
+}
+
 /* 重置首页卡片布局 */
 .VPFeatures .items {
   display: grid !important;
   grid-template-columns: repeat(3, 1fr) !important;
-  gap: 20px !important;
+  gap: 24px !important;
   margin: 0 !important;
 }
 
@@ -59,4 +92,29 @@
   color: var(--vp-c-text-2) !important;
 }
 
- 
+/* 代码块样式优化 */
+.vp-doc div[class*='language-'] {
+  border-radius: var(--radius-normal) !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow-normal) !important;
+  transition: all var(--transition-normal) ease !important;
+}
+
+.vp-doc div[class*='language-']:hover {
+  box-shadow: var(--shadow-hover) !important;
+}
+
+/* 按钮样式优化 */
+.VPButton {
+  transition: all var(--transition-normal) cubic-bezier(0.22, 1, 0.36, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.VPButton.brand {
+  background: var(--brand-gradient) !important;
+}
+
+.VPButton.brand:hover {
+  transform: translateY(-2px) !important;
+}

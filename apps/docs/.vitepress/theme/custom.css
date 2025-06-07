@@ -1,0 +1,62 @@
+/* 首页卡片布局 - 全新简洁版 */
+
+/* 重置首页卡片布局 */
+.VPFeatures .items {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 20px !important;
+  margin: 0 !important;
+}
+
+/* 确保移动端适配 */
+@media (max-width: 768px) {
+  .VPFeatures .items {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* 卡片基本样式 */
+.VPFeatures .item {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.VPFeatures .VPLink {
+  border: none !important;
+  background-color: var(--vp-c-bg-soft) !important;
+  border-radius: 8px !important;
+  transition: all 0.25s ease !important;
+  height: 100% !important;
+}
+
+/* 悬停效果 */
+.VPFeatures .VPLink:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+  background-color: var(--vp-c-bg) !important;
+  text-decoration: none !important;
+}
+
+/* 内容间距调整 */
+.VPFeatures .box {
+  padding: 24px !important;
+  height: 100% !important;
+}
+
+/* 标题样式优化 */
+.VPFeatures .title {
+  margin-top: 16px !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+/* 描述文字样式 */
+.VPFeatures .details {
+  margin-top: 8px !important;
+  line-height: 1.6 !important;
+  font-size: 14px !important;
+  color: var(--vp-c-text-2) !important;
+}
+
+ 

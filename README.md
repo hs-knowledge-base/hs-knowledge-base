@@ -17,6 +17,12 @@ hs-knowledge-base/
 │       ├── .vitepress/   # VitePress配置和主题
 │       ├── public/       # 静态资源
 │       ├── client/       # 客户端技术内容
+│       │   ├── web前端技术/       # Web开发相关技术
+│       │   ├── 移动应用技术/      # React Native、Flutter、小程序等
+│       │   ├── 桌面应用技术/      # Electron、Tauri等跨平台桌面技术
+│       │   ├── 3D与可视化技术/    # Three.js、WebGL、数据可视化等
+│       │   ├── 测试与质量保障/    # 前端测试、性能优化、兼容性等
+│       │   └── 工程化与最佳实践/  # 工程架构、CI/CD、设计系统等
 │       ├── server/       # 服务端技术内容
 │       │   ├── 开发语言与框架/   # 各类编程语言及框架
 │       │   ├── 数据存储技术/     # 数据库与缓存系统
@@ -63,7 +69,13 @@ pnpm docs:preview
 
 这是一个技术文档站点，内容涵盖以下技术领域：
 
-- **客户端技术**：Web前端、React Native、小程序、Electron、Three.js等
+- **客户端技术**：
+  - Web前端技术：HTML/CSS/JavaScript、现代框架、构建工具、Web API等
+  - 移动应用技术：React Native、Flutter、小程序等跨平台解决方案
+  - 桌面应用技术：Electron、Tauri等跨平台桌面技术
+  - 3D与可视化技术：Three.js、WebGL、数据可视化等
+  - 测试与质量保障：单元测试、E2E测试、性能测试、兼容性测试等
+  - 工程化与最佳实践：工程架构、CI/CD、设计系统、安全实践等
 - **服务端技术**：
   - 开发语言与框架：Node.js、Go、Java、Python等语言及其框架
   - 数据存储技术：关系型数据库、NoSQL、内存数据库、时序数据库等

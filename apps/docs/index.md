@@ -52,7 +52,13 @@ features:
 
 火山知识库分为五大技术领域：
 
-- [客户端技术](/client/) - Web前端、React Native、小程序、Electron、Three.js等
+- [客户端技术](/client/) - 包含以下六个方面：
+  - [Web前端技术](/client/web前端技术/) - HTML/CSS/JavaScript、现代框架、构建工具、Web API等
+  - [移动应用技术](/client/移动应用技术/) - React Native、Flutter、小程序等跨平台解决方案
+  - [桌面应用技术](/client/桌面应用技术/) - Electron、Tauri等跨平台桌面技术
+  - [3D与可视化技术](/client/3D与可视化技术/) - Three.js、WebGL、数据可视化等
+  - [测试与质量保障](/client/测试与质量保障/) - 单元测试、E2E测试、性能测试、兼容性测试等
+  - [工程化与最佳实践](/client/工程化与最佳实践/) - 工程架构、CI/CD、设计系统、安全实践等
 - [服务端技术](/server/) - 包含以下六个方面：
   - [开发语言与框架](/server/开发语言与框架/) - Node.js、Go、Java、Python等语言及其框架
   - [数据存储技术](/server/数据存储技术/) - 关系型数据库、NoSQL、内存数据库、时序数据库等
@@ -61,7 +67,7 @@ features:
   - [运维与部署](/server/运维与部署/) - 从服务端开发者视角的应用部署与运维
   - [安全技术](/server/安全技术/) - 认证授权、数据加密、安全最佳实践等
 - [系统与底层](/systems/) - Rust、C/C++、系统编程、性能优化、WebAssembly等
-- [DevOps与云原生](/devops/) - 从平台工程与运维视角的CI/CD、容器化、Kubernetes、监控、云服务等
+- [DevOps与云原生](/devops/) - CI/CD、容器化、Kubernetes、监控、云服务等
 - [AI应用与大模型](/ai/) - LLM应用开发、提示工程、AI集成、机器学习等
 
 ## 关于服务端运维与DevOps的区别

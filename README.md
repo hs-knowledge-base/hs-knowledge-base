@@ -1,30 +1,34 @@
-# 火山知识库
+# 火山知识库 - Monorepo项目
 
-火山知识库是一个基于 VitePress 和 Monorepo 架构的技术知识分享平台，涵盖客户端技术、服务端技术、系统底层和DevOps与云原生等领域。
+![火山知识库](./apps/docs/public/img/logo.png)
 
-## 项目结构
+这是一个基于Monorepo架构的项目，主要包含火山知识库及其相关应用。目前已开发的应用是基于VitePress构建的技术文档站点。
+
+## 🚀 项目概述
+
+这是一个个人维护的技术学习与分享平台，记录了我在学习和工作过程中的心得体会与技术总结。本项目采用Monorepo架构，便于管理多个相关应用，提高代码复用率，并保持统一的开发体验。
+
+## 🔍 项目结构
 
 ```
-knowledge-base/
-├── apps/
-│   └── docs/              # VitePress 主应用
-│       ├── .vitepress/    # 配置和主题
-│       │   ├── config.js  # 主配置文件
-│       │   ├── sidebar.js # 侧边栏生成逻辑
-│       │   └── theme/     # 自定义主题
-│       ├── public/        # 静态资源
-│       ├── client/        # 客户端技术内容
-│       ├── server/        # 服务端技术内容
-│       ├── systems/       # 系统与底层内容
-│       ├── devops/        # DevOps与云原生内容
-│       ├── package.json   # VitePress 依赖
-├── package.json           # 根项目配置
-└── pnpm-workspace.yaml    # Monorepo 配置
+hs-knowledge-base/
+├── apps/                 # 应用目录
+│   └── docs/             # 知识库文档应用(VitePress)
+│       ├── .vitepress/   # VitePress配置和主题
+│       ├── public/       # 静态资源
+│       ├── client/       # 客户端技术内容
+│       ├── server/       # 服务端技术内容
+│       ├── systems/      # 系统与底层内容
+│       ├── devops/       # DevOps与云原生内容
+│       ├── ai/           # AI应用与大模型内容
+├── packages/             # 共享包目录(待开发)
+├── package.json          # 根项目配置
+└── pnpm-workspace.yaml   # Monorepo工作区配置
 ```
 
-## 开始使用
+## ⚙️ 开发指南
 
-### 安装依赖
+### 环境准备
 
 ```bash
 # 安装 pnpm（如果尚未安装）
@@ -34,56 +38,61 @@ npm install -g pnpm
 pnpm install
 ```
 
-### 本地开发
+### 常用命令
 
 ```bash
-# 启动开发服务器
-pnpm dev
+# 启动知识库开发服务器
+pnpm docs:dev
+
+# 构建知识库生产版本
+pnpm docs:build
+
+# 预览知识库构建结果
+pnpm docs:preview
 ```
 
-### 构建静态站点
+## 📚 已实现应用
 
-```bash
-# 构建生产版本
-pnpm build
+### 火山知识库 (apps/docs)
 
-# 预览构建结果
-pnpm preview
-```
-
-## 添加新内容
-
-1. 在相应的内容目录（`apps/docs/client/`、`apps/docs/server/`、`apps/docs/systems/`、`apps/docs/devops/`）中创建 Markdown 文件
-2. 侧边栏会自动生成，无需手动配置
-3. 使用相对路径链接到其他内容（例如 `/client/web/`）
-
-## 侧边栏自动生成
-
-本项目实现了侧边栏的自动生成功能：
-
-- 侧边栏生成逻辑位于 `apps/docs/.vitepress/sidebar.js`
-- 系统会自动扫描所有包含 `index.md` 的目录并为其生成侧边栏
-- 目录标题会自动从目录名转换（首字母大写，连字符转为空格）
-- Markdown 文件标题会从文件内容的一级标题（`# 标题`）中提取
-
-### 添加新章节
-
-1. 创建新目录并添加 `index.md` 文件
-2. 在 `index.md` 中使用一级标题定义章节名称
-3. 添加其他 Markdown 文件作为子页面
-4. 重启开发服务器，侧边栏将自动更新
-
-## 内容领域
+这是一个技术文档站点，内容涵盖以下技术领域：
 
 - **客户端技术**：Web前端、React Native、小程序、Electron、Three.js等
 - **服务端技术**：Node.js、Go、Java、Python、微服务架构等
 - **系统与底层**：Rust、C/C++、系统编程、性能优化、WebAssembly等
 - **DevOps与云原生**：CI/CD、容器化、Kubernetes、监控、云服务等
+- **AI应用与大模型**：LLM应用开发、提示工程、AI集成、机器学习等
 
-## 贡献指南
+#### 特色功能
 
-我们欢迎各种形式的贡献，包括内容修正、新主题添加和功能改进。请参阅 [贡献指南](./CONTRIBUTING.md) 了解更多信息。
+- 响应式设计，适配各种设备
+- 深色/浅色主题切换
+- 自动生成侧边栏导航
+- 全文检索功能
 
-## 许可证
+## 🔄 Monorepo优势
+
+- **代码共享**：可在不同应用间共享组件和工具
+- **统一开发体验**：所有项目使用相同的工具链和规范
+- **原子化提交**：关联变更可在单次提交中完成
+- **集中依赖管理**：减少冗余依赖，简化更新
+
+## 🛣️ 项目规划
+
+1. **已完成**：火山知识库文档站点(VitePress)
+2. **规划中**：
+   - 知识图谱可视化工具
+   - 代码示例展示平台
+   - API文档生成工具
+
+## 🤝 参与贡献
+
+我欢迎各种形式的贡献，包括内容修正、新功能开发和应用创意。你可以通过以下方式参与：
+
+- 提交Issue或Pull Request
+- 通过邮件联系我提供反馈
+- 分享这个项目给更多需要的人
+
+## 📄 许可证
 
 MIT 

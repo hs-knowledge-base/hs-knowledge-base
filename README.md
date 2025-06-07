@@ -33,9 +33,14 @@ hs-knowledge-base/
 │       ├── systems/      # 系统与底层内容
 │       ├── devops/       # DevOps与云原生内容
 │       ├── ai/           # AI应用与大模型内容
-├── packages/             # 共享包目录(待开发)
-├── package.json          # 根项目配置
-└── pnpm-workspace.yaml   # Monorepo工作区配置
+│       │   ├── 基础模型技术/     # LLM、多模态模型等基础模型
+│       │   ├── 开发与工程化/     # Prompt工程、开发框架等
+│       │   ├── 应用与集成/       # Agents、RAG、架构设计等
+│       │   ├── 部署与优化/       # 模型部署、性能优化等
+│       │   └── 安全与伦理/       # AI安全、伦理与合规等
+│       ├── packages/             # 共享包目录(待开发)
+│       ├── package.json          # 根项目配置
+│       └── pnpm-workspace.yaml   # Monorepo工作区配置
 ```
 
 ## ⚙️ 开发指南
@@ -85,7 +90,12 @@ pnpm docs:preview
   - 安全技术：认证授权、数据加密、安全最佳实践等
 - **系统与底层**：Rust、系统编程、性能优化、WebAssembly等
 - **DevOps与云原生**：CI/CD、容器化、Kubernetes、监控、云服务等
-- **AI应用与大模型**：LLM应用开发、提示工程、AI集成、机器学习等
+- **AI应用与大模型**：
+  - 基础模型技术：LLM、多模态模型、预训练技术等
+  - 开发与工程化：Prompt工程、开发框架、工程最佳实践等
+  - 应用与集成：AI Agents、RAG、架构设计、行业应用等
+  - 部署与优化：模型部署、量化优化、推理加速等
+  - 安全与伦理：AI安全、隐私保护、伦理与合规等
 
 #### 特色功能
 

@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: "火山知识库"
-  text: "个人技术笔记与经验分享"
-  tagline: 记录学习心得，分享技术经验
+  text: "技术知识沉淀与分享"
+  tagline: 探索技术，共享成长
   image:
     src: /img/logo.png
     alt: 火山知识库

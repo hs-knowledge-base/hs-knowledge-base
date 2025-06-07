@@ -66,7 +66,7 @@ features:
   - [架构与设计模式](/server/架构与设计模式/) - 微服务架构、DDD、事件驱动架构等
   - [运维与部署](/server/运维与部署/) - 从服务端开发者视角的应用部署与运维
   - [安全技术](/server/安全技术/) - 认证授权、数据加密、安全最佳实践等
-- [系统与底层](/systems/) - Rust、C/C++、系统编程、性能优化、WebAssembly等
+- [系统与底层](/systems/) - Rust、系统编程、性能优化、WebAssembly等
 - [DevOps与云原生](/devops/) - CI/CD、容器化、Kubernetes、监控、云服务等
 - [AI应用与大模型](/ai/) - LLM应用开发、提示工程、AI集成、机器学习等
 

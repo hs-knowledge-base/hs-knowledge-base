@@ -33,6 +33,10 @@
   --accent-color-hover: #00b3e0;
 }
 
+.VPFeatures {
+  margin-bottom: 24px;
+}
+
 /* 重置首页卡片布局 */
 .VPFeatures .items {
   display: grid !important;

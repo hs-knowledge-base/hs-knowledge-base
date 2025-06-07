@@ -250,3 +250,26 @@
 .VPFeatures .VPLink:hover::before {
   opacity: 1;
 }
+
+.vp-doc a {
+  color: #3f87ff;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.vp-doc a:hover {
+  color: #00d2ff;
+  border-bottom-color: #00d2ff;
+}
+
+/* 暗黑模式下的链接颜色 */
+.dark .vp-doc a {
+  color: #59a5ff;
+}
+
+.dark .vp-doc a:hover {
+  color: #00e5ff;
+  border-bottom-color: #00e5ff;
+}

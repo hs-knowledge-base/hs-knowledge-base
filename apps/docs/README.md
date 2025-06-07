@@ -21,7 +21,12 @@
   - [运维与部署](/server/运维与部署/) - 从服务端开发者视角的应用部署与运维
   - [安全技术](/server/安全技术/) - 认证授权、数据加密、安全最佳实践等
 - [系统与底层](/systems/) - Rust、系统编程、性能优化、WebAssembly等
-- [DevOps与云原生](/devops/) - 从平台工程与运维视角的CI/CD、容器化、Kubernetes、监控、云服务等
+- [DevOps与云原生](/devops/) - 从平台工程与运维视角的技术，包含以下五个方面：
+  - [持续集成与交付](/devops/持续集成与交付/) - CI/CD工作流、自动化测试、发布策略等
+  - [容器与编排](/devops/容器与编排/) - Docker、Kubernetes、Helm、服务网格等
+  - [监控与可观测性](/devops/监控与可观测性/) - Prometheus、Grafana、ELK、分布式追踪等
+  - [基础设施即代码](/devops/基础设施即代码/) - Terraform、Ansible、GitOps工作流等
+  - [安全与合规](/devops/安全与合规/) - DevSecOps、容器安全、合规自动化等
 - [AI应用与大模型](/ai/) - 包含以下五个方面：
   - [基础模型技术](/ai/基础模型技术/) - LLM、多模态模型、预训练技术等基础模型
   - [开发与工程化](/ai/开发与工程化/) - Prompt工程、开发框架、工程最佳实践等

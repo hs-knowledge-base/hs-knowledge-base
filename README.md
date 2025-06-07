@@ -32,6 +32,11 @@ hs-knowledge-base/
 │       │   └── 安全技术/         # 认证授权、加密等
 │       ├── systems/      # 系统与底层内容
 │       ├── devops/       # DevOps与云原生内容
+│       │   ├── 持续集成与交付/    # CI/CD、自动化测试、部署策略等
+│       │   ├── 容器与编排/        # Docker、Kubernetes、服务网格等
+│       │   ├── 监控与可观测性/    # 指标、日志、追踪、告警等
+│       │   ├── 基础设施即代码/    # Terraform、配置管理、GitOps等
+│       │   └── 安全与合规/        # DevSecOps、容器安全、合规自动化等
 │       ├── ai/           # AI应用与大模型内容
 │       │   ├── 基础模型技术/     # LLM、多模态模型等基础模型
 │       │   ├── 开发与工程化/     # Prompt工程、开发框架等
@@ -89,7 +94,12 @@ pnpm docs:preview
   - 运维与部署：从服务端开发者视角的应用部署与运维
   - 安全技术：认证授权、数据加密、安全最佳实践等
 - **系统与底层**：Rust、系统编程、性能优化、WebAssembly等
-- **DevOps与云原生**：CI/CD、容器化、Kubernetes、监控、云服务等
+- **DevOps与云原生**：
+  - 持续集成与交付：CI/CD、自动化测试、部署策略等
+  - 容器与编排：Docker、Kubernetes、Helm、服务网格等
+  - 监控与可观测性：Prometheus、Grafana、ELK、分布式追踪等
+  - 基础设施即代码：Terraform、Ansible、GitOps工作流等
+  - 安全与合规：DevSecOps、容器安全、合规自动化等
 - **AI应用与大模型**：
   - 基础模型技术：LLM、多模态模型、预训练技术等
   - 开发与工程化：Prompt工程、开发框架、工程最佳实践等

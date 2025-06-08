@@ -21,7 +21,7 @@ hs-knowledge-base/
 │       │   │   ├── javascript/    # JavaScript核心技术
 │       │   │   ├── typescript/    # TypeScript类型系统
 │       │   │   ├── css/           # CSS与样式技术
-│       │   │   ├── 框架与库/      # React、Vue等框架与状态管理
+│       │   │   ├── 框架与库/      # 前端框架与全栈框架
 │       │   │   ├── 工程化与构建/  # 构建工具、包管理、代码质量
 │       │   │   ├── 浏览器与API/   # Web API、浏览器原理与机制
 │       │   │   ├── 性能与优化/    # 性能指标、加载与运行时优化
@@ -95,7 +95,10 @@ pnpm docs:preview
 - **客户端技术**：
   - Web前端技术：
     - 核心语言：JavaScript、TypeScript、CSS等
-    - 框架与库：React、Vue、Angular等框架与状态管理
+    - 框架与库：
+      - 前端框架：React、Vue、Angular等UI渲染框架
+      - 全栈框架：Next.js、Nuxt、Remix等服务端渲染框架
+      - 状态管理：Redux、Pinia、React Query等
     - 工程化与构建：Webpack、Vite、包管理、代码质量等
     - 浏览器与API：DOM、Fetch、Storage、Service Worker等
     - 性能与优化：Core Web Vitals、加载性能、运行时优化等

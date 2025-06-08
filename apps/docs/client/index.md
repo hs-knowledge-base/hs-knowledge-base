@@ -11,7 +11,10 @@
 Web前端是客户端技术的核心领域，主要关注在浏览器环境中运行的应用程序开发。
 
 - **核心语言与基础**：[HTML/CSS](/client/web前端技术/css/)、[JavaScript](/client/web前端技术/javascript/)、[TypeScript](/client/web前端技术/typescript/)等
-- **[框架与库](/client/web前端技术/框架与库/)**：React、Vue、Angular、Svelte等框架与状态管理库
+- **[框架与库](/client/web前端技术/框架与库/)**：
+  - 前端框架：React、Vue、Angular等前端渲染框架
+  - 全栈框架：Next.js、Nuxt、Remix等同构渲染框架
+  - 状态管理：Redux、Pinia、React Query等状态管理解决方案
 - **[工程化与构建](/client/web前端技术/工程化与构建/)**：Webpack、Vite、Rollup、Monorepo、包管理等
 - **[浏览器与API](/client/web前端技术/浏览器与API/)**：DOM、Fetch、Web Storage、Service Worker等
 - **[性能与优化](/client/web前端技术/性能与优化/)**：Core Web Vitals、资源加载、运行时性能等
@@ -84,7 +87,7 @@ Web前端是客户端技术的核心领域，主要关注在浏览器环境中�
 对于客户端技术的学习，建议先掌握Web前端技术的核心内容，然后根据个人兴趣和职业发展方向，深入研究特定领域：
 
 1. 🔰 从Web前端基础开始，掌握HTML、CSS和JavaScript的核心概念
-2. 🧩 学习至少一个主流UI框架（React、Vue或Angular）
+2. 🧩 学习至少一个主流前端框架（React、Vue或Angular）和全栈框架（Next.js或Nuxt）
 3. 🛠️ 熟悉现代前端工程化工具和实践
 4. 🔄 根据兴趣方向，深入学习移动应用、桌面应用或3D与可视化技术
 5. ✅ 学习前端测试方法，确保应用质量
@@ -95,8 +98,9 @@ Web前端是客户端技术的核心领域，主要关注在浏览器环境中�
 
 1. **Web基础** - HTML/CSS/JavaScript
 2. **现代前端框架** - React/Vue/Angular
-3. **跨平台开发** - React Native/Flutter
-4. **桌面应用** - Electron
-5. **高级交互** - WebGL/Three.js
-6. **状态管理与性能优化**
-7. **工程化与自动化**
+3. **全栈框架** - Next.js/Nuxt/Remix
+4. **跨平台开发** - React Native/Flutter
+5. **桌面应用** - Electron/Tauri
+6. **高级交互** - WebGL/Three.js
+7. **状态管理与性能优化**
+8. **工程化与自动化**

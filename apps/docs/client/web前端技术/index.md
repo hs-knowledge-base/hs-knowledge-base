@@ -21,12 +21,20 @@ Web前端在2025年已进入智能化与沉浸式体验时代。现代前端开�
 - AI辅助代码优化
 
 ### [框架与库](/client/web前端技术/框架与库/)
-- React Server Components生态
-- Vue 4.0虚拟化引擎
-- Svelte 5.0原子化渲染
-- Qwik即时水合技术
-- Astro岛屿架构应用
-- Solid.js细粒度反应性
+- 前端框架生态
+  - React生态与组件模型
+  - Vue 3响应式系统
+  - Angular依赖注入与模块化
+  - 轻量级框架(Svelte/Solid)
+- 全栈框架
+  - Next.js应用路由与服务端组件
+  - Nuxt 3自动路由与模块化系统
+  - Remix嵌套路由与数据加载
+  - Astro岛屿架构与零JS默认
+- 状态管理与数据获取
+  - 集中式状态(Redux/Pinia)
+  - 原子化状态(Jotai/Zustand)
+  - 服务器状态(React Query/SWR)
 
 ## 工程与开发
 
@@ -95,110 +103,75 @@ Web前端在2025年已进入智能化与沉浸式体验时代。现代前端开�
 ## 代码示例
 
 ```jsx
-// React 2025 - 生成式AI组件示例
-import { useState, useEffect, useMemo } from 'react';
-import { createAI, createStreamableUI } from 'ai/react';
-import { useVoiceInput } from '@/hooks/useVoiceInput';
-import { useBiometricFeedback } from '@/hooks/useBiometricFeedback';
-import { EdgeCompute } from '@/utils/edge-compute';
+// Next.js App Router示例 - 产品详情页
+// app/products/[id]/page.tsx
+import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
+import { ProductImage } from '@/components/product-image';
+import { ProductInfo } from '@/components/product-info';
+import { RelatedProducts } from '@/components/related-products';
+import { getProduct, getRelatedProducts } from '@/lib/api';
 
-// 创建AI助手接口
-const { AI, getAIState } = createAI({
-  actions: {
-    submitUserMessage: async (message, context) => {
-      'use server';
-      const aiState = getAIState();
-      
-      // 流式UI响应
-      const ui = createStreamableUI();
-      aiState.update({ 
-        messages: [...aiState.get().messages, { role: 'user', content: message }],
-        activeUI: ui.id 
-      });
-      
-      // 边缘计算处理响应
-      const stream = await EdgeCompute.processStream('/api/generate', {
-        messages: aiState.get().messages,
-        context: context,
-        userPreferences: await getUserPreferences()
-      });
-      
-      // 处理流式响应
-      const reader = stream.getReader();
-      const decoder = new TextDecoder();
-      let done = false;
-      
-      while (!done) {
-        const { value, done: doneReading } = await reader.read();
-        done = doneReading;
-        const chunkValue = decoder.decode(value);
-        ui.append(chunkValue);
-      }
-      
-      ui.done();
-      aiState.update({ 
-        messages: [...aiState.get().messages, { role: 'assistant', content: ui.get() }] 
-      });
-    }
-  },
-  initialState: {
-    messages: [],
-    activeUI: null
+// 动态页面元数据
+export async function generateMetadata({ params }) {
+  const product = await getProduct(params.id);
+  
+  if (!product) {
+    return {
+      title: '产品未找到',
+    };
   }
-});
+  
+  return {
+    title: `${product.name} - 我的商店`,
+    description: product.description,
+    openGraph: {
+      images: [{ url: product.image }],
+    },
+  };
+}
 
-// 智能助手组件
-export function AdaptiveAssistant() {
-  const [isListening, toggleListening] = useVoiceInput();
-  const userFeedback = useBiometricFeedback();
-  const [theme, setTheme] = useState('system');
+// 页面组件
+export default async function ProductPage({ params }) {
+  const product = await getProduct(params.id);
   
-  // 边缘计算优化的上下文处理
-  const contextData = useMemo(() => {
-    return EdgeCompute.optimizeForDevice({
-      deviceCapabilities: navigator.deviceMemory || 4,
-      connectionType: navigator.connection?.effectiveType || '4g',
-      preferredModality: userFeedback.preferredInputMode,
-      attentionSpan: userFeedback.focusMetrics?.attentionSpan || 'medium'
-    });
-  }, [userFeedback]);
-  
-  // 自适应主题基于用户情绪和环境
-  useEffect(() => {
-    if (userFeedback.emotionalState === 'focused') {
-      setTheme('productivity');
-    } else if (userFeedback.environmentalLight === 'dim') {
-      setTheme('dark');
-    } else {
-      setTheme('system');
-    }
-  }, [userFeedback]);
+  if (!product) {
+    notFound();
+  }
   
   return (
-    <div className="assistant-container" data-theme={theme}>
-      <AI>
-        <div className="conversation-view">
-          {/* 对话历史和UI渲染 */}
-          <MessagesView />
+    <main className="product-detail-container">
+      <section className="product-main">
+        <div className="product-grid">
+          <ProductImage 
+            images={product.images} 
+            name={product.name} 
+          />
           
-          {/* 多模态输入界面 */}
-          <div className="input-controls">
-            <VoiceInputButton 
-              isListening={isListening} 
-              onToggle={toggleListening} 
-              emotionalState={userFeedback.emotionalState}
-            />
-            <AdaptiveInputField 
-              contextData={contextData} 
-              attentionSpan={userFeedback.focusMetrics?.attentionSpan}
-            />
-            <ContextualSuggestions 
-              based0n={userFeedback} 
-              deviceContext={contextData}
-            />
-          </div>
+          <ProductInfo 
+            product={product}
+            showShipping={true}
+          />
         </div>
-      </AI>
-    </div>
+      </section>
+      
+      <section className="product-description">
+        <h2>产品详情</h2>
+        <div dangerouslySetInnerHTML={{ __html: product.fullDescription }} />
+      </section>
+      
+      <section className="related-products">
+        <h2>相关产品</h2>
+        <Suspense fallback={<p>加载中...</p>}>
+          <RelatedProductsWrapper productId={product.id} />
+        </Suspense>
+      </section>
+    </main>
   );
+}
+
+// 将异步加载逻辑封装在单独组件中，支持Streaming
+async function RelatedProductsWrapper({ productId }) {
+  const relatedProducts = await getRelatedProducts(productId);
+  return <RelatedProducts products={relatedProducts} />;
 }

@@ -9,7 +9,7 @@
 - [客户端技术](/client/) - 包含以下六个方面：
   - [Web前端技术](/client/web前端技术/) - 包含语言基础、框架与库、工程化、浏览器API、性能优化等
     - [JavaScript](/client/web前端技术/javascript/)、[TypeScript](/client/web前端技术/typescript/)、[CSS](/client/web前端技术/css/) - 语言基础
-    - [框架与库](/client/web前端技术/框架与库/) - React、Vue、Angular等框架与状态管理
+    - [框架与库](/client/web前端技术/框架与库/) - 前端框架(React/Vue)、全栈框架(Next.js/Nuxt)、状态管理
     - [工程化与构建](/client/web前端技术/工程化与构建/) - 构建工具、包管理、代码质量
     - [浏览器与API](/client/web前端技术/浏览器与API/) - Web API、浏览器原理、存储与缓存
     - [性能与优化](/client/web前端技术/性能与优化/) - 加载性能、运行时性能、指标监控

@@ -10,14 +10,12 @@
 
 Web前端是客户端技术的核心领域，主要关注在浏览器环境中运行的应用程序开发。
 
-- **核心语言与基础**：HTML、CSS、JavaScript、TypeScript等
-- **UI框架与库**：React、Vue、Angular、Svelte等
-- **状态管理**：Redux、Mobx、Vuex、Pinia等
-- **路由管理**：React Router、Vue Router等
-- **构建工具**：Webpack、Vite、Rollup、esbuild等
-- **CSS解决方案**：Tailwind CSS、Styled Components、Emotion等
-- **Web APIs**：DOM操作、Fetch API、Web Storage、Service Worker等
-- **Web性能优化**：代码分割、懒加载、缓存策略、Core Web Vitals等
+- **核心语言与基础**：[HTML/CSS](/client/web前端技术/css/)、[JavaScript](/client/web前端技术/javascript/)、[TypeScript](/client/web前端技术/typescript/)等
+- **[框架与库](/client/web前端技术/框架与库/)**：React、Vue、Angular、Svelte等框架与状态管理库
+- **[工程化与构建](/client/web前端技术/工程化与构建/)**：Webpack、Vite、Rollup、Monorepo、包管理等
+- **[浏览器与API](/client/web前端技术/浏览器与API/)**：DOM、Fetch、Web Storage、Service Worker等
+- **[性能与优化](/client/web前端技术/性能与优化/)**：Core Web Vitals、资源加载、运行时性能等
+- **[可访问性与用户体验](/client/web前端技术/可访问性与用户体验/)**：WCAG标准、包容性设计、交互设计等
 
 ### 2. [移动应用技术](/client/移动应用技术/)
 

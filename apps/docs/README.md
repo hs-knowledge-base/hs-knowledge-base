@@ -7,7 +7,13 @@
 火山知识库分为五大技术领域：
 
 - [客户端技术](/client/) - 包含以下六个方面：
-  - [Web前端技术](/client/web前端技术/) - HTML/CSS/JavaScript、现代框架、构建工具、Web API等
+  - [Web前端技术](/client/web前端技术/) - 包含语言基础、框架与库、工程化、浏览器API、性能优化等
+    - [JavaScript](/client/web前端技术/javascript/)、[TypeScript](/client/web前端技术/typescript/)、[CSS](/client/web前端技术/css/) - 语言基础
+    - [框架与库](/client/web前端技术/框架与库/) - React、Vue、Angular等框架与状态管理
+    - [工程化与构建](/client/web前端技术/工程化与构建/) - 构建工具、包管理、代码质量
+    - [浏览器与API](/client/web前端技术/浏览器与API/) - Web API、浏览器原理、存储与缓存
+    - [性能与优化](/client/web前端技术/性能与优化/) - 加载性能、运行时性能、指标监控
+    - [可访问性与用户体验](/client/web前端技术/可访问性与用户体验/) - WCAG标准、交互设计
   - [移动应用技术](/client/移动应用技术/) - React Native、Flutter、小程序等跨平台解决方案
   - [桌面应用技术](/client/桌面应用技术/) - Electron、Tauri等跨平台桌面技术
   - [3D与可视化技术](/client/3D与可视化技术/) - Three.js、WebGL、数据可视化等

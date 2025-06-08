@@ -18,6 +18,14 @@ hs-knowledge-base/
 │       ├── public/       # 静态资源
 │       ├── client/       # 客户端技术内容
 │       │   ├── web前端技术/       # Web开发相关技术
+│       │   │   ├── javascript/    # JavaScript核心技术
+│       │   │   ├── typescript/    # TypeScript类型系统
+│       │   │   ├── css/           # CSS与样式技术
+│       │   │   ├── 框架与库/      # React、Vue等框架与状态管理
+│       │   │   ├── 工程化与构建/  # 构建工具、包管理、代码质量
+│       │   │   ├── 浏览器与API/   # Web API、浏览器原理与机制
+│       │   │   ├── 性能与优化/    # 性能指标、加载与运行时优化
+│       │   │   └── 可访问性与用户体验/ # WCAG标准、交互设计
 │       │   ├── 移动应用技术/      # React Native、Flutter、小程序等
 │       │   ├── 桌面应用技术/      # Electron、Tauri等跨平台桌面技术
 │       │   ├── 3D与可视化技术/    # Three.js、WebGL、数据可视化等
@@ -85,7 +93,13 @@ pnpm docs:preview
 这是一个技术文档站点，内容涵盖以下技术领域：
 
 - **客户端技术**：
-  - Web前端技术：HTML/CSS/JavaScript、现代框架、构建工具、Web API等
+  - Web前端技术：
+    - 核心语言：JavaScript、TypeScript、CSS等
+    - 框架与库：React、Vue、Angular等框架与状态管理
+    - 工程化与构建：Webpack、Vite、包管理、代码质量等
+    - 浏览器与API：DOM、Fetch、Storage、Service Worker等
+    - 性能与优化：Core Web Vitals、加载性能、运行时优化等
+    - 可访问性与用户体验：WCAG标准、包容性设计、交互设计等
   - 移动应用技术：React Native、Flutter、小程序等跨平台解决方案
   - 桌面应用技术：Electron、Tauri等跨平台桌面技术
   - 3D与可视化技术：Three.js、WebGL、数据可视化等

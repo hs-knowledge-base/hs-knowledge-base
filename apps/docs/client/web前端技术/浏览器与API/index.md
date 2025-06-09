@@ -44,6 +44,7 @@ JavaScript在浏览器中的执行有其特殊性，理解这些机制有助于�
 
 - DOM操作API
 - 网络请求API (Fetch, XMLHttpRequest)
+- [WebSocket客户端应用](./WebSocket客户端应用.md)
 - 存储API (localStorage, sessionStorage, IndexedDB)
 - 地理位置、音视频、WebRTC等高级API
 

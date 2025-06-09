@@ -2,69 +2,91 @@
 
 ## 简介
 
-前端工程化是现代Web开发的核心实践，它通过自动化流程、标准化规范和专业工具，解决大型前端项目的复杂性、质量和协作问题。从开发、构建到部署，前端工程化贯穿整个应用生命周期。
+前端工程化是指将前端开发流程规范化、标准化，通过工具、框架和最佳实践提高开发效率和代码质量。随着Web应用复杂度的提升，工程化已成为现代前端开发的基础支柱。
 
-本节内容涵盖构建工具、模块化方案、项目脚手架、自动化测试等工程化技术，帮助开发者提高开发效率和代码质量。
+本节内容涵盖构建工具、包管理器、代码质量工具、自动化测试等前端工程化核心技术，帮助开发者构建高效、可维护的前端项目。
 
 ## 技术领域
 
 ### 构建工具
-- Webpack生态系统
-  - 模块打包
-  - 代码分割
-  - Tree Shaking
-  - 缓存优化
-- Vite/Rollup
-  - ESM原生支持
-  - 按需编译
-  - 热模块替换
-  - 构建优化
-- Turbopack/Bun
-  - Rust构建引擎
-  - 增量计算
-  - 并行处理
-  - 内存缓存
+- **基础构建工具**
+  - Webpack
+  - Vite
+  - Rollup
+  - esbuild
+  - Parcel
+- **任务运行器**
+  - npm scripts
+  - Gulp
+  - Grunt
 
-### 包管理与依赖
-- npm/yarn/pnpm
-  - 依赖管理策略
-  - 锁文件机制
-  - Workspaces
-  - 缓存优化
-- Monorepo架构
-  - Nx
-  - Turborepo
-  - Lerna
-  - pnpm workspace
+### 开发工具链
+- **包管理器**
+  - npm
+  - Yarn
+  - pnpm
+- **[命令行工具(CLI)](./前端CLI工具开发与应用.md)**
+  - 脚手架工具
+  - 自定义CLI开发
+  - 常用工具链
+- **开发服务器**
+  - 热更新
+  - 代理配置
+  - 模拟数据
 
 ### 代码质量与规范
-- 代码检查与格式化
-  - ESLint配置与插件
-  - Prettier格式化
+- **代码检查**
+  - ESLint
   - StyleLint
-  - 类型检查
-- Git工作流
-  - 分支策略
-  - Commit规范
-  - Git Hooks
-  - CI集成
+  - TypeScript
+- **代码格式化**
+  - Prettier
+  - EditorConfig
+- **提交规范**
+  - Husky
+  - lint-staged
+  - Commitizen
+  - Commitlint
 
-### 自动化测试
-- 单元测试
-  - Jest/Vitest
+### 测试与持续集成
+- **单元测试**
+  - Jest
+  - Vitest
+  - Mocha/Chai
+- **组件测试**
   - Testing Library
-  - Mock与Stub
-  - 测试覆盖率
-- 组件测试
+  - Enzyme
   - Storybook
-  - Chromatic
-  - Playwright组件测试
-  - 视觉回归测试
-- E2E测试
+- **端到端测试**
   - Cypress
   - Playwright
-  - Selenium
-  - 测试自动化
+  - Puppeteer
+- **持续集成/持续部署**
+  - GitHub Actions
+  - GitLab CI/CD
+  - Jenkins
+
+### 优化与部署
+- **性能优化**
+  - 打包优化
+  - 代码分割
+  - 懒加载
+  - Tree Shaking
+- **部署策略**
+  - 静态托管
+  - 容器化部署
+  - 灰度发布
+  - CDN配置
+
+## 最佳实践
+
+- 选择适合项目规模的工具链
+- 建立统一的团队编码规范
+- 自动化测试保障代码质量
+- 性能指标监控与优化
+- 模块化设计与微前端架构
+- 持续集成与自动化部署
+- 项目文档与注释规范
 
 ## 代码示例
 
@@ -179,13 +201,4 @@ export default defineConfig({
     },
   },
 });
-```
-
-## 最佳实践
-
-- 选择适合项目规模的构建工具
-- 优化构建性能和产物体积
-- 建立代码规范和质量检查
-- 实施自动化测试和持续集成
-- 采用渐进式集成策略
-- 优化开发体验和调试工具 
+``` 

@@ -84,11 +84,4 @@ features:
 
 开始探索你感兴趣的技术领域吧！
 
-<div class="custom-block">
-  <p class="custom-block-title">💡 每日一题</p>
-  <p>React中的useEffect和useLayoutEffect有什么区别？</p>
-  <details>
-    <summary>查看答案</summary>
-    <p>useEffect是异步执行的，而useLayoutEffect是同步执行的。useLayoutEffect会在所有DOM变更之后同步调用，但在浏览器绘制之前完成。这使得它适合于需要在DOM更新后立即执行的操作，如测量DOM元素或者调整布局。而useEffect是在浏览器绘制之后异步执行的，更适合大多数副作用操作。</p>
-  </details>
-</div> 
+<DailyQuestion />

@@ -48,8 +48,8 @@ export default defineConfig({
     build: {
       // 调整chunk大小警告阈值
       chunkSizeWarningLimit: 2000,
-      // 启用CSS代码分割以减少主bundle大小
-      cssCodeSplit: true,
+      // 禁用CSS代码分割，避免Vue组件样式加载顺序问题
+      cssCodeSplit: false,
       // 启用更好的压缩
       minify: 'esbuild',
       // 基础的rollup配置用于代码分割

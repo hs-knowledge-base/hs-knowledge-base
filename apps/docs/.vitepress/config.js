@@ -56,6 +56,7 @@ export default defineConfig({
       {text: '系统与底层', link: '/systems/'},
       {text: 'DevOps', link: '/devops/'},
       {text: 'AI应用与大模型', link: '/ai/'},
+      {text: '贡献者', link: '/contributors'},
       {text: '关于', link: '/about'}
     ],
 

@@ -45,6 +45,39 @@ export default defineConfig({
         allow: [rootDir]
       }
     },
+    build: {
+      // 调整chunk大小警告阈值
+      chunkSizeWarningLimit: 2000,
+      // 启用CSS代码分割以减少主bundle大小
+      cssCodeSplit: true,
+      // 启用更好的压缩
+      minify: 'esbuild',
+      // 基础的rollup配置用于代码分割
+      rollupOptions: {
+        output: {
+          // 使用函数形式的manualChunks来避免外部模块冲突
+          manualChunks(id) {
+            // 分离node_modules中的依赖
+            if (id.includes('node_modules')) {
+              // 将shiki代码高亮库单独分离（通常比较大）
+              if (id.includes('shiki')) {
+                return 'shiki'
+              }
+              // 将markdown-it相关库分离
+              if (id.includes('markdown-it')) {
+                return 'markdown'
+              }
+              // 将搜索相关的库分离
+              if (id.includes('minisearch')) {
+                return 'search'
+              }
+              // 其他第三方依赖
+              return 'vendor'
+            }
+          }
+        }
+      }
+    }
   },
 
   themeConfig: {

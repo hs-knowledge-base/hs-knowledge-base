@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vitepress dev",
     "build": "vitepress build",
-    "preview": "vitepress preview"
+    "build:optimized": "node scripts/build.js",
+    "build:full": "node scripts/optimize-images.js && node scripts/build.js",
+    "preview": "vitepress preview",
+    "analyze": "vitepress build && npx vite-bundle-analyzer .vitepress/dist",
+    "optimize:images": "node scripts/optimize-images.js"
   },
   "dependencies": {
     "@types/fs-extra": "^11.0.4",
@@ -14,6 +18,7 @@
     "vitepress": "^1.6.3"
   },
   "devDependencies": {
-    "vue": "^3.5.16"
+    "vue": "^3.5.16",
+    "terser": "^5.43.1"
   }
 }

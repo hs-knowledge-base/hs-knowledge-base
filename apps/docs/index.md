@@ -86,7 +86,7 @@ features:
 
 这个项目由社区贡献者共同维护和发展，欢迎你的参与：
 
-- [查看贡献指南](/contributing) - 了解如何为项目做出贡献
+- [查看贡献指南](https://github.com/hs-knowledge-base/hs-knowledge-base/blob/main/CONTRIBUTING.md) - 了解如何为项目做出贡献
 - [浏览贡献者](/contributors) - 感谢所有为项目做出贡献的朋友们
 - [提交Issue](https://github.com/huoshan25/hs-knowledge-base/issues) - 报告问题或提出建议
 

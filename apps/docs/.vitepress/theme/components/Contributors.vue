@@ -123,7 +123,6 @@ function handleImageError(event) {
   font-weight: 600;
   color: var(--vp-c-text-1);
   margin-bottom: 1rem;
-  border-bottom: 1px solid var(--vp-c-divider);
   padding-bottom: 0.5rem;
 }
 

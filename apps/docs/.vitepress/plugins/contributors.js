@@ -16,12 +16,8 @@ export function ContributorsPlugin(contributorsData) {
     },
     load(id) {
       if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-        console.log(`📦 [Contributors Plugin] 加载虚拟模块，数据条目数: ${Object.keys(contributorsData).length}`)
-        console.log(`📋 [Contributors Plugin] 前5个数据键:`, Object.keys(contributorsData).slice(0, 5))
-        
         // 返回贡献者数据作为 ES 模块
-        const moduleContent = `export default ${JSON.stringify(contributorsData, null, 2)}`
-        return moduleContent
+        return `export default ${JSON.stringify(contributorsData, null, 2)}`
       }
     },
     // 在开发模式下启用热更新

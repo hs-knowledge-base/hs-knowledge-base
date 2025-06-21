@@ -135,7 +135,6 @@ export async function getDocumentContributors() {
         // 统一使用正斜杠和生成正确的键格式
         const normalizedKey = generateContributorKey(key.replace(/\\/g, '/'))
         contributorsMap[normalizedKey] = contributors
-        console.log(`📝 [Contributors] 存储数据: ${key} -> ${normalizedKey}`)
       }
     })
     

@@ -2,12 +2,19 @@ import {defineConfig} from 'vitepress'
 import {resolve} from 'path'
 import {fileURLToPath} from 'url'
 import {generateSidebars} from './sidebar.js'
+import { ContributorsPlugin } from './plugins/contributors.js'
+import { MarkdownTransformPlugin } from './plugins/markdown-transform.js'
+import { getDocumentContributors } from '../scripts/contributors.js'
 
 // 获取当前文件的目录路径
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 // 项目根目录
 const rootDir = resolve(__dirname, '../../..')
+
+// 获取贡献者数据
+const contributorsData = await getDocumentContributors()
+console.log(`🎯 [VitePress Config] 贡献者数据加载完成，共 ${Object.keys(contributorsData).length} 个文档`)
 
 export default defineConfig({
   base: '/',
@@ -39,6 +46,10 @@ export default defineConfig({
   },
 
   vite: {
+    plugins: [
+      MarkdownTransformPlugin(),
+      ContributorsPlugin(contributorsData),
+    ],
     server: {
       fs: {
         // 允许访问上层目录
@@ -70,6 +81,10 @@ export default defineConfig({
               // 将搜索相关的库分离
               if (id.includes('minisearch')) {
                 return 'search'
+              }
+              // 将虚拟模块分离
+              if (id.includes('virtual:contributors')) {
+                return 'contributors'
               }
               // 其他第三方依赖
               return 'vendor'

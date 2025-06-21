@@ -20,6 +20,9 @@ importers:
       fs-extra:
         specifier: ^11.3.0
         version: 11.3.0
+      vite:
+        specifier: ^5.0.0
+        version: 5.4.19(@types/node@22.15.29)(terser@5.43.1)
       vitepress:
         specifier: ^1.6.3
         version: 1.6.3(@algolia/client-search@5.25.0)(@types/node@22.15.29)(postcss@8.5.4)(search-insights@2.17.3)(terser@5.43.1)(typescript@5.8.3)

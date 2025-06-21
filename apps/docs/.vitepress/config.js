@@ -96,7 +96,7 @@ export default defineConfig({
     sidebar: generateSidebars(),
 
     socialLinks: [
-      {icon: 'github', link: 'https://github.com/huoshan25'},
+      {icon: 'github', link: 'https://github.com/hs-knowledge-base/hs-knowledge-base'},
       {icon: 'discord', link: 'https://discord.gg/m86wyGfs'}
     ],
 

@@ -5,6 +5,7 @@ import {generateSidebars} from './sidebar.js'
 import { ContributorsPlugin } from './plugins/contributors.js'
 import { MarkdownTransformPlugin } from './plugins/markdown-transform.js'
 import { getDocumentContributors } from '../scripts/contributors.js'
+import { NAV_ITEMS } from './nav-config.js'
 
 // 获取当前文件的目录路径
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
@@ -97,16 +98,7 @@ export default defineConfig({
 
   themeConfig: {
     logo: "/img/logo.png",
-    nav: [
-      {text: '首页', link: '/'},
-      {text: '客户端', link: '/client/'},
-      {text: '服务端', link: '/server/'},
-      {text: '系统与底层', link: '/systems/'},
-      {text: 'DevOps', link: '/devops/'},
-      {text: 'AI应用与大模型', link: '/ai/'},
-      {text: '贡献者', link: '/contributors'},
-      {text: '关于', link: '/about'}
-    ],
+    nav: NAV_ITEMS,
 
     sidebar: generateSidebars(),
 

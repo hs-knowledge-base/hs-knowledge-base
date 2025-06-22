@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import {resolve} from 'path'
 import {fileURLToPath} from 'url'
+import { NAV_ITEMS, TOP_LEVEL_DIRS, SPECIAL_DIRS } from './nav-config.js'
 
 /**
  * 获取当前文件的目录路径
@@ -121,7 +122,7 @@ function scanDirRecursive(dir, rootPath, maxDepth = -1, currentDepth = 0) {
     if (subItems.length > 0 || hasIndex) {
       const subGroup = {
         text: formatDirTitle(subDir),
-        collapsed: false,
+        collapsed: true,
         items: subItems
       }
       
@@ -183,18 +184,24 @@ function createNavigationLinks(currentPath) {
 }
 
 /**
+ * 检查目录是否应该包含在侧边栏中
+ * @param {string} dirName 目录名
+ * @returns {boolean} 是否应包含
+ */
+function isValidSidebarDir(dirName) {
+  return !dirName.startsWith('.') && !SPECIAL_DIRS.includes(dirName);
+}
+
+/**
  * 生成主要目录的侧边栏
  * @returns 所有侧边栏配置
  */
 export function generateSidebars() {
   const docsPath = path.resolve(rootDir, 'apps/docs')
   const sidebars = {};
-  
-  // 获取顶级目录
-  const topDirs = ['client', 'server', 'systems', 'devops', 'ai'];
-  
+
   // 为每个顶级目录生成侧边栏
-  for (const dir of topDirs) {
+  for (const dir of TOP_LEVEL_DIRS) {
     // 顶级目录显示所有一级子目录，但不递归更深层次
     const sidebarItems = scanDirRecursive(dir, docsPath, 0);
     if (sidebarItems.length > 0) {
@@ -217,10 +224,7 @@ export function generateSidebars() {
     if (fileExists(dirPath)) {
       const subDirs = fs.readdirSync(dirPath).filter(item => {
         const itemPath = path.join(dirPath, item);
-        return fs.statSync(itemPath).isDirectory() && 
-               !item.startsWith('.') && 
-               item !== 'node_modules' && 
-               item !== 'public';
+        return fs.statSync(itemPath).isDirectory() && isValidSidebarDir(item);
       });
       
       for (const subDir of subDirs) {
@@ -242,19 +246,22 @@ export function generateSidebars() {
       }
     }
   }
-  
-  // 添加默认侧边栏（用于首页和其他页面）
+
+  /**
+   * 导航项
+   * @deprecated
+   * - 添加默认侧边栏（用于首页和其他页面）
+   * - 过滤掉"首页"项，因为它已经单独添加
+   * @type {*[]}
+   */
+  const defaultNavItems = NAV_ITEMS.filter(item => item.text !== '首页');
+
   sidebars['/'] = [
     {
       text: '导航',
       items: [
         { text: '首页', link: '/' },
-        { text: '客户端', link: '/client/' },
-        { text: '服务端', link: '/server/' },
-        { text: '系统与底层', link: '/systems/' },
-        { text: 'DevOps', link: '/devops/' },
-        { text: 'AI应用与大模型', link: '/ai/' },
-        { text: '关于', link: '/about' }
+        ...defaultNavItems
       ]
     }
   ];

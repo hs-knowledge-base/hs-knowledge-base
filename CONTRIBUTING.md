@@ -41,9 +41,11 @@
 
 2. **创建分支**
    ```bash
-   git checkout -b feature/your-feature-name
-   # 或
-   git checkout -b fix/your-fix-name
+   # 格式 <type>/<scope>/<feature-name>
+   
+   # 功能分支
+   git checkout -b feature/docs/add-search
+   git checkout -b feature/app1/user-auth
    ```
 
 3. **本地开发**
@@ -58,14 +60,36 @@
 4. **提交更改**
    ```bash
    git add .
-   git commit -m "feat(docs): 添加XXX技术文档" 
-   # 或
-   git commit -m "fix(dics): 修正XXX文档中的错误"
+   
+   # 文档内容相关修改
+   git commit -m "feat(docs/client): 添加React Hooks最佳实践文档"
+   git commit -m "feat(docs/server): 更新PostgreSQL性能优化指南"
+   git commit -m "feat(docs/ai): 新增大语言模型应用示例"
+   git commit -m "fix(docs/client): 修正React文档中的错误"
+   
+   # 应用功能相关修改
+   git commit -m "feat(docs): 添加文档搜索功能"
+   git commit -m "feat(app1): 实现用户认证功能"
+   git commit -m "fix(docs): 修复移动端导航栏显示问题"
+   git commit -m "fix(app1): 修复登录错误处理"
+   git commit -m "style(docs): 优化深色模式配色方案"
+   
+   # 特定功能区域的修改
+   git commit -m "feat(docs/theme): 新增自定义主题切换功能"
+   git commit -m "feat(app1/auth): 添加OAuth认证支持"
+   git commdit -m "refactor(docs/component): 重构代码示例组件"
+   git commit -m "perf(docs/build): 优化构建速度"
+   
+   # monorepo整体修改
+   git commit -m "build: 更新构建配置"
+   git commit -m "ci: 优化CI工作流"
+   git commit -m "chore: 更新依赖版本"
    ```
 
 5. **推送分支**
    ```bash
-   git push origin feature/your-feature-name
+   # 推送你的分支到远程仓库
+   git push origin <branch-name>
    ```
 
 6. **创建Pull Request**
@@ -103,37 +127,40 @@
 
 - **应用级别作用域**
   - `docs`: VitePress文档站点应用
+  - `app1`: 示例应用1
+  - `app2`: 示例应用2
+  - 其他应用名称
 
-- **内容分类作用域**
-  - `client`: 客户端技术文档内容
-  - `server`: 服务端技术文档内容
-  - `devops`: DevOps与云原生文档内容
-  - `ai`: AI应用与大模型文档内容
-  - `systems`: 系统与底层文档内容
-
-- **功能级别作用域**
-  - `theme`: 主题相关修改
-  - `config`: 配置相关修改
-  - `component`: 组件相关修改
-  - `build`: 构建流程相关修改
+- **Monorepo基础设施作用域**
+  - `monorepo`: Monorepo基础设施相关修改（包括工作区配置、依赖管理、构建脚本等）
 
 #### 提交消息示例
 
 ```bash
-# 添加新的技术文档
-git commit -m "docs(client): 添加React Hooks最佳实践文档"
-git commit -m "docs(server): 更新PostgreSQL性能优化指南"
-git commit -m "docs(ai): 新增大语言模型应用示例"
+# 文档内容相关修改
+git commit -m "feat(docs/client): 添加React Hooks最佳实践文档"
+git commit -m "feat(docs/server): 更新PostgreSQL性能优化指南"
+git commit -m "feat(docs/ai): 新增大语言模型应用示例"
+git commit -m "fix(docs/client): 修正React文档中的错误"
 
-# 改进文档站点功能
+# 应用功能相关修改
 git commit -m "feat(docs): 添加文档搜索功能"
+git commit -m "feat(app1): 实现用户认证功能"
 git commit -m "fix(docs): 修复移动端导航栏显示问题"
 git commit -m "style(docs): 优化深色模式配色方案"
 
 # 特定功能区域的修改
 git commit -m "feat(docs/theme): 新增自定义主题切换功能"
+git commit -m "feat(app1/auth): 添加OAuth认证支持"
 git commit -m "refactor(docs/component): 重构代码示例组件"
 git commit -m "perf(docs/build): 优化构建速度"
+
+# Monorepo基础设施修改
+git commit -m "build(monorepo): 更新Turborepo构建配置"
+git commit -m "ci(monorepo): 优化GitHub Actions工作流"
+git commit -m "chore(monorepo): 更新所有包的依赖版本"
+git commit -m "feat(monorepo): 添加新的子包结构"
+git commit -m "fix(monorepo): 修复版本发布脚本错误"
 ```
 
 ### 分支命名规范
@@ -144,31 +171,26 @@ git commit -m "perf(docs/build): 优化构建速度"
    ```
    feature/<scope>/<feature-name>
    ```
-   例如: `feature/docs/add-search`
+   例如: 
+   - `feature/docs/add-search` (文档站点功能)
+   - `feature/app1/user-auth` (应用1功能)
+   - `feature/ui/button-component` (UI组件库功能)
 
-2. **修复分支**
+2. **Monorepo基础设施分支**
    ```
-   fix/<scope>/<issue-name>
+   feature/monorepo/<feature-name>
    ```
-   例如: `fix/docs/mobile-navigation`
+   例如:
+   - `feature/monorepo/workspace-config` (工作区配置修改)
+   - `feature/monorepo/build-pipeline` (构建流水线改进)
 
-3. **文档分支**
+3. **修复分支**
    ```
-   docs/<scope>/<doc-name>
+   fix/<scope>/<bug-name>
    ```
-   例如: `docs/ai/llm-examples`
-
-4. **重构分支**
-   ```
-   refactor/<scope>/<refactor-name>
-   ```
-   例如: `refactor/docs/component-structure`
-
-5. **发布分支**
-   ```
-   release/v<version>
-   ```
-   例如: `release/v1.2.0`
+   例如:
+   - `fix/docs/broken-links` (修复文档知识库链接)
+   - `fix/monorepo/build-error` (修复monorepo构建错误)
 
 分支名应使用小写字母和连字符，清晰描述分支用途，并尽量保持简洁。
 
@@ -212,7 +234,6 @@ apps/docs/
 ├── ai/           # AI应用与大模型
 │   ├── llm/      # 大语言模型
 │   └── ...
-└── interview/    # 面试相关内容
 ```
 
 每个技术子目录应包含：

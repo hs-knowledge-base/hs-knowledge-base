@@ -15,8 +15,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // 仓库信息
-const REPO_OWNER = 'huoshan25';
-const REPO_NAME = 'hs-knowledge-base';
+// 优先使用环境变量中的仓库信息（GitHub Actions提供）
+const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY;
+const [REPO_OWNER, REPO_NAME] = GITHUB_REPOSITORY.split('/');
+
+console.log(`仓库信息: ${REPO_OWNER}/${REPO_NAME}`);
+
 const OUTPUT_DIR = path.join(__dirname, '../public/data');
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'contributors.json');
 
@@ -24,42 +28,58 @@ const OUTPUT_FILE = path.join(OUTPUT_DIR, 'contributors.json');
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 /**
- * 从GitHub API获取数据
+ * 从GitHub API获取数据，支持重定向
  */
-async function fetchFromGitHub(url) {
+async function fetchFromGitHub(url, maxRedirects = 5) {
   return new Promise((resolve, reject) => {
-    const options = {
-      headers: {
-        'User-Agent': `${REPO_OWNER}-${REPO_NAME}-app`,
-        'Accept': 'application/vnd.github.v3+json',
-      },
+    const makeRequest = (currentUrl, redirectsLeft) => {
+      if (redirectsLeft <= 0) {
+        reject(new Error('超过最大重定向次数'));
+        return;
+      }
+
+      const options = {
+        headers: {
+          'User-Agent': `${REPO_OWNER}-${REPO_NAME}-app`,
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      };
+      
+      if (GITHUB_TOKEN) {
+        options.headers['Authorization'] = `token ${GITHUB_TOKEN}`;
+      }
+      
+      https.get(currentUrl, options, (res) => {
+        // 处理重定向
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          console.log(`重定向到: ${res.headers.location}`);
+          makeRequest(res.headers.location, redirectsLeft - 1);
+          return;
+        }
+        
+        let data = '';
+        
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+        
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            try {
+              resolve(JSON.parse(data));
+            } catch (error) {
+              reject(new Error('无法解析GitHub API响应'));
+            }
+          } else {
+            reject(new Error(`GitHub API请求失败: ${res.statusCode} - ${data}`));
+          }
+        });
+      }).on('error', (error) => {
+        reject(error);
+      });
     };
     
-    if (GITHUB_TOKEN) {
-      options.headers['Authorization'] = `token ${GITHUB_TOKEN}`;
-    }
-    
-    https.get(url, options, (res) => {
-      let data = '';
-      
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
-      
-      res.on('end', () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          try {
-            resolve(JSON.parse(data));
-          } catch (error) {
-            reject(new Error('无法解析GitHub API响应'));
-          }
-        } else {
-          reject(new Error(`GitHub API请求失败: ${res.statusCode} - ${data}`));
-        }
-      });
-    }).on('error', (error) => {
-      reject(error);
-    });
+    makeRequest(url, maxRedirects);
   });
 }
 

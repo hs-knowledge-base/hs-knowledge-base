@@ -69,7 +69,7 @@
     </section>
 
     <!-- 贡献者头像墙 -->
-    <section class="contributor-section" v-if="allContributors.length > 0">
+    <section class="contributor-section">
       <div class="section-header">
         <div class="divider-line"></div>
         <h2 class="section-title">贡献者</h2>

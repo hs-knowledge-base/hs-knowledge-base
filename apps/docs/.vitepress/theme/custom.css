@@ -106,8 +106,6 @@
 
 /* 给导航栏添加毛玻璃效果 */
 .VPNav {
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
   background: rgba(var(--vp-c-bg-rgb), 0.85) !important;
   border-bottom: 1px solid rgba(var(--vp-c-divider-rgb), 0.1) !important;
 }

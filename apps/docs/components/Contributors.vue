@@ -75,7 +75,7 @@
         <h2 class="section-title">贡献者</h2>
         <div class="divider-line"></div>
       </div>
-      <p class="section-desc">感谢以下为火山知识库做出贡献的人们。</p>
+      <p class="section-desc">感谢以下为火山知识库做出贡献的人。</p>
       
       <div class="avatar-wall">
         <a 
@@ -105,116 +105,40 @@ import { ref, computed, onMounted } from 'vue'
 const loading = ref(false)
 const allContributors = ref([])
 
-// 获取单个用户的详细信息
-const fetchUserDetails = async (username) => {
-  try {
-    const response = await fetch(`https://api.github.com/users/${username}`)
-    if (!response.ok) {
-      throw new Error(`获取用户信息失败: ${response.status}`)
-    }
-    const userData = await response.json()
-    return {
-      bio: userData.bio,
-      location: userData.location,
-      company: userData.company,
-      blog: userData.blog,
-      twitter_username: userData.twitter_username,
-      name: userData.name, // GitHub上的真实姓名
-      public_repos: userData.public_repos,
-      followers: userData.followers
-    }
-  } catch (error) {
-    console.error(`获取用户 ${username} 详细信息失败:`, error)
-    return null
-  }
-}
-
-// 直接从GitHub API获取贡献者信息
-const fetchGitHubContributors = async () => {
-  try {
-    const response = await fetch('https://api.github.com/repos/huoshan25/hs-knowledge-base/contributors')
-    
-    if (!response.ok) {
-      throw new Error(`GitHub API请求失败: ${response.status}`)
-    }
-    
-    const data = await response.json()
-    
-    // 获取每个贡献者的详细信息
-    const contributorsWithDetails = await Promise.all(
-      data.map(async (contributor) => {
-        // 根据用户名或其他条件判断是否为核心团队成员
-        const isCoreTeam = ['huoshan25', '996wuxian'].includes(contributor.login)
-        
-        // 获取用户详细信息 - 只为核心团队成员获取详细信息
-        const userDetails = isCoreTeam ? await fetchUserDetails(contributor.login) : null
-        
-        // 确保网站链接是完整URL
-        let websiteUrl = userDetails?.blog || null
-        if (websiteUrl && !websiteUrl.startsWith('http')) {
-          websiteUrl = 'https://' + websiteUrl
-        }
-        
-        return {
-          id: contributor.login,
-          name: getChineseName(contributor.login), // 获取中文名
-          realName: userDetails?.name, // GitHub真实姓名
-          title: isCoreTeam ? getCoreTitle(contributor.login) : '贡献者',
-          bio: userDetails?.bio, // GitHub个人介绍
-          location: userDetails?.location, // 位置
-          company: userDetails?.company, // 公司
-          avatar: contributor.avatar_url,
-          github: contributor.html_url,
-          twitter: userDetails?.twitter_username ? `https://twitter.com/${userDetails.twitter_username}` : null,
-          website: websiteUrl,
-          contributions: contributor.contributions,
-          followers: userDetails?.followers,
-          publicRepos: userDetails?.public_repos,
-          type: isCoreTeam ? 'core' : 'community'
-        }
-      })
-    )
-    
-    return contributorsWithDetails
-  } catch (error) {
-    console.error('获取GitHub贡献者失败:', error)
-    return []
-  }
-}
-
-// 获取中文名
-const getChineseName = (login) => {
-  const nameMap = {
-    'huoshan25': '火山',
-    '996wuxian': 'carpe_diem'
-  }
-  return nameMap[login] || login
-}
-
-// 获取核心团队成员标题
-const getCoreTitle = (login) => {
-  const titleMap = {
-    'huoshan25': '项目创始人 & 核心开发者',
-    '996wuxian': '核心贡献者'
-  }
-  return titleMap[login] || '团队成员'
-}
-
-// 计算属性
 const teamCollaborators = computed(() => {
-  return allContributors.value.filter(c => c.type === 'core')
+  return allContributors.value.filter(c => c.isCollaborator)
 })
 
-// 加载贡献者数据
+// 从生成的JSON文件加载贡献者数据
 const loadContributors = async () => {
   loading.value = true
   
   try {
-    const gitHubContributors = await fetchGitHubContributors()
-    allContributors.value = gitHubContributors
-    console.log('成功加载GitHub贡献者数据:', gitHubContributors)
+    const response = await fetch('/data/contributors.json')
+    
+    if (!response.ok) {
+      throw new Error(`加载贡献者数据失败: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    
+    // 格式化贡献者数据
+    const formattedContributors = data.contributors.map(contributor => {
+      return {
+        id: contributor.login,
+        name: contributor.login, // 使用登录名作为显示名称
+        avatar: contributor.avatar_url,
+        github: contributor.html_url,
+        contributions: contributor.contributions,
+        isCollaborator: contributor.isCollaborator,
+        type: contributor.isCollaborator ? 'core' : 'community'
+      }
+    })
+    
+    allContributors.value = formattedContributors
+    console.log('成功加载贡献者数据:', formattedContributors)
   } catch (error) {
-    console.log('加载失败:', error.message)
+    console.error('加载失败:', error.message)
     allContributors.value = []
   } finally {
     loading.value = false

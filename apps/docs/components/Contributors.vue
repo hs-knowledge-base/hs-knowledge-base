@@ -1,7 +1,7 @@
 <template>
   <div class="contributors">
     <!-- 团队成员 -->
-    <section v-if="collaborators.length > 0" class="contributor-section">
+    <section class="contributor-section">
       <div class="section-header">
         <div class="divider-line"></div>
         <h2 class="section-title">团队成员</h2>
@@ -10,7 +10,7 @@
       
       <div class="contributors-grid">
         <div 
-          v-for="collaborator in collaborators" 
+          v-for="collaborator in teamCollaborators" 
           :key="collaborator.id"
           class="contributor-card"
         >
@@ -19,7 +19,7 @@
           </div>
           <div class="contributor-info">
             <h3 class="contributor-name">{{ collaborator.name }}</h3>
-            <p class="contributor-title">{{ collaborator.title }}</p>
+            <p v-if="collaborator.realName && collaborator.realName !== collaborator.name" class="contributor-real-name">{{ collaborator.realName }}</p>
             <p v-if="collaborator.bio" class="contributor-bio">{{ collaborator.bio }}</p>
             <div v-if="collaborator.location || collaborator.company" class="contributor-meta">
               <span v-if="collaborator.company && collaborator.company !== 'none'" class="meta-item">🏢 {{ collaborator.company }}</span>
@@ -68,18 +68,18 @@
       </div>
     </section>
 
-    <!-- 社区贡献者 -->
-    <section v-if="contributors.length > 0" class="contributor-section">
+    <!-- 贡献者头像墙 -->
+    <section class="contributor-section">
       <div class="section-header">
         <div class="divider-line"></div>
-        <h2 class="section-title">社区贡献者</h2>
+        <h2 class="section-title">贡献者</h2>
         <div class="divider-line"></div>
       </div>
-      <p class="section-desc">感谢以下社区成员为火山知识库做出的贡献。</p>
+      <p class="section-desc">感谢以下为火山知识库做出贡献的人们。</p>
       
       <div class="avatar-wall">
         <a 
-          v-for="contributor in contributors" 
+          v-for="contributor in allContributors" 
           :key="contributor.id"
           :href="contributor.github"
           target="_blank"
@@ -90,23 +90,10 @@
         </a>
       </div>
     </section>
-    
-    <!-- 最后更新时间 -->
-    <div v-if="lastUpdated" class="last-updated">
-      <p>数据最后更新于: {{ formatDate(lastUpdated) }}</p>
-    </div>
 
     <!-- 加载状态 -->
     <div v-if="loading" class="loading">
       <p>正在加载贡献者信息...</p>
-    </div>
-    
-    <!-- 错误状态 -->
-    <div v-if="error && !loading" class="error-state">
-      <div class="error-icon">⚠️</div>
-      <p class="error-message">{{ error }}</p>
-      <button @click="loadContributors" class="retry-button">重新加载</button>
-      <p class="error-tip">您也可以直接访问 <a href="https://github.com/huoshan25/hs-knowledge-base/graphs/contributors" target="_blank">GitHub贡献者页面</a> 查看所有贡献者。</p>
     </div>
   </div>
 </template>
@@ -116,91 +103,123 @@ import { ref, computed, onMounted } from 'vue'
 
 // 响应式数据
 const loading = ref(false)
-const collaboratorsList = ref([]) // 仓库协作者用户名列表
-const contributorsList = ref([]) // 外部贡献者用户名列表
-const error = ref(null) // 错误状态
-const lastUpdated = ref(null) // 数据最后更新时间
+const allContributors = ref([])
 
-// 从预构建的JSON文件加载贡献者数据
-const loadContributors = async () => {
-  loading.value = true
-  error.value = null // 重置错误状态
-  
+// 获取单个用户的详细信息
+const fetchUserDetails = async (username) => {
   try {
-    // 从静态JSON文件加载数据
-    const response = await fetch('/data/contributors.json')
+    const response = await fetch(`https://api.github.com/users/${username}`)
+    if (!response.ok) {
+      throw new Error(`获取用户信息失败: ${response.status}`)
+    }
+    const userData = await response.json()
+    return {
+      bio: userData.bio,
+      location: userData.location,
+      company: userData.company,
+      blog: userData.blog,
+      twitter_username: userData.twitter_username,
+      name: userData.name, // GitHub上的真实姓名
+      public_repos: userData.public_repos,
+      followers: userData.followers
+    }
+  } catch (error) {
+    console.error(`获取用户 ${username} 详细信息失败:`, error)
+    return null
+  }
+}
+
+// 直接从GitHub API获取贡献者信息
+const fetchGitHubContributors = async () => {
+  try {
+    const response = await fetch('https://api.github.com/repos/huoshan25/hs-knowledge-base/contributors')
     
     if (!response.ok) {
-      throw new Error(`加载贡献者数据失败: ${response.status}`)
+      throw new Error(`GitHub API请求失败: ${response.status}`)
     }
     
     const data = await response.json()
     
-    // 更新组件状态
-    collaboratorsList.value = data.collaborators || []
-    contributorsList.value = data.contributors || []
-    lastUpdated.value = data.lastUpdated ? new Date(data.lastUpdated) : null
+    // 获取每个贡献者的详细信息
+    const contributorsWithDetails = await Promise.all(
+      data.map(async (contributor) => {
+        // 根据用户名或其他条件判断是否为核心团队成员
+        const isCoreTeam = ['huoshan25', '996wuxian'].includes(contributor.login)
+        
+        // 获取用户详细信息 - 只为核心团队成员获取详细信息
+        const userDetails = isCoreTeam ? await fetchUserDetails(contributor.login) : null
+        
+        // 确保网站链接是完整URL
+        let websiteUrl = userDetails?.blog || null
+        if (websiteUrl && !websiteUrl.startsWith('http')) {
+          websiteUrl = 'https://' + websiteUrl
+        }
+        
+        return {
+          id: contributor.login,
+          name: getChineseName(contributor.login), // 获取中文名
+          realName: userDetails?.name, // GitHub真实姓名
+          title: isCoreTeam ? getCoreTitle(contributor.login) : '贡献者',
+          bio: userDetails?.bio, // GitHub个人介绍
+          location: userDetails?.location, // 位置
+          company: userDetails?.company, // 公司
+          avatar: contributor.avatar_url,
+          github: contributor.html_url,
+          twitter: userDetails?.twitter_username ? `https://twitter.com/${userDetails.twitter_username}` : null,
+          website: websiteUrl,
+          contributions: contributor.contributions,
+          followers: userDetails?.followers,
+          publicRepos: userDetails?.public_repos,
+          type: isCoreTeam ? 'core' : 'community'
+        }
+      })
+    )
     
-    console.log('成功加载贡献者数据:', {
-      collaborators: collaboratorsList.value.length,
-      contributors: contributorsList.value.length,
-      total: collaboratorsList.value.length + contributorsList.value.length,
-      lastUpdated: lastUpdated.value
-    })
-  } catch (err) {
-    console.error('加载贡献者数据失败:', err.message)
-    error.value = '加载贡献者数据时发生错误'
-    collaboratorsList.value = []
-    contributorsList.value = []
+    return contributorsWithDetails
+  } catch (error) {
+    console.error('获取GitHub贡献者失败:', error)
+    return []
+  }
+}
+
+// 获取中文名
+const getChineseName = (login) => {
+  const nameMap = {
+    'huoshan25': '火山',
+    '996wuxian': 'carpe_diem'
+  }
+  return nameMap[login] || login
+}
+
+// 获取核心团队成员标题
+const getCoreTitle = (login) => {
+  const titleMap = {
+    'huoshan25': '项目创始人 & 核心开发者',
+    '996wuxian': '核心贡献者'
+  }
+  return titleMap[login] || '团队成员'
+}
+
+// 计算属性
+const teamCollaborators = computed(() => {
+  return allContributors.value.filter(c => c.type === 'core')
+})
+
+// 加载贡献者数据
+const loadContributors = async () => {
+  loading.value = true
+  
+  try {
+    const gitHubContributors = await fetchGitHubContributors()
+    allContributors.value = gitHubContributors
+    console.log('成功加载GitHub贡献者数据:', gitHubContributors)
+  } catch (error) {
+    console.log('加载失败:', error.message)
+    allContributors.value = []
   } finally {
     loading.value = false
   }
 }
-
-// 格式化日期
-const formatDate = (date) => {
-  if (!date) return ''
-  return date.toLocaleDateString()
-}
-
-// 核心团队成员信息
-const coreTeamInfo = {
-  'huoshan25': {
-    name: '火山',
-    title: '项目创始人 & 核心开发者',
-    bio: '全栈开发者，热爱技术分享'
-  },
-  '996wuxian': {
-    name: 'carpe_diem',
-    title: '核心贡献者',
-    bio: '前端开发者，UI/UX爱好者'
-  }
-  // 可以根据需要添加更多团队成员信息
-}
-
-// 计算属性：处理后的协作者数据
-const collaborators = computed(() => {
-  return collaboratorsList.value.map(username => ({
-    id: username,
-    name: coreTeamInfo[username]?.name || username,
-    title: coreTeamInfo[username]?.title || '团队成员',
-    bio: coreTeamInfo[username]?.bio || '',
-    avatar: `https://github.com/${username}.png`,
-    github: `https://github.com/${username}`,
-    type: 'core'
-  }))
-})
-
-// 计算属性：处理后的贡献者数据
-const contributors = computed(() => {
-  return contributorsList.value.map(username => ({
-    id: username,
-    name: username,
-    avatar: `https://github.com/${username}.png`,
-    github: `https://github.com/${username}`,
-    type: 'community'
-  }))
-})
 
 onMounted(() => {
   loadContributors()
@@ -450,67 +469,6 @@ onMounted(() => {
   padding: 3rem;
   color: var(--vp-c-text-2);
   font-size: 1.1rem;
-}
-
-/* 错误状态 */
-.error-state {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: var(--vp-c-text-2);
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.error-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.error-message {
-  font-size: 1.2rem;
-  color: var(--vp-c-danger);
-  margin-bottom: 1.5rem;
-}
-
-.retry-button {
-  background-color: var(--vp-c-brand);
-  color: white;
-  border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-bottom: 1.5rem;
-}
-
-.retry-button:hover {
-  background-color: var(--vp-c-brand-dark);
-}
-
-.error-tip {
-  font-size: 0.9rem;
-  color: var(--vp-c-text-3);
-}
-
-.error-tip a {
-  color: var(--vp-c-brand);
-  text-decoration: none;
-}
-
-.error-tip a:hover {
-  text-decoration: underline;
-}
-
-/* 最后更新时间 */
-.last-updated {
-  text-align: center;
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px dashed var(--vp-c-divider);
-  color: var(--vp-c-text-3);
-  font-size: 0.9rem;
-  font-style: italic;
 }
 
 /* 响应式 */

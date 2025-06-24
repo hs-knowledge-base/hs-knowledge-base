@@ -136,11 +136,28 @@ const loadContributors = async () => {
     
     // 格式化贡献者数据
     const formattedContributors = data.contributors.map(contributor => {
+      // 确保网站链接是完整URL
+      let websiteUrl = contributor.blog || null;
+      if (websiteUrl && !websiteUrl.startsWith('http')) {
+        websiteUrl = 'https://' + websiteUrl;
+      }
+      
+      // Twitter链接
+      const twitterUrl = contributor.twitter_username 
+        ? `https://twitter.com/${contributor.twitter_username}` 
+        : null;
+      
       return {
         id: contributor.login,
-        name: contributor.login, // 使用登录名作为显示名称
+        name: contributor.name || contributor.login,
+        realName: contributor.name,
+        bio: contributor.bio,
+        location: contributor.location,
+        company: contributor.company,
         avatar: contributor.avatar_url,
         github: contributor.html_url,
+        twitter: twitterUrl,
+        website: websiteUrl,
         contributions: contributor.contributions,
         isCollaborator: contributor.isCollaborator,
         type: contributor.isCollaborator ? 'core' : 'community'

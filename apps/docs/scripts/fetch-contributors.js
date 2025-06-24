@@ -89,7 +89,15 @@ async function fetchFromGitHub(url, maxRedirects = 5) {
 async function fetchContributors(page = 1) {
   try {
     const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contributors?per_page=100&page=${page}`;
+    console.log(`请求贡献者数据: ${url}`);
+    
     const data = await fetchFromGitHub(url) || [];
+    console.log(`API返回贡献者数据: ${data.length} 条记录`);
+    
+    if (data.length === 0) {
+      console.warn('API返回的贡献者数据为空');
+      return [];
+    }
     
     const contributors = data.map(i => ({
       login: i.login,
@@ -99,15 +107,19 @@ async function fetchContributors(page = 1) {
     }));
     
     if (data.length === 100) {
+      console.log(`检测到可能有更多贡献者，请求下一页 (${page + 1})...`);
       const nextPageContributors = await fetchContributors(page + 1);
       contributors.push(...nextPageContributors);
     }
     
-    return contributors.filter(
+    const filteredContributors = contributors.filter(
       contributor => !['renovate[bot]', 'dependabot[bot]'].includes(contributor.login)
     );
+    
+    console.log(`过滤后的贡献者: ${filteredContributors.length} 人`);
+    return filteredContributors;
   } catch (error) {
-    console.error('获取贡献者失败:', error);
+    console.error(`获取贡献者失败 (页码 ${page}):`, error);
     return [];
   }
 }
@@ -118,8 +130,20 @@ async function fetchContributors(page = 1) {
 async function fetchCollaborators() {
   try {
     const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/collaborators`;
+    console.log(`请求协作者数据: ${url}`);
+    
     const data = await fetchFromGitHub(url) || [];
-    return data.map(i => i.login);
+    console.log(`API返回协作者数据: ${data.length} 条记录`);
+    
+    if (data.length === 0) {
+      console.warn('API返回的协作者数据为空');
+      if (!GITHUB_TOKEN) {
+        console.warn('没有设置GITHUB_TOKEN，这可能导致无法获取协作者信息');
+      }
+    }
+    
+    const collaborators = data.map(i => i.login);
+    return collaborators;
   } catch (error) {
     console.error('获取协作者失败:', error);
     if (error.message && error.message.includes('404')) {
@@ -138,26 +162,33 @@ async function main() {
   try {
     // 获取所有贡献者
     const allContributors = await fetchContributors();
-    console.log(`找到 ${allContributors.length} 个贡献者`);
+    console.log(`找到 ${allContributors.length} 个贡献者:`, JSON.stringify(allContributors, null, 2));
     
     // 获取仓库协作者
     const collaboratorLogins = await fetchCollaborators();
-    console.log(`找到 ${collaboratorLogins.length} 个协作者`);
+    console.log(`找到 ${collaboratorLogins.length} 个协作者:`, JSON.stringify(collaboratorLogins, null, 2));
     
     // 创建协作者集合，用于快速查找
     const collaboratorsSet = new Set(collaboratorLogins);
     
     // 为每个贡献者添加是否为协作者的标记
-    const contributors = allContributors.map(contributor => ({
-      ...contributor,
-      isCollaborator: collaboratorsSet.has(contributor.login)
-    }));
+    const contributors = allContributors.map(contributor => {
+      const isCollaborator = collaboratorsSet.has(contributor.login);
+      return {
+        ...contributor,
+        isCollaborator
+      };
+    });
+    
+    console.log(`处理后的贡献者数据 (${contributors.length} 个):`, JSON.stringify(contributors, null, 2));
     
     // 保存数据
     const data = {
       contributors,
       lastUpdated: new Date().toISOString()
     };
+    
+    console.log(`准备保存的数据:`, JSON.stringify(data, null, 2));
     
     // 确保输出目录存在
     if (!fs.existsSync(OUTPUT_DIR)) {
@@ -166,6 +197,10 @@ async function main() {
     
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify(data, null, 2));
     console.log(`数据已保存到 ${OUTPUT_FILE}`);
+    
+    // 验证保存的文件
+    const savedContent = fs.readFileSync(OUTPUT_FILE, 'utf8');
+    console.log(`保存的文件内容:`, savedContent);
   } catch (error) {
     console.error('获取贡献者数据失败:', error);
     process.exit(1);

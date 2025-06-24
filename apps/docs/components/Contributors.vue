@@ -1,7 +1,7 @@
 <template>
   <div class="contributors">
     <!-- 团队成员 -->
-    <section class="contributor-section">
+    <section class="contributor-section" v-if="teamCollaborators.length > 0">
       <div class="section-header">
         <div class="divider-line"></div>
         <h2 class="section-title">团队成员</h2>
@@ -69,7 +69,7 @@
     </section>
 
     <!-- 贡献者头像墙 -->
-    <section class="contributor-section">
+    <section class="contributor-section" v-if="allContributors.length > 0">
       <div class="section-header">
         <div class="divider-line"></div>
         <h2 class="section-title">贡献者</h2>
@@ -95,6 +95,11 @@
     <div v-if="loading" class="loading">
       <p>正在加载贡献者信息...</p>
     </div>
+    
+    <!-- 错误状态 -->
+    <div v-if="!loading && allContributors.length === 0" class="error-message">
+      <p>暂无贡献者数据</p>
+    </div>
   </div>
 </template>
 
@@ -111,16 +116,23 @@ const teamCollaborators = computed(() => {
 
 // 从生成的JSON文件加载贡献者数据
 const loadContributors = async () => {
-  loading.value = true
+  loading.value = true;
   
   try {
-    const response = await fetch('/data/contributors.json')
+    const response = await fetch('/data/contributors.json');
     
     if (!response.ok) {
-      throw new Error(`加载贡献者数据失败: ${response.status}`)
+      throw new Error(`加载贡献者数据失败: ${response.status}`);
     }
     
-    const data = await response.json()
+    const data = await response.json();
+    
+    // 确保contributors字段存在
+    if (!data.contributors || !Array.isArray(data.contributors)) {
+      console.error('贡献者数据格式错误');
+      allContributors.value = [];
+      return;
+    }
     
     // 格式化贡献者数据
     const formattedContributors = data.contributors.map(contributor => {
@@ -133,15 +145,15 @@ const loadContributors = async () => {
         isCollaborator: contributor.isCollaborator,
         type: contributor.isCollaborator ? 'core' : 'community'
       }
-    })
+    });
     
-    allContributors.value = formattedContributors
-    console.log('成功加载贡献者数据:', formattedContributors)
+    allContributors.value = formattedContributors;
+    console.log('成功加载贡献者数据:', formattedContributors);
   } catch (error) {
-    console.error('加载失败:', error.message)
-    allContributors.value = []
+    console.error('加载失败:', error.message);
+    allContributors.value = [];
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
@@ -393,6 +405,17 @@ onMounted(() => {
   padding: 3rem;
   color: var(--vp-c-text-2);
   font-size: 1.1rem;
+}
+
+/* 错误消息 */
+.error-message {
+  text-align: center;
+  padding: 3rem;
+  color: var(--vp-c-text-2);
+  font-size: 1.1rem;
+  border: 1px dashed var(--vp-c-divider);
+  border-radius: 8px;
+  margin: 2rem 0;
 }
 
 /* 响应式 */

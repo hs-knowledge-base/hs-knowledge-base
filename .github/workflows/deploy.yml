@@ -46,7 +46,10 @@ jobs:
       - name: Install dependencies
         run: pnpm  install
       - name: Fetch contributors data
-        run: node apps/docs/scripts/fetch-contributors.js
+        run: |
+          echo "开始获取贡献者数据..."
+          echo "仓库: ${{ github.repository }}"
+          node apps/docs/scripts/fetch-contributors.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build with VitePress

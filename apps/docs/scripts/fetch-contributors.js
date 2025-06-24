@@ -84,6 +84,30 @@ async function fetchFromGitHub(url, maxRedirects = 5) {
 }
 
 /**
+ * 获取单个用户的详细信息
+ */
+async function fetchUserDetails(username) {
+  try {
+    const url = `https://api.github.com/users/${username}`;
+    console.log(`获取用户详细信息: ${username}`);
+    
+    const userData = await fetchFromGitHub(url);
+    
+    return {
+      bio: userData.bio,
+      location: userData.location,
+      company: userData.company,
+      blog: userData.blog,
+      twitter_username: userData.twitter_username,
+      name: userData.name
+    };
+  } catch (error) {
+    console.error(`获取用户 ${username} 详细信息失败:`, error);
+    return null;
+  }
+}
+
+/**
  * 获取所有贡献者
  */
 async function fetchContributors(page = 1) {
@@ -99,12 +123,31 @@ async function fetchContributors(page = 1) {
       return [];
     }
     
-    const contributors = data.map(i => ({
-      login: i.login,
-      avatar_url: i.avatar_url,
-      contributions: i.contributions,
-      html_url: i.html_url
-    }));
+    // 获取基本贡献者信息
+    const contributors = [];
+    
+    for (const contributor of data) {
+      // 过滤掉机器人
+      if (['renovate[bot]', 'dependabot[bot]'].includes(contributor.login)) {
+        continue;
+      }
+      
+      // 获取用户详细信息
+      const userDetails = await fetchUserDetails(contributor.login);
+      
+      contributors.push({
+        login: contributor.login,
+        avatar_url: contributor.avatar_url,
+        contributions: contributor.contributions,
+        html_url: contributor.html_url,
+        bio: userDetails?.bio || null,
+        location: userDetails?.location || null,
+        company: userDetails?.company || null,
+        blog: userDetails?.blog || null,
+        twitter_username: userDetails?.twitter_username || null,
+        name: userDetails?.name || contributor.login
+      });
+    }
     
     if (data.length === 100) {
       console.log(`检测到可能有更多贡献者，请求下一页 (${page + 1})...`);
@@ -112,12 +155,8 @@ async function fetchContributors(page = 1) {
       contributors.push(...nextPageContributors);
     }
     
-    const filteredContributors = contributors.filter(
-      contributor => !['renovate[bot]', 'dependabot[bot]'].includes(contributor.login)
-    );
-    
-    console.log(`过滤后的贡献者: ${filteredContributors.length} 人`);
-    return filteredContributors;
+    console.log(`获取到 ${contributors.length} 个贡献者的详细信息`);
+    return contributors;
   } catch (error) {
     console.error(`获取贡献者失败 (页码 ${page}):`, error);
     return [];

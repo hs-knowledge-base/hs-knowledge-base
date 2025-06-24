@@ -2,38 +2,7 @@
   <div class="contributor-guide">
     <div class="become-contributor">
       <h2><span class="icon">🚀</span> 成为贡献者</h2>
-      <p>如果你也想为火山知识库做出贡献，欢迎：</p>
-      
-      <div class="contribution-types">
-        <div class="contribution-type">
-          <span class="type-icon">📝</span>
-          <div class="type-content">
-            <strong>内容贡献</strong> - 添加技术文章、修正错误、完善现有内容
-          </div>
-        </div>
-        
-        <div class="contribution-type">
-          <span class="type-icon">⚙️</span>
-          <div class="type-content">
-            <strong>功能改进</strong> - 优化网站功能、改进用户体验
-          </div>
-        </div>
-        
-        <div class="contribution-type">
-          <span class="type-icon">🐛</span>
-          <div class="type-content">
-            <strong>问题反馈</strong> - 报告Bug、提出改进建议
-          </div>
-        </div>
-        
-        <div class="contribution-type">
-          <span class="type-icon">📖</span>
-          <div class="type-content">
-            <strong>文档完善</strong> - 改进文档质量、添加使用说明
-          </div>
-        </div>
-      </div>
-      
+      <p>如果你也想为火山知识库做出贡献，欢迎：</p>  
       <p class="check-guide">查看<a href="https://github.com/huoshan25/hs-knowledge-base/blob/main/CONTRIBUTING.md" target="_blank" class="external-link">贡献指南 <span class="external-icon">↗</span></a>了解详细的参与方式。</p>
     </div>
 

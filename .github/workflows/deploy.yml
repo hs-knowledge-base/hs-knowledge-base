@@ -45,11 +45,6 @@ jobs:
         uses: actions/configure-pages@v4
       - name: Install dependencies
         run: pnpm  install
-      - name: Fetch contributors data
-        run: node apps/docs/scripts/fetch-contributors.js
-        env:
-          # 使用GitHub Actions自动提供的令牌
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build with VitePress
         run: pnpm run docs:build
       - name: Upload artifact

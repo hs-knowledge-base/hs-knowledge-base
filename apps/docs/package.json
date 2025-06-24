@@ -10,7 +10,8 @@
     "build:full": "node scripts/optimize-images.js && node scripts/build.js",
     "preview": "vitepress preview",
     "analyze": "vitepress build && npx vite-bundle-analyzer .vitepress/dist",
-    "optimize:images": "node scripts/optimize-images.js"
+    "optimize:images": "node scripts/optimize-images.js",
+    "fetch:contributors": "node scripts/fetch-contributors.js"
   },
   "dependencies": {
     "@types/fs-extra": "^11.0.4",

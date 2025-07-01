@@ -80,7 +80,7 @@
 
 ### 路由与导航
 - React Router
-- Vue Router
+- [Vue Router@3](./vue/vue-router.md) Vue Router - Vue官方路由管理器，支持嵌套路由、路由守卫、懒加载等特性
 - Angular Router
 - 单页应用架构
 - 多页应用架构

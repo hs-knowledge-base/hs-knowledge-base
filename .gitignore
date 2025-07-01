@@ -1,6 +1,8 @@
 # 依赖相关
 node_modules
 .pnpm-store
+package-lock.json
+pnpm-lock.yaml
 
 # 构建输出
 dist

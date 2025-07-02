@@ -43,7 +43,7 @@ importers:
         specifier: ^0.52.2
         version: 0.52.2
       typescript:
-        specifier: ^5.8.3
+        specifier: ^5.3.3
         version: 5.8.3
     devDependencies:
       vite:

@@ -24,7 +24,7 @@ export const monacoVimUrl = /* @__PURE__ */ getUrl('monaco-vim@0.4.1/dist/monaco
 export const emmetMonacoUrl = /* @__PURE__ */ getUrl('emmet-monaco-es@5.5.0/dist/emmet-monaco.js');
 
 /** 编译器相关 URLs */
-export const typescriptUrl = /* @__PURE__ */ getUrl('typescript@5.6.2/lib/typescript.js');
+export const typescriptUrl = 'https://unpkg.com/typescript@5.6.2/lib/typescript.js';
 
 export const babelUrl = /* @__PURE__ */ getUrl('@babel/standalone@7.26.4/babel.js');
 

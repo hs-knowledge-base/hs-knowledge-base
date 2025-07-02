@@ -124,8 +124,39 @@ export class EditorManager {
       // 设置编辑器语言
       const model = editor.getModel();
       if (model) {
-        this.monaco.editor.setModelLanguage(model, language);
-        this.logger.info(`编辑器 ${editorType} 语言已设置为 ${language}`);
+        const oldLanguage = model.getLanguageId();
+        this.logger.info(`编辑器 ${editorType} 当前语言: ${oldLanguage}, 目标语言: ${language}`);
+
+        // 获取当前内容
+        const currentValue = model.getValue();
+
+        // 创建新的模型，使用正确的文件扩展名
+        const extension = this.getFileExtension(language);
+        const newUri = this.monaco.Uri.parse(`file:///playground/${editorType}.${extension}`);
+
+        // 检查是否已存在相同 URI 的模型
+        const existingModel = this.monaco.editor.getModel(newUri);
+        if (existingModel && existingModel !== model) {
+          existingModel.dispose();
+        }
+
+        // 创建新模型
+        const newModel = this.monaco.editor.createModel(currentValue, language, newUri);
+
+        // 设置新模型到编辑器
+        editor.setModel(newModel);
+
+        // 释放旧模型
+        model.dispose();
+
+        // 验证语言设置是否生效
+        const finalLanguage = newModel.getLanguageId();
+        this.logger.info(`编辑器 ${editorType} 语言设置完成: ${oldLanguage} -> ${finalLanguage}`);
+        this.logger.info(`编辑器 ${editorType} URI 更新为: ${newUri.toString()}`);
+
+        if (finalLanguage !== language) {
+          this.logger.warn(`语言设置可能失败: 期望 ${language}, 实际 ${finalLanguage}`);
+        }
       }
 
       // 更新面板标题
@@ -141,6 +172,27 @@ export class EditorManager {
     } catch (error) {
       this.logger.error(`设置编辑器 ${editorType} 语言 ${language} 失败`, error);
     }
+  }
+
+  /** 根据语言获取文件扩展名 */
+  private getFileExtension(language: string): string {
+    const extensionMap: Record<string, string> = {
+      'html': 'html',
+      'css': 'css',
+      'scss': 'scss',
+      'less': 'less',
+      'sass': 'sass',
+      'javascript': 'js',
+      'typescript': 'ts',
+      'json': 'json',
+      'xml': 'xml',
+      'markdown': 'md',
+      'python': 'py',
+      'shell': 'sh',
+      'bash': 'sh'
+    };
+
+    return extensionMap[language] || 'txt';
   }
 
   /** 销毁编辑器 */
@@ -310,17 +362,20 @@ export class EditorManager {
   /** 创建 Monaco 编辑器实例 */
   private createEditors(): void {
     const editorConfigs = [
-      { type: 'markup', language: 'html', placeholder: '输入 HTML 代码...' },
-      { type: 'style', language: 'css', placeholder: '输入 CSS 代码...' },
-      { type: 'script', language: 'javascript', placeholder: '输入 JavaScript 代码...' }
+      { type: 'markup', language: 'html', placeholder: '输入 HTML 代码...', extension: 'html' },
+      { type: 'style', language: 'css', placeholder: '输入 CSS 代码...', extension: 'css' },
+      { type: 'script', language: 'javascript', placeholder: '输入 JavaScript 代码...', extension: 'js' }
     ];
 
-    editorConfigs.forEach(({ type, language, placeholder }) => {
+    editorConfigs.forEach(({ type, language, placeholder, extension }) => {
       const panel = this.container.querySelector(`[data-editor="${type}"] .panel-content`) as HTMLElement;
 
+      // 创建具有正确 URI 的模型
+      const uri = this.monaco.Uri.parse(`file:///playground/${type}.${extension}`);
+      const model = this.monaco.editor.createModel('', language, uri);
+
       const editor = this.monaco.editor.create(panel, {
-        value: '',
-        language,
+        model,
         theme: 'playground-dark',
         automaticLayout: true,
         minimap: { enabled: false },

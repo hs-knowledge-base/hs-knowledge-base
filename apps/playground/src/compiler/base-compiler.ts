@@ -1,4 +1,4 @@
-import type { Language, CompilerOptions, CompileResult } from '../types';
+import type { Language, CompilerOptions, CompileResult } from '@/types';
 import { Logger } from '../utils/logger';
 
 /** 编译器抽象基类 */

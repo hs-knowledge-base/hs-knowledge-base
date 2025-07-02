@@ -76,10 +76,16 @@ export class CompilerFactory {
     return hash.toString();
   }
 
-  /** 清除缓存 */
+  /** 清除编译结果缓存 */
   clearCache(): void {
     this.cache.clear();
     this.logger.info('编译缓存已清除');
+  }
+
+  /** 清除编译器实例缓存 */
+  clearCompilerInstances(): void {
+    this.compilers.clear();
+    this.logger.info('编译器实例缓存已清除');
   }
 
   /**
@@ -107,12 +113,7 @@ export class CompilerFactory {
     return Array.from(this.compilerClasses.keys());
   }
 
-  /**
-   * 清除编译器缓存
-   */
-  clearCache(): void {
-    this.compilers.clear();
-  }
+
 
   /**
    * 动态加载编译器（用于按需加载）

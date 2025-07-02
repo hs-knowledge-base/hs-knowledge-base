@@ -1,5 +1,5 @@
 import { BaseCompiler } from '../base-compiler';
-import type { CompilerOptions, CompileResult } from '../../types';
+import type { CompilerOptions, CompileResult } from '@/types';
 
 /** TypeScript 编译器 */
 export class TypeScriptCompiler extends BaseCompiler {

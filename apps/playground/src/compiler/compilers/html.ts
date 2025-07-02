@@ -1,6 +1,5 @@
-// HTML 编译器
 import { BaseCompiler } from '../base-compiler';
-import type { CompilerOptions, CompileResult } from '../../types';
+import type { CompilerOptions, CompileResult } from '@/types';
 
 /** HTML 编译器 */
 export class HtmlCompiler extends BaseCompiler {

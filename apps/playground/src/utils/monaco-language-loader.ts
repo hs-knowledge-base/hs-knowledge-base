@@ -1,111 +1,71 @@
-import {
-  monacoTypescriptUrl,
-  monacoJsonUrl,
-  monacoCssUrl,
-  monacoHtmlUrl,
-  monacoJavascriptUrl,
-  monacoMarkdownUrl,
-  monacoXmlUrl,
-  monacoYamlUrl,
-  monacoSqlUrl,
-  monacoPythonUrl,
-  monacoShellUrl
-} from '../services/vendors';
 import { Logger } from './logger';
 
 const logger = new Logger('MonacoLanguageLoader');
 
 /** 语言加载状态 */
 const loadedLanguages = new Set<string>();
-const loadingPromises = new Map<string, Promise<void>>();
 
-/** 语言配置映射 */
-const languageUrls: Record<string, string> = {
-  typescript: monacoTypescriptUrl,
-  javascript: monacoJavascriptUrl,
-  json: monacoJsonUrl,
-  css: monacoCssUrl,
-  html: monacoHtmlUrl,
-  markdown: monacoMarkdownUrl,
-  xml: monacoXmlUrl,
-  yaml: monacoYamlUrl,
-  sql: monacoSqlUrl,
-  python: monacoPythonUrl,
-  shell: monacoShellUrl,
-  // 别名支持
-  js: monacoJavascriptUrl,
-  ts: monacoTypescriptUrl,
-  jsx: monacoJavascriptUrl,
-  tsx: monacoTypescriptUrl,
-  scss: monacoCssUrl,
-  less: monacoCssUrl,
-  sass: monacoCssUrl,
-  htm: monacoHtmlUrl,
-  xml: monacoXmlUrl,
-  yml: monacoYamlUrl,
-  py: monacoPythonUrl,
-  sh: monacoShellUrl,
-  bash: monacoShellUrl
+/** 支持的语言配置 */
+const supportedLanguages = {
+  // LiveCodes Monaco Editor 内置语言（不需要额外加载）
+  builtin: [
+    'javascript', 'typescript', 'html', 'css', 'json', 'xml', 'yaml', 'markdown',
+    'python', 'sql', 'shell', 'bash', 'dockerfile', 'ini', 'properties'
+  ],
+
+  // 别名映射
+  aliases: {
+    js: 'javascript',
+    ts: 'typescript',
+    jsx: 'javascript',
+    tsx: 'typescript',
+    htm: 'html',
+    scss: 'css',
+    sass: 'css',
+    less: 'css',
+    yml: 'yaml',
+    py: 'python',
+    sh: 'shell',
+    md: 'markdown'
+  }
 };
 
 /** 动态加载语言支持 */
 export const loadMonacoLanguage = async (language: string): Promise<void> => {
   // 标准化语言名称
-  const normalizedLang = language.toLowerCase();
-  
+  const normalizedLang = normalizeLanguage(language);
+
   // 如果已经加载过，直接返回
   if (loadedLanguages.has(normalizedLang)) {
     return;
   }
 
-  // 如果正在加载，等待加载完成
-  if (loadingPromises.has(normalizedLang)) {
-    return loadingPromises.get(normalizedLang);
-  }
-
-  // 获取语言URL
-  const languageUrl = languageUrls[normalizedLang];
-  if (!languageUrl) {
-    logger.warn(`不支持的语言: ${language}`);
+  // 检查是否是内置语言
+  if (supportedLanguages.builtin.includes(normalizedLang)) {
+    // LiveCodes Monaco Editor 内置语言不需要额外加载
+    loadedLanguages.add(normalizedLang);
+    logger.info(`内置语言 ${language} 已可用`);
     return;
   }
 
-  // 开始加载语言
-  const loadPromise = loadLanguageFromUrl(normalizedLang, languageUrl);
-  loadingPromises.set(normalizedLang, loadPromise);
-
-  try {
-    await loadPromise;
-    loadedLanguages.add(normalizedLang);
-    logger.info(`语言 ${language} 加载成功`);
-  } catch (error) {
-    logger.error(`语言 ${language} 加载失败`, error);
-    loadingPromises.delete(normalizedLang);
-    throw error;
-  } finally {
-    loadingPromises.delete(normalizedLang);
-  }
+  // 对于非内置语言，标记为已处理（避免重复尝试）
+  loadedLanguages.add(normalizedLang);
+  logger.warn(`语言 ${language} 暂不支持动态加载，使用基础语法高亮`);
 };
 
-/** 从URL加载语言支持 */
-const loadLanguageFromUrl = async (language: string, url: string): Promise<void> => {
-  try {
-    // 动态导入语言模块
-    await import(/* @vite-ignore */ url);
-    logger.debug(`语言模块 ${language} 从 ${url} 加载成功`);
-  } catch (error) {
-    logger.error(`从 ${url} 加载语言模块 ${language} 失败`, error);
-    throw error;
-  }
+/** 标准化语言名称 */
+const normalizeLanguage = (language: string): string => {
+  const normalized = language.toLowerCase();
+  return supportedLanguages.aliases[normalized] || normalized;
 };
 
 /** 预加载常用语言 */
 export const preloadCommonLanguages = async (): Promise<void> => {
   const commonLanguages = ['javascript', 'typescript', 'css', 'html', 'json'];
-  
+
   logger.info('开始预加载常用语言...');
-  
-  const loadPromises = commonLanguages.map(lang => 
+
+  const loadPromises = commonLanguages.map(lang =>
     loadMonacoLanguage(lang).catch(error => {
       logger.warn(`预加载语言 ${lang} 失败`, error);
     })
@@ -117,12 +77,12 @@ export const preloadCommonLanguages = async (): Promise<void> => {
 
 /** 检查语言是否已加载 */
 export const isLanguageLoaded = (language: string): boolean => {
-  return loadedLanguages.has(language.toLowerCase());
+  return loadedLanguages.has(normalizeLanguage(language));
 };
 
 /** 获取支持的语言列表 */
 export const getSupportedLanguages = (): string[] => {
-  return Object.keys(languageUrls);
+  return [...supportedLanguages.builtin, ...Object.keys(supportedLanguages.aliases)];
 };
 
 /** 获取语言的显示名称 */
@@ -139,6 +99,10 @@ export const getLanguageDisplayName = (language: string): string => {
     sql: 'SQL',
     python: 'Python',
     shell: 'Shell',
+    bash: 'Bash',
+    dockerfile: 'Dockerfile',
+    ini: 'INI',
+    properties: 'Properties',
     js: 'JavaScript',
     ts: 'TypeScript',
     jsx: 'JSX',
@@ -150,8 +114,9 @@ export const getLanguageDisplayName = (language: string): string => {
     yml: 'YAML',
     py: 'Python',
     sh: 'Shell',
-    bash: 'Bash'
+    md: 'Markdown'
   };
 
-  return displayNames[language.toLowerCase()] || language;
+  const normalized = normalizeLanguage(language);
+  return displayNames[normalized] || language;
 };

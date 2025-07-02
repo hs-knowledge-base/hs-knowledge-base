@@ -5,13 +5,6 @@ import { Logger } from '../utils/logger';
 import { loadMonaco } from '../utils/monaco-loader';
 import { loadMonacoLanguage } from '../utils/monaco-language-loader';
 import { LanguageSelector } from '../ui/language-selector';
-import {
-  monacoEditorWorkerUrl,
-  monacoTypescriptWorkerUrl,
-  monacoJsonWorkerUrl,
-  monacoCssWorkerUrl,
-  monacoHtmlWorkerUrl
-} from '../services/vendors';
 
 
 
@@ -135,47 +128,26 @@ export class EditorManager {
 
   /** 配置 Monaco Editor Workers */
   private configureWorkers(): void {
-    // 基于 LiveCodes 的动态 CDN 加载方式配置 Workers
+    // 禁用 Workers，使用主线程模式以避免 CDN 加载问题
     (self as any).MonacoEnvironment = {
-      getWorker: function (_workerId: string, label: string) {
-        // 创建 Worker 的通用函数
-        const createWorkerFromUrl = (url: string) => {
-          // 使用 Blob 创建 Worker 以避免 CORS 问题
-          const workerScript = `
-            importScripts('${url}');
-          `;
-          const blob = new Blob([workerScript], { type: 'application/javascript' });
-          return new Worker(URL.createObjectURL(blob), { name: label });
-        };
-
-        // 根据语言类型返回对应的 Worker
-        switch (label) {
-          case 'json':
-            return createWorkerFromUrl(monacoJsonWorkerUrl);
-          case 'css':
-          case 'scss':
-          case 'less':
-            return createWorkerFromUrl(monacoCssWorkerUrl);
-          case 'html':
-          case 'handlebars':
-          case 'razor':
-            return createWorkerFromUrl(monacoHtmlWorkerUrl);
-          case 'typescript':
-          case 'javascript':
-            return createWorkerFromUrl(monacoTypescriptWorkerUrl);
-          default:
-            return createWorkerFromUrl(monacoEditorWorkerUrl);
-        }
+      getWorker: function (_workerId: string, label: string): Worker {
+        // 创建一个空的 Worker，Monaco Editor 会自动回退到主线程模式
+        const workerScript = `
+          // 空的 Worker 实现，强制 Monaco Editor 使用主线程模式
+          self.onmessage = function(e) {
+            // 返回错误，让 Monaco Editor 知道 Worker 不可用
+            self.postMessage({
+              id: e.data.id,
+              error: 'Worker disabled - using main thread mode'
+            });
+          };
+        `;
+        const blob = new Blob([workerScript], { type: 'application/javascript' });
+        return new Worker(URL.createObjectURL(blob), { name: `${label}-disabled` });
       }
     };
 
-    this.logger.info('Monaco Editor Workers 配置完成', {
-      editorWorker: monacoEditorWorkerUrl,
-      typescriptWorker: monacoTypescriptWorkerUrl,
-      jsonWorker: monacoJsonWorkerUrl,
-      cssWorker: monacoCssWorkerUrl,
-      htmlWorker: monacoHtmlWorkerUrl
-    });
+    this.logger.info('Monaco Editor Workers 配置完成（主线程模式）');
   }
 
   /** 配置 Monaco Editor */

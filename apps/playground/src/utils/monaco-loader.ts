@@ -29,11 +29,6 @@ export const loadMonaco = async (): Promise<typeof import('monaco-editor')> => {
     (window as any).monaco = monaco;
     logger.info('Monaco Editor 加载成功');
 
-    // 预加载常用语言
-    preloadCommonLanguages().catch(error => {
-      logger.warn('预加载常用语言失败', error);
-    });
-
     return monaco;
   } catch (error) {
     logger.error('Monaco Editor 加载失败', error);
@@ -44,32 +39,39 @@ export const loadMonaco = async (): Promise<typeof import('monaco-editor')> => {
 
 /** 从 CDN 加载 Monaco Editor */
 const loadMonacoFromCDN = async (): Promise<typeof import('monaco-editor')> => {
-  try {
-    // 尝试从本地 node_modules 加载
-    return await import('monaco-editor');
-  } catch (localError) {
-    logger.warn('本地 Monaco Editor 加载失败，尝试从 CDN 加载', localError);
-
-    try {
-      // 从 CDN 加载主模块
-      const monaco = await import(/* @vite-ignore */ monacoEditorMainUrl);
-      logger.info('Monaco Editor 从 CDN 加载成功');
-      return monaco;
-    } catch (cdnError) {
-      logger.error('CDN Monaco Editor 加载失败', cdnError);
-
-      // 尝试备用CDN
-      try {
-        const fallbackUrl = monacoBaseUrl + 'esm/vs/editor/editor.main.js';
-        const monaco = await import(/* @vite-ignore */ fallbackUrl);
-        logger.info('Monaco Editor 从备用 CDN 加载成功');
-        return monaco;
-      } catch (fallbackError) {
-        logger.error('备用 CDN Monaco Editor 加载失败', fallbackError);
-        throw new Error('无法加载 Monaco Editor');
+  // 尝试多种加载方式，优先使用 LiveCodes 版本
+  const loadStrategies = [
+    {
+      name: 'LiveCodes Monaco Editor',
+      loader: async () => {
+        // 按照 LiveCodes 的方式加载
+        const monacoModule = await import(/* @vite-ignore */ monacoEditorMainUrl);
+        // LiveCodes 的方式：(window as any).monaco = (window as any).monaco || monacoModule.monaco;
+        return (window as any).monaco || monacoModule.monaco || monacoModule;
       }
+    },
+  ];
+
+  for (const strategy of loadStrategies) {
+    try {
+      logger.info(`尝试从 ${strategy.name} 加载 Monaco Editor`);
+      const monaco = await strategy.loader();
+
+      if (monaco && (monaco.editor || monaco.monaco?.editor)) {
+        const finalMonaco = monaco.monaco || monaco;
+        logger.info(`Monaco Editor 从 ${strategy.name} 加载成功`);
+        return finalMonaco;
+      } else {
+        logger.warn(`从 ${strategy.name} 加载的 Monaco Editor 对象无效`);
+      }
+    } catch (error) {
+      logger.warn(`从 ${strategy.name} 加载 Monaco Editor 失败`, error);
+      // 继续尝试下一个策略
     }
   }
+
+  // 所有策略都失败了
+  throw new Error('无法从任何源加载 Monaco Editor');
 };
 
 /** 检查 Monaco Editor 是否已加载 */

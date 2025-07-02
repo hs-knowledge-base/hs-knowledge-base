@@ -1,0 +1,221 @@
+/* 全局样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #f8f9fa;
+  color: #333;
+}
+
+#app {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* 工具栏样式 */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: #fff;
+  border-bottom: 1px solid #e1e4e8;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #007acc;
+  text-decoration: none;
+}
+
+.logo:hover {
+  color: #005a9e;
+}
+
+/* 按钮样式 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #d1d5da;
+  border-radius: 6px;
+  background: #fff;
+  color: #24292e;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: #f6f8fa;
+  border-color: #c1c7cd;
+}
+
+.btn-primary {
+  background: #007acc;
+  color: #fff;
+  border-color: #007acc;
+}
+
+.btn-primary:hover {
+  background: #005a9e;
+  border-color: #005a9e;
+}
+
+.btn-success {
+  background: #28a745;
+  color: #fff;
+  border-color: #28a745;
+}
+
+.btn-success:hover {
+  background: #218838;
+  border-color: #218838;
+}
+
+/* 选择器样式 */
+.language-selector {
+  position: relative;
+}
+
+.language-select {
+  padding: 6px 12px;
+  font-size: 14px;
+  border: 1px solid #d1d5da;
+  border-radius: 6px;
+  background: #fff;
+  color: #24292e;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.language-select:focus {
+  outline: none;
+  border-color: #007acc;
+  box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.1);
+}
+
+/* LiveCodes 容器样式 */
+.playground-container {
+  height: calc(100vh - 60px); /* 减去工具栏高度 */
+  width: 100%;
+  border: none;
+  background: #fff;
+}
+
+.playground-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 60px);
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007acc;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 16px;
+  color: #666;
+}
+
+/* 错误状态 */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 60px);
+  gap: 16px;
+  padding: 20px;
+  text-align: center;
+}
+
+.error-title {
+  font-size: 24px;
+  color: #d73a49;
+  margin-bottom: 8px;
+}
+
+.error-message {
+  font-size: 16px;
+  color: #666;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .toolbar {
+    padding: 8px 12px;
+  }
+  
+  .toolbar-left {
+    gap: 12px;
+  }
+  
+  .toolbar-right {
+    gap: 8px;
+  }
+  
+  .logo {
+    font-size: 16px;
+  }
+  
+  .btn {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  
+  .language-select {
+    min-width: 100px;
+    font-size: 13px;
+  }
+}

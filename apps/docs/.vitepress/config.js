@@ -49,7 +49,10 @@ export default defineConfig({
   },
 
   vite: {
-    plugins: [MarkdownTransformPlugin(), ContributorsPlugin(contributorsData)],
+    plugins: [
+      MarkdownTransformPlugin(),
+      ContributorsPlugin(contributorsData)
+    ],
     server: {
       fs: {
         // 允许访问上层目录

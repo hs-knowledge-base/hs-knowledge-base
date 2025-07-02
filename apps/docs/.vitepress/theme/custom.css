@@ -269,3 +269,134 @@
   color: #00e5ff;
   border-bottom-color: #00e5ff;
 }
+
+/* LiveCodes Playground 样式 - 代码块增强 */
+
+/* 代码块容器样式 */
+div[class*="language-"] {
+  position: relative;
+}
+
+/* 代码块操作按钮容器 */
+.code-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+}
+
+/* Playground 运行按钮 */
+.playground-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--vp-c-brand-1);
+  background: rgba(var(--vp-c-bg-rgb), 0.9);
+  border: 1px solid var(--vp-c-brand-1);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.playground-button:hover {
+  background: var(--vp-c-brand-1);
+  color: var(--vp-c-white);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--vp-c-brand-1), 0.3);
+}
+
+.playground-button svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+}
+
+.playground-button:hover svg {
+  transform: scale(1.1);
+}
+
+.playground-button span {
+  font-weight: 600;
+}
+
+/* 深色主题适配 */
+.dark .playground-button {
+  color: var(--vp-c-brand-2);
+  border-color: var(--vp-c-brand-2);
+  background: rgba(var(--vp-c-bg-rgb), 0.9);
+}
+
+.dark .playground-button:hover {
+  background: var(--vp-c-brand-2);
+  color: var(--vp-c-black);
+}
+
+/* 确保按钮在代码块滚动时保持可见 */
+div[class*="language-"] pre {
+  position: relative;
+}
+
+/* 响应式设计 */
+@media (max-width: 640px) {
+  .code-actions {
+    top: 4px;
+    right: 4px;
+  }
+
+  .playground-button {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .playground-button span {
+    display: none;
+  }
+
+  .playground-button svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Playground 页面样式 */
+.playground-page {
+  --vp-layout-max-width: 100%;
+}
+
+.playground-page .VPContent {
+  padding: 0 !important;
+  max-width: 100% !important;
+}
+
+.playground-page .container {
+  max-width: 100% !important;
+  padding: 0 !important;
+}
+
+/* 确保 LiveCodes iframe 正确显示 */
+.playground-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* 加载动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

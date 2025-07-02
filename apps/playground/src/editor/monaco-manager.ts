@@ -84,22 +84,44 @@ export class EditorManager {
 
   /** 配置 Monaco Editor Workers */
   private configureWorkers(): void {
-    // 配置 Monaco Editor 的 worker
+    // 基于 LiveCodes 的最佳实践配置 Workers
     (self as any).MonacoEnvironment = {
-      getWorkerUrl: function (moduleId: string, label: string) {
-        if (label === 'json') {
-          return './monaco-editor/esm/vs/language/json/json.worker.js';
+      getWorker: function (_workerId: string, label: string) {
+        // 使用动态导入创建 Workers，避免路径问题
+        const createWorker = (url: string) => {
+          return new Worker(url, {
+            type: 'module',
+            name: label
+          });
+        };
+
+        switch (label) {
+          case 'json':
+            return createWorker(
+              new URL('monaco-editor/esm/vs/language/json/json.worker.js', import.meta.url).href
+            );
+          case 'css':
+          case 'scss':
+          case 'less':
+            return createWorker(
+              new URL('monaco-editor/esm/vs/language/css/css.worker.js', import.meta.url).href
+            );
+          case 'html':
+          case 'handlebars':
+          case 'razor':
+            return createWorker(
+              new URL('monaco-editor/esm/vs/language/html/html.worker.js', import.meta.url).href
+            );
+          case 'typescript':
+          case 'javascript':
+            return createWorker(
+              new URL('monaco-editor/esm/vs/language/typescript/ts.worker.js', import.meta.url).href
+            );
+          default:
+            return createWorker(
+              new URL('monaco-editor/esm/vs/editor/editor.worker.js', import.meta.url).href
+            );
         }
-        if (label === 'css' || label === 'scss' || label === 'less') {
-          return './monaco-editor/esm/vs/language/css/css.worker.js';
-        }
-        if (label === 'html' || label === 'handlebars' || label === 'razor') {
-          return './monaco-editor/esm/vs/language/html/html.worker.js';
-        }
-        if (label === 'typescript' || label === 'javascript') {
-          return './monaco-editor/esm/vs/language/typescript/ts.worker.js';
-        }
-        return './monaco-editor/esm/vs/editor/editor.worker.js';
       }
     };
   }
@@ -128,32 +150,87 @@ export class EditorManager {
 
   /** 配置语言服务 */
   private configureLanguageServices(): void {
-    // TypeScript 配置
-    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+    // 基于 LiveCodes 的编译器选项配置
+    const compilerOptions: monaco.languages.typescript.CompilerOptions = {
       target: monaco.languages.typescript.ScriptTarget.ES2020,
+      lib: ['ES2020', 'DOM', 'DOM.Iterable'],
       allowNonTsExtensions: true,
       moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-      module: monaco.languages.typescript.ModuleKind.CommonJS,
+      module: monaco.languages.typescript.ModuleKind.ESNext,
       noEmit: true,
       esModuleInterop: true,
+      allowSyntheticDefaultImports: true,
+      strict: false,
+      skipLibCheck: true,
       jsx: monaco.languages.typescript.JsxEmit.React,
       allowJs: true,
-      typeRoots: ['node_modules/@types']
-    });
+      checkJs: false
+    };
+
+    // TypeScript 配置
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions(compilerOptions);
 
     // JavaScript 配置
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-      target: monaco.languages.typescript.ScriptTarget.ES2020,
-      allowNonTsExtensions: true,
-      allowJs: true
+      ...compilerOptions,
+      allowJs: true,
+      checkJs: false
     });
 
-    // 禁用一些不需要的诊断
-    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+    // 基于 LiveCodes 的诊断选项配置
+    const diagnosticsOptions: monaco.languages.typescript.DiagnosticsOptions = {
       noSemanticValidation: false,
       noSyntaxValidation: false,
-      noSuggestionDiagnostics: true
-    });
+      noSuggestionDiagnostics: false,
+      diagnosticCodesToIgnore: [
+        2354, // tslib 未找到错误（LiveCodes 忽略的）
+        1108, // 'return' statement outside function
+        2304, // Cannot find name
+        2580, // Cannot find name. Do you need to install type definitions
+        7027, // Unreachable code detected
+        6133  // Variable is declared but never used
+      ]
+    };
+
+    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions(diagnosticsOptions);
+    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(diagnosticsOptions);
+
+    // 添加常用的类型定义
+    this.addCommonTypeDefinitions();
+  }
+
+  /** 添加常用类型定义 */
+  private addCommonTypeDefinitions(): void {
+    // 基于 LiveCodes 的简化类型定义
+    const commonTypes = `
+      // 全局变量和函数
+      declare const console: Console;
+      declare function setTimeout(callback: () => void, delay?: number): number;
+      declare function setInterval(callback: () => void, delay?: number): number;
+      declare function clearTimeout(id: number): void;
+      declare function clearInterval(id: number): void;
+
+      // DOM 基础类型
+      declare const document: Document;
+      declare const window: Window;
+
+      // 常用工具类型
+      type Partial<T> = { [P in keyof T]?: T[P] };
+      type Required<T> = { [P in keyof T]-?: T[P] };
+      type Pick<T, K extends keyof T> = { [P in K]: T[P] };
+      type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
+    `;
+
+    // 添加类型定义到 TypeScript 和 JavaScript 服务
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      commonTypes,
+      'file:///playground-types.d.ts'
+    );
+
+    monaco.languages.typescript.javascriptDefaults.addExtraLib(
+      commonTypes,
+      'file:///playground-types.d.ts'
+    );
   }
 
   /** 创建编辑器界面 */

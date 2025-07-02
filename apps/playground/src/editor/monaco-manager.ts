@@ -24,12 +24,9 @@ export class EditorManager {
     this.container = container;
 
     try {
-      // 动态加载 Monaco Editor
+      // 动态加载 Monaco Editor (AMD 版本会自动配置 Workers)
       this.monaco = await loadMonaco();
       this.logger.info('Monaco Editor 加载成功');
-
-      // 配置 Monaco Editor Workers
-      this.configureWorkers();
 
       // 配置 Monaco Editor
       this.configureMonaco();
@@ -126,29 +123,7 @@ export class EditorManager {
     this.container.innerHTML = '';
   }
 
-  /** 配置 Monaco Editor Workers */
-  private configureWorkers(): void {
-    // 禁用 Workers，使用主线程模式以避免 CDN 加载问题
-    (self as any).MonacoEnvironment = {
-      getWorker: function (_workerId: string, label: string): Worker {
-        // 创建一个空的 Worker，Monaco Editor 会自动回退到主线程模式
-        const workerScript = `
-          // 空的 Worker 实现，强制 Monaco Editor 使用主线程模式
-          self.onmessage = function(e) {
-            // 返回错误，让 Monaco Editor 知道 Worker 不可用
-            self.postMessage({
-              id: e.data.id,
-              error: 'Worker disabled - using main thread mode'
-            });
-          };
-        `;
-        const blob = new Blob([workerScript], { type: 'application/javascript' });
-        return new Worker(URL.createObjectURL(blob), { name: `${label}-disabled` });
-      }
-    };
 
-    this.logger.info('Monaco Editor Workers 配置完成（主线程模式）');
-  }
 
   /** 配置 Monaco Editor */
   private configureMonaco(): void {

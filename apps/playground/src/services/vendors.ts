@@ -2,34 +2,16 @@ import { modulesService } from './modules';
 
 const { getUrl, getModuleUrl } = modulesService;
 
-/** Monaco Editor 基础 URL - 使用 LiveCodes 的定制版本 */
-export const monacoBaseUrl = /* @__PURE__ */ getUrl('@live-codes/monaco-editor@0.3.0/');
+/** Monaco Editor 基础 URL - 使用 unpkg CDN 和稳定版本 */
+export const monacoBaseUrl = 'https://unpkg.com/monaco-editor@0.45.0/min';
 
-/** Monaco Editor 核心模块 URLs */
-export const monacoEditorMainUrl = /* @__PURE__ */ getUrl(
-  '@live-codes/monaco-editor@0.3.0/monaco.js'
-);
+/** Monaco Editor 核心模块 URLs - 使用 AMD 版本 */
+export const monacoLoaderUrl = 'https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js';
 
-/** Monaco Editor Workers URLs - 使用 LiveCodes 版本 */
-export const monacoEditorWorkerUrl = /* @__PURE__ */ getUrl(
-  '@live-codes/monaco-editor@0.3.0/editor.worker.js'
-);
+/** Monaco Editor Worker 主文件 */
+export const monacoWorkerMainUrl = 'https://unpkg.com/monaco-editor@0.45.0/min/vs/base/worker/workerMain.js';
 
-export const monacoTypescriptWorkerUrl = /* @__PURE__ */ getUrl(
-  '@live-codes/monaco-editor@0.3.0/ts.worker.js'
-);
 
-export const monacoJsonWorkerUrl = /* @__PURE__ */ getUrl(
-  '@live-codes/monaco-editor@0.3.0/json.worker.js'
-);
-
-export const monacoCssWorkerUrl = /* @__PURE__ */ getUrl(
-  '@live-codes/monaco-editor@0.3.0/css.worker.js'
-);
-
-export const monacoHtmlWorkerUrl = /* @__PURE__ */ getUrl(
-  '@live-codes/monaco-editor@0.3.0/html.worker.js'
-);
 
 /** Monaco Editor 主题 URLs */
 export const monacoThemesBaseUrl = /* @__PURE__ */ getUrl('monaco-themes@0.4.4/themes/');

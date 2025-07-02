@@ -28,6 +28,8 @@ export const typescriptUrl = /* @__PURE__ */ getUrl('typescript@5.6.2/lib/typesc
 
 export const babelUrl = /* @__PURE__ */ getUrl('@babel/standalone@7.26.4/babel.js');
 
+export const markdownItUrl = 'https://esm.sh/markdown-it@14.1.0';
+
 export const postcssUrl = /* @__PURE__ */ getModuleUrl('postcss@8.4.47');
 
 export const autoprefixerUrl = /* @__PURE__ */ getModuleUrl('autoprefixer@10.4.20');

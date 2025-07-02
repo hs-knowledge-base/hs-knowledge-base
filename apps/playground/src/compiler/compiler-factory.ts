@@ -5,6 +5,7 @@ import { TypeScriptCompiler } from './compilers/typescript';
 import { PythonCompiler } from './compilers/python';
 import { HtmlCompiler } from './compilers/html';
 import { CssCompiler } from './compilers/css';
+import { MarkdownCompiler } from './compilers/markdown';
 import { Logger } from '@/utils/logger';
 
 /** 编译器工厂 */
@@ -152,7 +153,8 @@ export class CompilerFactory {
     this.registerCompiler('python', PythonCompiler);
     this.registerCompiler('html', HtmlCompiler);
     this.registerCompiler('css', CssCompiler);
-    
+    this.registerCompiler('markdown', MarkdownCompiler);
+
     this.logger.info(`注册了 ${this.compilerClasses.size} 个内置编译器`);
   }
 

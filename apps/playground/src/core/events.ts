@@ -1,4 +1,4 @@
-import type { EventHandler, PlaygroundEvent } from '../types';
+import type { EventHandler, PlaygroundEvent } from '@/types';
 
 /** 事件发射器 */
 export class EventEmitter {

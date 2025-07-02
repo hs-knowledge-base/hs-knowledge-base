@@ -1,7 +1,7 @@
-import type { Config } from '../types';
-import { EventEmitter } from '../core/events';
-import { CompilerFactory } from '../compiler/compiler-factory';
-import { Logger } from '../utils/logger';
+import type { Config } from '@/types';
+import { EventEmitter } from '@/core/events';
+import { CompilerFactory } from '@/compiler/compiler-factory';
+import { Logger } from '@/utils/logger';
 
 /** 代码运行器 */
 export class CodeRunner {
@@ -38,6 +38,13 @@ export class CodeRunner {
         styleCompiler.compile(code.style, { config, language: config.style.language }),
         scriptCompiler.compile(code.script, { config, language: config.script.language })
       ]);
+
+      // 调试日志
+      this.logger.info('编译结果:', {
+        markup: { language: config.markup.language, codeLength: markupResult.code.length, hasError: !!markupResult.error },
+        style: { language: config.style.language, codeLength: styleResult.code.length, hasError: !!styleResult.error },
+        script: { language: config.script.language, codeLength: scriptResult.code.length, hasError: !!scriptResult.error }
+      });
 
       // 检查编译错误
       const errors = [markupResult, styleResult, scriptResult]

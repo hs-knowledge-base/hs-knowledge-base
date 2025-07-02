@@ -262,6 +262,38 @@ export class Playground implements PlaygroundAPI {
       this.logger.info('用户请求打开设置');
       // TODO: 实现设置面板
     });
+
+    // 监听语言变化
+    this.eventEmitter.on('language-change', (event) => {
+      this.logger.info('收到语言变化事件:', event);
+
+      // 处理事件数据结构（可能有 payload 包装）
+      const eventData = event.payload || event;
+      const { editorType, language } = eventData;
+
+      if (!editorType || !language) {
+        this.logger.warn('语言变化事件数据不完整:', eventData);
+        return;
+      }
+
+      // 更新配置中的语言设置
+      if (editorType === 'markup') {
+        this.config.markup.language = language;
+        this.logger.info(`Markup 语言已更新: ${language}`);
+      } else if (editorType === 'style') {
+        this.config.style.language = language;
+        this.logger.info(`Style 语言已更新: ${language}`);
+      } else if (editorType === 'script') {
+        this.config.script.language = language;
+        this.logger.info(`Script 语言已更新: ${language}`);
+      }
+
+      this.logger.info(`当前配置:`, {
+        markup: this.config.markup.language,
+        style: this.config.style.language,
+        script: this.config.script.language
+      });
+    });
   }
 
   private getDefaultConfig(): Config {

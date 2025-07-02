@@ -81,8 +81,36 @@ export class EditorManager {
     }
   }
 
+  /** 更新面板标题 */
+  private updatePanelTitle(editorType: string, language: string): void {
+    const panelTitle = this.container.querySelector(`[data-editor="${editorType}"] .panel-title`) as HTMLElement;
+    if (panelTitle) {
+      // 语言显示名称映射
+      const languageDisplayNames: Record<string, string> = {
+        html: 'HTML',
+        css: 'CSS',
+        javascript: 'JavaScript',
+        typescript: 'TypeScript',
+        markdown: 'Markdown',
+        json: 'JSON',
+        python: 'Python',
+        xml: 'XML',
+        yaml: 'YAML',
+        scss: 'SCSS',
+        less: 'Less',
+        sass: 'Sass'
+      };
+
+      const displayName = languageDisplayNames[language] || language.toUpperCase();
+      panelTitle.textContent = displayName;
+      this.logger.info(`面板 ${editorType} 标题已更新为 ${displayName}`);
+    }
+  }
+
   /** 设置编辑器语言 */
   async setLanguage(editorType: string, language: string): Promise<void> {
+    this.logger.info(`开始设置编辑器语言: ${editorType} -> ${language}`);
+
     const editor = this.editors.get(editorType);
     if (!editor) {
       this.logger.warn(`编辑器 ${editorType} 不存在`);
@@ -99,6 +127,17 @@ export class EditorManager {
         this.monaco.editor.setModelLanguage(model, language);
         this.logger.info(`编辑器 ${editorType} 语言已设置为 ${language}`);
       }
+
+      // 更新面板标题
+      this.updatePanelTitle(editorType, language);
+
+      // 触发语言变化事件
+      this.logger.info(`触发语言变化事件: ${editorType} -> ${language}`);
+      this.eventEmitter.emit('language-change', {
+        editorType,
+        language
+      });
+
     } catch (error) {
       this.logger.error(`设置编辑器 ${editorType} 语言 ${language} 失败`, error);
     }

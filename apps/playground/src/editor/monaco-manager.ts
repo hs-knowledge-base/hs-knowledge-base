@@ -3,6 +3,8 @@ import type { Config } from '@/types';
 import { EventEmitter } from '../core/events';
 import { Logger } from '../utils/logger';
 import { loadMonaco } from '../utils/monaco-loader';
+import { loadMonacoLanguage } from '../utils/monaco-language-loader';
+import { LanguageSelector } from '../ui/language-selector';
 import {
   monacoEditorWorkerUrl,
   monacoTypescriptWorkerUrl,
@@ -17,6 +19,7 @@ import {
 export class EditorManager {
   private readonly logger = new Logger('EditorManager');
   private editors = new Map<string, Monaco.editor.IStandaloneCodeEditor>();
+  private languageSelectors = new Map<string, LanguageSelector>();
   private container!: HTMLElement;
   private monaco!: typeof Monaco;
 
@@ -80,7 +83,7 @@ export class EditorManager {
   /** 格式化代码 */
   async format(): Promise<void> {
     this.logger.info('格式化代码');
-    
+
     for (const [editorType, editor] of this.editors) {
       if (editor) {
         await editor.getAction('editor.action.formatDocument')?.run();
@@ -88,15 +91,45 @@ export class EditorManager {
     }
   }
 
+  /** 设置编辑器语言 */
+  async setLanguage(editorType: string, language: string): Promise<void> {
+    const editor = this.editors.get(editorType);
+    if (!editor) {
+      this.logger.warn(`编辑器 ${editorType} 不存在`);
+      return;
+    }
+
+    try {
+      // 动态加载语言支持
+      await loadMonacoLanguage(language);
+
+      // 设置编辑器语言
+      const model = editor.getModel();
+      if (model) {
+        this.monaco.editor.setModelLanguage(model, language);
+        this.logger.info(`编辑器 ${editorType} 语言已设置为 ${language}`);
+      }
+    } catch (error) {
+      this.logger.error(`设置编辑器 ${editorType} 语言 ${language} 失败`, error);
+    }
+  }
+
   /** 销毁编辑器 */
   async destroy(): Promise<void> {
     this.logger.info('销毁编辑器管理器');
-    
+
+    // 销毁编辑器实例
     for (const editor of this.editors.values()) {
       editor.dispose();
     }
     this.editors.clear();
-    
+
+    // 销毁语言选择器
+    for (const selector of this.languageSelectors.values()) {
+      selector.destroy();
+    }
+    this.languageSelectors.clear();
+
     this.container.innerHTML = '';
   }
 
@@ -283,6 +316,7 @@ export class EditorManager {
     `;
 
     this.createEditors();
+    this.createLanguageSelectors();
     this.setupPanelToggling();
     this.applyStyles();
   }
@@ -297,7 +331,7 @@ export class EditorManager {
 
     editorConfigs.forEach(({ type, language, placeholder }) => {
       const panel = this.container.querySelector(`[data-editor="${type}"] .panel-content`) as HTMLElement;
-      
+
       const editor = this.monaco.editor.create(panel, {
         value: '',
         language,
@@ -326,6 +360,37 @@ export class EditorManager {
       });
 
       this.editors.set(type, editor);
+
+      // 异步加载语言支持（不阻塞编辑器创建）
+      loadMonacoLanguage(language).catch(error => {
+        this.logger.warn(`加载语言 ${language} 失败`, error);
+      });
+    });
+  }
+
+  /** 创建语言选择器 */
+  private createLanguageSelectors(): void {
+    const editorConfigs = [
+      { type: 'markup', language: 'html' },
+      { type: 'style', language: 'css' },
+      { type: 'script', language: 'javascript' }
+    ];
+
+    editorConfigs.forEach(({ type, language }) => {
+      const panelHeader = this.container.querySelector(`[data-editor="${type}"] .panel-header`) as HTMLElement;
+
+      if (panelHeader) {
+        const selector = new LanguageSelector({
+          container: panelHeader,
+          editorType: type,
+          currentLanguage: language,
+          onLanguageChange: (newLanguage: string) => {
+            this.setLanguage(type, newLanguage);
+          }
+        });
+
+        this.languageSelectors.set(type, selector);
+      }
     });
   }
 

@@ -5,6 +5,15 @@ const { getUrl, getModuleUrl } = modulesService;
 /** Monaco Editor 基础 URL */
 export const monacoBaseUrl = /* @__PURE__ */ getUrl('monaco-editor@0.52.2/');
 
+/** Monaco Editor 核心模块 URLs */
+export const monacoEditorMainUrl = /* @__PURE__ */ getUrl(
+  'monaco-editor@0.52.2/esm/vs/editor/editor.main.js'
+);
+
+export const monacoLanguagesUrl = /* @__PURE__ */ getUrl(
+  'monaco-editor@0.52.2/esm/vs/basic-languages/monaco.contribution.js'
+);
+
 /** Monaco Editor Workers URLs */
 export const monacoEditorWorkerUrl = /* @__PURE__ */ getUrl(
   'monaco-editor@0.52.2/esm/vs/editor/editor.worker.js'
@@ -24,6 +33,52 @@ export const monacoCssWorkerUrl = /* @__PURE__ */ getUrl(
 
 export const monacoHtmlWorkerUrl = /* @__PURE__ */ getUrl(
   'monaco-editor@0.52.2/esm/vs/language/html/html.worker.js'
+);
+
+/** Monaco Editor 语言支持 URLs */
+export const monacoTypescriptUrl = /* @__PURE__ */ getUrl(
+  'monaco-editor@0.52.2/esm/vs/language/typescript/monaco.contribution.js'
+);
+
+export const monacoJsonUrl = /* @__PURE__ */ getUrl(
+  'monaco-editor@0.52.2/esm/vs/language/json/monaco.contribution.js'
+);
+
+export const monacoCssUrl = /* @__PURE__ */ getUrl(
+  'monaco-editor@0.52.2/esm/vs/language/css/monaco.contribution.js'
+);
+
+export const monacoHtmlUrl = /* @__PURE__ */ getUrl(
+  'monaco-editor@0.52.2/esm/vs/language/html/monaco.contribution.js'
+);
+
+/** Monaco Editor 基础语言支持 URLs */
+export const monacoJavascriptUrl = /* @__PURE__ */ getUrl(
+  'monaco-editor@0.52.2/esm/vs/basic-languages/javascript/javascript.js'
+);
+
+export const monacoMarkdownUrl = /* @__PURE__ */ getUrl(
+  'monaco-editor@0.52.2/esm/vs/basic-languages/markdown/markdown.js'
+);
+
+export const monacoXmlUrl = /* @__PURE__ */ getUrl(
+  'monaco-editor@0.52.2/esm/vs/basic-languages/xml/xml.js'
+);
+
+export const monacoYamlUrl = /* @__PURE__ */ getUrl(
+  'monaco-editor@0.52.2/esm/vs/basic-languages/yaml/yaml.js'
+);
+
+export const monacoSqlUrl = /* @__PURE__ */ getUrl(
+  'monaco-editor@0.52.2/esm/vs/basic-languages/sql/sql.js'
+);
+
+export const monacoPythonUrl = /* @__PURE__ */ getUrl(
+  'monaco-editor@0.52.2/esm/vs/basic-languages/python/python.js'
+);
+
+export const monacoShellUrl = /* @__PURE__ */ getUrl(
+  'monaco-editor@0.52.2/esm/vs/basic-languages/shell/shell.js'
 );
 
 /** 编译器相关 URLs */

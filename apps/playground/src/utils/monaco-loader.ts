@@ -1,5 +1,6 @@
-import { monacoBaseUrl } from '../services/vendors';
+import { monacoBaseUrl, monacoEditorMainUrl } from '../services/vendors';
 import { Logger } from './logger';
+import { preloadCommonLanguages } from './monaco-language-loader';
 
 const logger = new Logger('MonacoLoader');
 
@@ -27,6 +28,12 @@ export const loadMonaco = async (): Promise<typeof import('monaco-editor')> => {
     monacoGloballyLoaded = true;
     (window as any).monaco = monaco;
     logger.info('Monaco Editor 加载成功');
+
+    // 预加载常用语言
+    preloadCommonLanguages().catch(error => {
+      logger.warn('预加载常用语言失败', error);
+    });
+
     return monaco;
   } catch (error) {
     logger.error('Monaco Editor 加载失败', error);
@@ -42,15 +49,25 @@ const loadMonacoFromCDN = async (): Promise<typeof import('monaco-editor')> => {
     return await import('monaco-editor');
   } catch (localError) {
     logger.warn('本地 Monaco Editor 加载失败，尝试从 CDN 加载', localError);
-    
+
     try {
-      // 从 CDN 加载
-      const monacoUrl = monacoBaseUrl + 'esm/vs/editor/editor.main.js';
-      const monaco = await import(/* @vite-ignore */ monacoUrl);
+      // 从 CDN 加载主模块
+      const monaco = await import(/* @vite-ignore */ monacoEditorMainUrl);
+      logger.info('Monaco Editor 从 CDN 加载成功');
       return monaco;
     } catch (cdnError) {
       logger.error('CDN Monaco Editor 加载失败', cdnError);
-      throw new Error('无法加载 Monaco Editor');
+
+      // 尝试备用CDN
+      try {
+        const fallbackUrl = monacoBaseUrl + 'esm/vs/editor/editor.main.js';
+        const monaco = await import(/* @vite-ignore */ fallbackUrl);
+        logger.info('Monaco Editor 从备用 CDN 加载成功');
+        return monaco;
+      } catch (fallbackError) {
+        logger.error('备用 CDN Monaco Editor 加载失败', fallbackError);
+        throw new Error('无法加载 Monaco Editor');
+      }
     }
   }
 };

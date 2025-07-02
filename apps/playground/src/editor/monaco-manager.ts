@@ -1,15 +1,24 @@
-import * as monaco from 'monaco-editor';
+import type * as Monaco from 'monaco-editor';
 import type { Config } from '@/types';
 import { EventEmitter } from '../core/events';
 import { Logger } from '../utils/logger';
+import { loadMonaco } from '../utils/monaco-loader';
+import {
+  monacoEditorWorkerUrl,
+  monacoTypescriptWorkerUrl,
+  monacoJsonWorkerUrl,
+  monacoCssWorkerUrl,
+  monacoHtmlWorkerUrl
+} from '../services/vendors';
 
 
 
 /** 编辑器管理器 - 基于 Monaco Editor */
 export class EditorManager {
   private readonly logger = new Logger('EditorManager');
-  private editors = new Map<string, monaco.editor.IStandaloneCodeEditor>();
+  private editors = new Map<string, Monaco.editor.IStandaloneCodeEditor>();
   private container!: HTMLElement;
+  private monaco!: typeof Monaco;
 
   constructor(private eventEmitter: EventEmitter) {}
 
@@ -18,14 +27,23 @@ export class EditorManager {
     this.logger.info('初始化编辑器管理器');
     this.container = container;
 
-    // 配置 Monaco Editor Workers
-    this.configureWorkers();
+    try {
+      // 动态加载 Monaco Editor
+      this.monaco = await loadMonaco();
+      this.logger.info('Monaco Editor 加载成功');
 
-    // 配置 Monaco Editor
-    this.configureMonaco();
+      // 配置 Monaco Editor Workers
+      this.configureWorkers();
 
-    // 创建编辑器界面
-    this.createEditorInterface();
+      // 配置 Monaco Editor
+      this.configureMonaco();
+
+      // 创建编辑器界面
+      this.createEditorInterface();
+    } catch (error) {
+      this.logger.error('Monaco Editor 初始化失败', error);
+      throw error;
+    }
   }
 
   /** 获取代码 */
@@ -84,52 +102,53 @@ export class EditorManager {
 
   /** 配置 Monaco Editor Workers */
   private configureWorkers(): void {
-    // 基于 LiveCodes 的最佳实践配置 Workers
+    // 基于 LiveCodes 的动态 CDN 加载方式配置 Workers
     (self as any).MonacoEnvironment = {
       getWorker: function (_workerId: string, label: string) {
-        // 使用动态导入创建 Workers，避免路径问题
-        const createWorker = (url: string) => {
-          return new Worker(url, {
-            type: 'module',
-            name: label
-          });
+        // 创建 Worker 的通用函数
+        const createWorkerFromUrl = (url: string) => {
+          // 使用 Blob 创建 Worker 以避免 CORS 问题
+          const workerScript = `
+            importScripts('${url}');
+          `;
+          const blob = new Blob([workerScript], { type: 'application/javascript' });
+          return new Worker(URL.createObjectURL(blob), { name: label });
         };
 
+        // 根据语言类型返回对应的 Worker
         switch (label) {
           case 'json':
-            return createWorker(
-              new URL('monaco-editor/esm/vs/language/json/json.worker.js', import.meta.url).href
-            );
+            return createWorkerFromUrl(monacoJsonWorkerUrl);
           case 'css':
           case 'scss':
           case 'less':
-            return createWorker(
-              new URL('monaco-editor/esm/vs/language/css/css.worker.js', import.meta.url).href
-            );
+            return createWorkerFromUrl(monacoCssWorkerUrl);
           case 'html':
           case 'handlebars':
           case 'razor':
-            return createWorker(
-              new URL('monaco-editor/esm/vs/language/html/html.worker.js', import.meta.url).href
-            );
+            return createWorkerFromUrl(monacoHtmlWorkerUrl);
           case 'typescript':
           case 'javascript':
-            return createWorker(
-              new URL('monaco-editor/esm/vs/language/typescript/ts.worker.js', import.meta.url).href
-            );
+            return createWorkerFromUrl(monacoTypescriptWorkerUrl);
           default:
-            return createWorker(
-              new URL('monaco-editor/esm/vs/editor/editor.worker.js', import.meta.url).href
-            );
+            return createWorkerFromUrl(monacoEditorWorkerUrl);
         }
       }
     };
+
+    this.logger.info('Monaco Editor Workers 配置完成', {
+      editorWorker: monacoEditorWorkerUrl,
+      typescriptWorker: monacoTypescriptWorkerUrl,
+      jsonWorker: monacoJsonWorkerUrl,
+      cssWorker: monacoCssWorkerUrl,
+      htmlWorker: monacoHtmlWorkerUrl
+    });
   }
 
   /** 配置 Monaco Editor */
   private configureMonaco(): void {
     // 设置主题
-    monaco.editor.defineTheme('playground-dark', {
+    this.monaco.editor.defineTheme('playground-dark', {
       base: 'vs-dark',
       inherit: true,
       rules: [],
@@ -142,7 +161,7 @@ export class EditorManager {
       }
     });
 
-    monaco.editor.setTheme('playground-dark');
+    this.monaco.editor.setTheme('playground-dark');
 
     // 配置语言服务
     this.configureLanguageServices();
@@ -151,34 +170,34 @@ export class EditorManager {
   /** 配置语言服务 */
   private configureLanguageServices(): void {
     // 基于 LiveCodes 的编译器选项配置
-    const compilerOptions: monaco.languages.typescript.CompilerOptions = {
-      target: monaco.languages.typescript.ScriptTarget.ES2020,
+    const compilerOptions: Monaco.languages.typescript.CompilerOptions = {
+      target: this.monaco.languages.typescript.ScriptTarget.ES2020,
       lib: ['ES2020', 'DOM', 'DOM.Iterable'],
       allowNonTsExtensions: true,
-      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-      module: monaco.languages.typescript.ModuleKind.ESNext,
+      moduleResolution: this.monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+      module: this.monaco.languages.typescript.ModuleKind.ESNext,
       noEmit: true,
       esModuleInterop: true,
       allowSyntheticDefaultImports: true,
       strict: false,
       skipLibCheck: true,
-      jsx: monaco.languages.typescript.JsxEmit.React,
+      jsx: this.monaco.languages.typescript.JsxEmit.React,
       allowJs: true,
       checkJs: false
     };
 
     // TypeScript 配置
-    monaco.languages.typescript.typescriptDefaults.setCompilerOptions(compilerOptions);
+    this.monaco.languages.typescript.typescriptDefaults.setCompilerOptions(compilerOptions);
 
     // JavaScript 配置
-    monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+    this.monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
       ...compilerOptions,
       allowJs: true,
       checkJs: false
     });
 
     // 基于 LiveCodes 的诊断选项配置
-    const diagnosticsOptions: monaco.languages.typescript.DiagnosticsOptions = {
+    const diagnosticsOptions: Monaco.languages.typescript.DiagnosticsOptions = {
       noSemanticValidation: false,
       noSyntaxValidation: false,
       noSuggestionDiagnostics: false,
@@ -192,8 +211,8 @@ export class EditorManager {
       ]
     };
 
-    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions(diagnosticsOptions);
-    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(diagnosticsOptions);
+    this.monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions(diagnosticsOptions);
+    this.monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(diagnosticsOptions);
 
     // 添加常用的类型定义
     this.addCommonTypeDefinitions();
@@ -222,12 +241,12 @@ export class EditorManager {
     `;
 
     // 添加类型定义到 TypeScript 和 JavaScript 服务
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    this.monaco.languages.typescript.typescriptDefaults.addExtraLib(
       commonTypes,
       'file:///playground-types.d.ts'
     );
 
-    monaco.languages.typescript.javascriptDefaults.addExtraLib(
+    this.monaco.languages.typescript.javascriptDefaults.addExtraLib(
       commonTypes,
       'file:///playground-types.d.ts'
     );
@@ -279,7 +298,7 @@ export class EditorManager {
     editorConfigs.forEach(({ type, language, placeholder }) => {
       const panel = this.container.querySelector(`[data-editor="${type}"] .panel-content`) as HTMLElement;
       
-      const editor = monaco.editor.create(panel, {
+      const editor = this.monaco.editor.create(panel, {
         value: '',
         language,
         theme: 'playground-dark',

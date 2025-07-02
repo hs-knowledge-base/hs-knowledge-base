@@ -1,0 +1,73 @@
+import { monacoBaseUrl } from '../services/vendors';
+import { Logger } from './logger';
+
+const logger = new Logger('MonacoLoader');
+
+/** Monaco Editor 全局加载状态 */
+let monacoGloballyLoaded = false;
+let monacoLoadPromise: Promise<typeof import('monaco-editor')> | null = null;
+
+/** 动态加载 Monaco Editor */
+export const loadMonaco = async (): Promise<typeof import('monaco-editor')> => {
+  // 如果已经加载过，直接返回
+  if (monacoGloballyLoaded && (window as any).monaco) {
+    return (window as any).monaco;
+  }
+
+  // 如果正在加载，等待加载完成
+  if (monacoLoadPromise) {
+    return monacoLoadPromise;
+  }
+
+  // 开始加载 Monaco Editor
+  monacoLoadPromise = loadMonacoFromCDN();
+  
+  try {
+    const monaco = await monacoLoadPromise;
+    monacoGloballyLoaded = true;
+    (window as any).monaco = monaco;
+    logger.info('Monaco Editor 加载成功');
+    return monaco;
+  } catch (error) {
+    logger.error('Monaco Editor 加载失败', error);
+    monacoLoadPromise = null;
+    throw error;
+  }
+};
+
+/** 从 CDN 加载 Monaco Editor */
+const loadMonacoFromCDN = async (): Promise<typeof import('monaco-editor')> => {
+  try {
+    // 尝试从本地 node_modules 加载
+    return await import('monaco-editor');
+  } catch (localError) {
+    logger.warn('本地 Monaco Editor 加载失败，尝试从 CDN 加载', localError);
+    
+    try {
+      // 从 CDN 加载
+      const monacoUrl = monacoBaseUrl + 'esm/vs/editor/editor.main.js';
+      const monaco = await import(/* @vite-ignore */ monacoUrl);
+      return monaco;
+    } catch (cdnError) {
+      logger.error('CDN Monaco Editor 加载失败', cdnError);
+      throw new Error('无法加载 Monaco Editor');
+    }
+  }
+};
+
+/** 检查 Monaco Editor 是否已加载 */
+export const isMonacoLoaded = (): boolean => {
+  return monacoGloballyLoaded && !!(window as any).monaco;
+};
+
+/** 获取已加载的 Monaco Editor 实例 */
+export const getMonaco = (): typeof import('monaco-editor') | null => {
+  return isMonacoLoaded() ? (window as any).monaco : null;
+};
+
+/** 预加载 Monaco Editor Workers */
+export const preloadMonacoWorkers = async (): Promise<void> => {
+  // 这个函数可以在应用启动时调用，预加载 Workers
+  // 目前只是占位符，实际的 Worker 配置在 monaco-manager.ts 中
+  logger.info('Monaco Editor Workers 预加载完成');
+};

@@ -1,6 +1,6 @@
 import { BaseCompiler } from '../base-compiler';
 import type { CompilerOptions, CompileResult } from '@/types';
-import { markdownItUrl } from '@/services/vendors.ts';
+import {getCompilerUrls} from '@/services/vendors.ts';
 
 /** Markdown 编译器 */
 export class MarkdownCompiler extends BaseCompiler {
@@ -16,10 +16,10 @@ export class MarkdownCompiler extends BaseCompiler {
 
       // 动态导入 markdown-it（只加载一次）
       if (!this.markdownIt) {
-        this.logger.info('开始加载 markdown-it 库:', markdownItUrl);
+        this.logger.info('开始加载 markdown-it 库:', getCompilerUrls().markdownItUrl);
 
         // 使用动态 import，像 Monaco Editor 一样
-        const markdownItModule = await import(/* @vite-ignore */ markdownItUrl);
+        const markdownItModule = await import(/* @vite-ignore */ getCompilerUrls().markdownItUrl);
 
         this.logger.info('markdown-it 模块加载成功，类型:', typeof markdownItModule);
         this.logger.info('markdown-it 模块内容:', Object.keys(markdownItModule));

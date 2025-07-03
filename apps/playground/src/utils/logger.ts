@@ -16,8 +16,8 @@ export class Logger {
 
   debug(message: string, ...args: any[]): void {
     // 在开发环境下显示调试信息
-    if (import.meta.env?.DEV) {
-      console.debug(`[${this.context}] ${message}`, ...args);
-    }
+    // if (import.meta.env?.DEV) {
+    //   console.debug(`[${this.context}] ${message}`, ...args);
+    // }
   }
 }

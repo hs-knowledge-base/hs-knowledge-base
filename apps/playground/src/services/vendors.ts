@@ -1,101 +1,535 @@
-import { modulesService } from './modules';
+import { modulesService, type CDN } from './modules';
 
-const { getUrl, getModuleUrl } = modulesService;
+/** Vendor 配置接口 */
+export interface VendorConfig {
+  name: string;
+  version: string;
+  path?: string;
+  cdn?: CDN;
+  isModule?: boolean;
+  external?: string;
+}
 
-/** Monaco Editor 基础 URL - 使用 unpkg CDN 和稳定版本 */
-export const monacoBaseUrl = 'https://unpkg.com/monaco-editor@0.45.0/min';
+/** Vendor 类别枚举 */
+export enum VendorCategory {
+  /** Monaco Editor 相关 */
+  MONACO = 'monaco',
+  /** 编译器相关 */
+  COMPILER = 'compiler',
+  /** 框架相关 */
+  FRAMEWORK = 'framework',
+  /** 工具库相关 */
+  TOOL = 'tool',
+  /** 样式处理相关 */
+  STYLE = 'style',
+  /** 模板引擎相关 */
+  TEMPLATE = 'template',
+  /** 图表库相关 */
+  CHART = 'chart',
+  /** 动画库相关 */
+  ANIMATION = 'animation',
+  /** 工具函数相关 */
+  UTILITY = 'utility',
+  /** 测试框架相关 */
+  TEST = 'test'
+}
 
-/** Monaco Editor 核心模块 URLs - 使用 AMD 版本 */
-export const monacoLoaderUrl = 'https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js';
+/** Vendor 注册表接口 */
+export interface VendorRegistry {
+  [key: string]: VendorConfig;
+}
 
-/** Monaco Editor Worker 主文件 */
-export const monacoWorkerMainUrl = 'https://unpkg.com/monaco-editor@0.45.0/min/vs/base/worker/workerMain.js';
+/** Monaco Editor 相关配置 */
+const monacoVendors: VendorRegistry = {
+  monacoEditor: {
+    name: 'monaco-editor',
+    version: '0.45.0',
+    path: 'min',
+    cdn: 'unpkg',
+    isModule: false
+  },
+  monacoLoader: {
+    name: 'monaco-editor',
+    version: '0.45.0',
+    path: 'min/vs/loader.js',
+    cdn: 'unpkg',
+    isModule: false
+  },
+  monacoWorkerMain: {
+    name: 'monaco-editor',
+    version: '0.45.0',
+    path: 'min/vs/base/worker/workerMain.js',
+    cdn: 'unpkg',
+    isModule: false
+  }
+};
 
+/** 编译器相关配置 */
+const compilerVendors: VendorRegistry = {
+  typescript: {
+    name: 'typescript',
+    version: '5.6.2',
+    path: 'lib/typescript.js',
+    cdn: 'unpkg',
+    isModule: false
+  },
+  babel: {
+    name: '@babel/standalone',
+    version: '7.26.4',
+    path: 'babel.js',
+    cdn: 'jsdelivr',
+    isModule: false
+  },
+  markdownIt: {
+    name: 'markdown-it',
+    version: '14.1.0',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  postcss: {
+    name: 'postcss',
+    version: '8.4.47',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  autoprefixer: {
+    name: 'autoprefixer',
+    version: '10.4.20',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  // Python 运行时
+  pyodide: {
+    name: 'pyodide',
+    version: '0.26.4',
+    path: 'pyodide.js',
+    cdn: 'jsdelivr',
+    isModule: false
+  },
+  // WebAssembly 相关
+  wabt: {
+    name: 'wabt',
+    version: '1.0.36',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  // 代码格式化
+  jsBeautify: {
+    name: 'js-beautify',
+    version: '1.15.1',
+    cdn: 'esm.sh',
+    isModule: true
+  }
+};
+/** 工具库相关配置 */
+const toolVendors: VendorRegistry = {
+  prettier: {
+    name: 'prettier',
+    version: '3.3.3',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  prettierParserBabel: {
+    name: 'prettier',
+    version: '3.3.3',
+    path: 'plugins/babel',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  prettierParserTypescript: {
+    name: 'prettier',
+    version: '3.3.3',
+    path: 'plugins/typescript',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  prettierParserHtml: {
+    name: 'prettier',
+    version: '3.3.3',
+    path: 'plugins/html',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  prettierParserCss: {
+    name: 'prettier',
+    version: '3.3.3',
+    path: 'plugins/postcss',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  // ESLint 相关
+  eslint: {
+    name: 'eslint',
+    version: '9.17.0',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  // 代码压缩
+  terser: {
+    name: 'terser',
+    version: '5.36.0',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  // 代码分析
+  acorn: {
+    name: 'acorn',
+    version: '8.14.0',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  // 代码转换
+  esbuild: {
+    name: 'esbuild-wasm',
+    version: '0.24.2',
+    cdn: 'esm.sh',
+    isModule: true
+  }
+};
 
+/** 测试框架相关配置 */
+const testVendors: VendorRegistry = {
+  jest: {
+    name: 'jest',
+    version: '29.7.0',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  vitest: {
+    name: 'vitest',
+    version: '2.1.8',
+    cdn: 'esm.sh',
+    isModule: true
+  }
+};
 
-/** Monaco Editor 主题 URLs */
-export const monacoThemesBaseUrl = /* @__PURE__ */ getUrl('monaco-themes@0.4.4/themes/');
+/** 框架相关配置 */
+const frameworkVendors: VendorRegistry = {
+  react: {
+    name: 'react',
+    version: '18.3.1',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  reactDom: {
+    name: 'react-dom',
+    version: '18.3.1',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  vue: {
+    name: 'vue',
+    version: '3.5.13',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  vueCompilerSfc: {
+    name: '@vue/compiler-sfc',
+    version: '3.5.13',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  // Svelte
+  svelte: {
+    name: 'svelte',
+    version: '5.15.0',
+    path: 'compiler.mjs',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  // Angular
+  angular: {
+    name: '@angular/core',
+    version: '19.0.5',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  // Solid.js
+  solid: {
+    name: 'solid-js',
+    version: '1.9.3',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  // Preact
+  preact: {
+    name: 'preact',
+    version: '10.25.1',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  // Lit
+  lit: {
+    name: 'lit',
+    version: '3.2.1',
+    cdn: 'esm.sh',
+    isModule: true
+  }
+};
 
-/** Monaco Editor 扩展 URLs */
-export const monacoEmacsUrl = /* @__PURE__ */ getUrl('monaco-emacs@0.3.0/dist/monaco-emacs.js');
+/** 样式处理相关配置 */
+const styleVendors: VendorRegistry = {
+  sass: {
+    name: 'sass',
+    version: '1.82.0',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  less: {
+    name: 'less',
+    version: '4.2.1',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  stylus: {
+    name: 'stylus',
+    version: '0.63.0',
+    cdn: 'esm.sh',
+    isModule: true
+  }
+};
+/** 模板引擎相关配置 */
+const templateVendors: VendorRegistry = {
+  handlebars: {
+    name: 'handlebars',
+    version: '4.7.8',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  mustache: {
+    name: 'mustache',
+    version: '4.2.0',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  pug: {
+    name: 'pug',
+    version: '3.0.3',
+    cdn: 'esm.sh',
+    isModule: true
+  }
+};
 
-export const monacoVimUrl = /* @__PURE__ */ getUrl('monaco-vim@0.4.1/dist/monaco-vim.js');
+/** 图表库相关配置 */
+const chartVendors: VendorRegistry = {
+  chartJs: {
+    name: 'chart.js',
+    version: '4.4.7',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  d3: {
+    name: 'd3',
+    version: '7.9.0',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  echarts: {
+    name: 'echarts',
+    version: '5.5.1',
+    cdn: 'esm.sh',
+    isModule: true
+  }
+};
 
-export const emmetMonacoUrl = /* @__PURE__ */ getUrl('emmet-monaco-es@5.5.0/dist/emmet-monaco.js');
+/** 动画库相关配置 */
+const animationVendors: VendorRegistry = {
+  gsap: {
+    name: 'gsap',
+    version: '3.12.8',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  animejs: {
+    name: 'animejs',
+    version: '3.2.2',
+    cdn: 'esm.sh',
+    isModule: true
+  }
+};
 
-/** 编译器相关 URLs */
-export const typescriptUrl = 'https://unpkg.com/typescript@5.6.2/lib/typescript.js';
+/** 工具函数相关配置 */
+const utilityVendors: VendorRegistry = {
+  lodash: {
+    name: 'lodash',
+    version: '4.17.21',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  axios: {
+    name: 'axios',
+    version: '1.7.9',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  dayjs: {
+    name: 'dayjs',
+    version: '1.11.13',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  moment: {
+    name: 'moment',
+    version: '2.30.1',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  uuid: {
+    name: 'uuid',
+    version: '11.0.3',
+    cdn: 'esm.sh',
+    isModule: true
+  },
+  validator: {
+    name: 'validator',
+    version: '13.12.0',
+    cdn: 'esm.sh',
+    isModule: true
+  }
+};
 
-export const babelUrl = /* @__PURE__ */ getUrl('@babel/standalone@7.26.4/babel.js');
+/** 所有 Vendor 注册表 */
+const allVendors: Record<VendorCategory, VendorRegistry> = {
+  [VendorCategory.MONACO]: monacoVendors,
+  [VendorCategory.COMPILER]: compilerVendors,
+  [VendorCategory.TOOL]: toolVendors,
+  [VendorCategory.TEST]: testVendors,
+  [VendorCategory.FRAMEWORK]: frameworkVendors,
+  [VendorCategory.STYLE]: styleVendors,
+  [VendorCategory.TEMPLATE]: templateVendors,
+  [VendorCategory.CHART]: chartVendors,
+  [VendorCategory.ANIMATION]: animationVendors,
+  [VendorCategory.UTILITY]: utilityVendors
+};
 
-export const markdownItUrl = 'https://esm.sh/markdown-it@14.1.0';
+/** Vendor 服务类 */
+class VendorService {
+  private readonly modulesService = modulesService;
 
-export const postcssUrl = /* @__PURE__ */ getModuleUrl('postcss@8.4.47');
+  /** 构建模块名称 */
+  private buildModuleName(config: VendorConfig): string {
+    const { name, version, path } = config;
+    const baseModule = `${name}@${version}`;
+    return path ? `${baseModule}/${path}` : baseModule;
+  }
 
-export const autoprefixerUrl = /* @__PURE__ */ getModuleUrl('autoprefixer@10.4.20');
+  /** 获取 Vendor URL */
+  getVendorUrl(category: VendorCategory, vendorKey: string): string {
+    const vendor = allVendors[category]?.[vendorKey];
+    if (!vendor) {
+      throw new Error(`Vendor not found: ${category}.${vendorKey}`);
+    }
 
-/** 工具库 URLs */
-export const prettierUrl = /* @__PURE__ */ getModuleUrl('prettier@3.3.3');
+    const moduleName = this.buildModuleName(vendor);
 
-export const prettierParserBabelUrl = /* @__PURE__ */ getModuleUrl('prettier@3.3.3/plugins/babel');
+    if (vendor.isModule) {
+      return this.modulesService.getModuleUrl(moduleName, {
+        isModule: true,
+        defaultCDN: vendor.cdn,
+        external: vendor.external
+      });
+    } else {
+      return this.modulesService.getUrl(moduleName, vendor.cdn);
+    }
+  }
 
-export const prettierParserTypescriptUrl = /* @__PURE__ */ getModuleUrl('prettier@3.3.3/plugins/typescript');
+  /** 获取指定类别的所有 Vendor */
+  getVendorsByCategory(category: VendorCategory): VendorRegistry {
+    return allVendors[category] || {};
+  }
 
-export const prettierParserHtmlUrl = /* @__PURE__ */ getModuleUrl('prettier@3.3.3/plugins/html');
+  /** 获取所有 Vendor 类别 */
+  getAllCategories(): VendorCategory[] {
+    return Object.values(VendorCategory);
+  }
 
-export const prettierParserCssUrl = /* @__PURE__ */ getModuleUrl('prettier@3.3.3/plugins/postcss');
+  /** 检查 Vendor 是否存在 */
+  hasVendor(category: VendorCategory, vendorKey: string): boolean {
+    return !!(allVendors[category]?.[vendorKey]);
+  }
 
-/** 测试框架 URLs */
-export const jestUrl = /* @__PURE__ */ getModuleUrl('jest@29.7.0');
+  /** 添加新的 Vendor */
+  addVendor(category: VendorCategory, vendorKey: string, config: VendorConfig): void {
+    if (!allVendors[category]) {
+      allVendors[category] = {};
+    }
+    allVendors[category][vendorKey] = config;
+  }
 
-export const vitestUrl = /* @__PURE__ */ getModuleUrl('vitest@2.1.8');
+  /** 更新 Vendor 配置 */
+  updateVendor(category: VendorCategory, vendorKey: string, config: Partial<VendorConfig>): void {
+    const vendor = allVendors[category]?.[vendorKey];
+    if (!vendor) {
+      throw new Error(`Vendor not found: ${category}.${vendorKey}`);
+    }
+    allVendors[category][vendorKey] = { ...vendor, ...config };
+  }
 
-/** 常用库 URLs */
-export const lodashUrl = /* @__PURE__ */ getModuleUrl('lodash@4.17.21');
+  /** 删除 Vendor */
+  removeVendor(category: VendorCategory, vendorKey: string): void {
+    if (allVendors[category]?.[vendorKey]) {
+      delete allVendors[category][vendorKey];
+    }
+  }
 
-export const axiosUrl = /* @__PURE__ */ getModuleUrl('axios@1.7.9');
+  /** 批量获取 Vendor URLs */
+  getVendorUrls(requests: Array<{ category: VendorCategory; vendorKey: string }>): Record<string, string> {
+    const result: Record<string, string> = {};
 
-export const dayJsUrl = /* @__PURE__ */ getModuleUrl('dayjs@1.11.13');
+    for (const { category, vendorKey } of requests) {
+      try {
+        const key = `${category}.${vendorKey}`;
+        result[key] = this.getVendorUrl(category, vendorKey);
+      } catch (error) {
+        console.warn(`Failed to get URL for ${category}.${vendorKey}:`, error);
+      }
+    }
 
-/** React 相关 URLs */
-export const reactUrl = /* @__PURE__ */ getModuleUrl('react@18.3.1');
+    return result;
+  }
+}
+/** Vendor 服务实例 */
+export const vendorService = new VendorService();
 
-export const reactDomUrl = /* @__PURE__ */ getModuleUrl('react-dom@18.3.1');
+/** 便捷方法：获取 Monaco Editor 相关 URLs */
+export const getMonacoUrls = () => ({
+  baseUrl: vendorService.getVendorUrl(VendorCategory.MONACO, 'monacoEditor'),
+  loaderUrl: vendorService.getVendorUrl(VendorCategory.MONACO, 'monacoLoader'),
+  workerMainUrl: vendorService.getVendorUrl(VendorCategory.MONACO, 'monacoWorkerMain')
+});
 
-/** Vue 相关 URLs */
-export const vueUrl = /* @__PURE__ */ getModuleUrl('vue@3.5.13');
+/** 便捷方法：获取编译器相关 URLs */
+export const getCompilerUrls = () => ({
+  typescriptUrl: vendorService.getVendorUrl(VendorCategory.COMPILER, 'typescript'),
+  babelUrl: vendorService.getVendorUrl(VendorCategory.COMPILER, 'babel'),
+  markdownItUrl: vendorService.getVendorUrl(VendorCategory.COMPILER, 'markdownIt'),
+  postcssUrl: vendorService.getVendorUrl(VendorCategory.COMPILER, 'postcss'),
+  autoprefixerUrl: vendorService.getVendorUrl(VendorCategory.COMPILER, 'autoprefixer')
+});
 
-export const vueCompilerSfcUrl = /* @__PURE__ */ getModuleUrl('@vue/compiler-sfc@3.5.13');
+/** 便捷方法：获取工具库相关 URLs */
+export const getToolUrls = () => ({
+  prettierUrl: vendorService.getVendorUrl(VendorCategory.TOOL, 'prettier'),
+  prettierParserBabelUrl: vendorService.getVendorUrl(VendorCategory.TOOL, 'prettierParserBabel'),
+  prettierParserTypescriptUrl: vendorService.getVendorUrl(VendorCategory.TOOL, 'prettierParserTypescript'),
+  prettierParserHtmlUrl: vendorService.getVendorUrl(VendorCategory.TOOL, 'prettierParserHtml'),
+  prettierParserCssUrl: vendorService.getVendorUrl(VendorCategory.TOOL, 'prettierParserCss')
+});
 
-/** 样式处理 URLs */
-export const sassUrl = /* @__PURE__ */ getModuleUrl('sass@1.82.0');
+/** 便捷方法：获取框架相关 URLs */
+export const getFrameworkUrls = () => ({
+  reactUrl: vendorService.getVendorUrl(VendorCategory.FRAMEWORK, 'react'),
+  reactDomUrl: vendorService.getVendorUrl(VendorCategory.FRAMEWORK, 'reactDom'),
+  vueUrl: vendorService.getVendorUrl(VendorCategory.FRAMEWORK, 'vue'),
+  vueCompilerSfcUrl: vendorService.getVendorUrl(VendorCategory.FRAMEWORK, 'vueCompilerSfc')
+});
 
-export const lessUrl = /* @__PURE__ */ getModuleUrl('less@4.2.1');
-
-export const stylusUrl = /* @__PURE__ */ getModuleUrl('stylus@0.63.0');
-
-/** 模板引擎 URLs */
-export const handlebarsUrl = /* @__PURE__ */ getModuleUrl('handlebars@4.7.8');
-
-export const mustacheUrl = /* @__PURE__ */ getModuleUrl('mustache@4.2.0');
-
-export const pugUrl = /* @__PURE__ */ getModuleUrl('pug@3.0.3');
-
-/** 图表库 URLs */
-export const chartJsUrl = /* @__PURE__ */ getModuleUrl('chart.js@4.4.7');
-
-export const d3Url = /* @__PURE__ */ getModuleUrl('d3@7.9.0');
-
-export const echartsUrl = /* @__PURE__ */ getModuleUrl('echarts@5.5.1');
-
-/** 动画库 URLs */
-export const gsapUrl = /* @__PURE__ */ getModuleUrl('gsap@3.12.8');
-
-export const animejsUrl = /* @__PURE__ */ getModuleUrl('animejs@3.2.2');
-
-/** 工具函数 URLs */
-export const momentUrl = /* @__PURE__ */ getModuleUrl('moment@2.30.1');
-
-export const uuidUrl = /* @__PURE__ */ getModuleUrl('uuid@11.0.3');
-
-export const validatorUrl = /* @__PURE__ */ getModuleUrl('validator@13.12.0');
+/** 便捷方法：获取常用库 URLs */
+export const getUtilityUrls = () => ({
+  lodashUrl: vendorService.getVendorUrl(VendorCategory.UTILITY, 'lodash'),
+  axiosUrl: vendorService.getVendorUrl(VendorCategory.UTILITY, 'axios'),
+  dayJsUrl: vendorService.getVendorUrl(VendorCategory.UTILITY, 'dayjs'),
+  momentUrl: vendorService.getVendorUrl(VendorCategory.UTILITY, 'moment'),
+  uuidUrl: vendorService.getVendorUrl(VendorCategory.UTILITY, 'uuid'),
+  validatorUrl: vendorService.getVendorUrl(VendorCategory.UTILITY, 'validator')
+});

@@ -1,4 +1,4 @@
-import { monacoBaseUrl, monacoLoaderUrl, monacoWorkerMainUrl } from '../services/vendors';
+import { getMonacoUrls } from '../services/vendors';
 import { Logger } from './logger';
 import { preloadCommonLanguages } from './monaco-language-loader';
 
@@ -8,20 +8,6 @@ const logger = new Logger('MonacoLoader');
 let monacoGloballyLoaded = false;
 let monacoLoadPromise: Promise<typeof import('monaco-editor')> | null = null;
 
-/** 配置 Monaco Environment */
-const configureMonacoEnvironment = (): void => {
-  // 使用 data URL 代理 Worker，避免跨域问题
-  (window as any).MonacoEnvironment = {
-    getWorkerUrl: function(workerId: string, label: string): string {
-      return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
-        self.MonacoEnvironment = { baseUrl: "${monacoBaseUrl}" };
-        importScripts("${monacoWorkerMainUrl}");
-      `)}`;
-    }
-  };
-
-  logger.info('Monaco Environment 配置完成（AMD + data URL 模式）');
-};
 
 /** 动态加载 Monaco Editor */
 export const loadMonaco = async (): Promise<typeof import('monaco-editor')> => {
@@ -61,12 +47,10 @@ export const loadMonaco = async (): Promise<typeof import('monaco-editor')> => {
 const loadMonacoAMD = async (): Promise<typeof import('monaco-editor')> => {
   return new Promise((resolve, reject) => {
     try {
-      // 配置 Monaco Environment
-      configureMonacoEnvironment();
 
       // 动态加载 RequireJS loader
       const script = document.createElement('script');
-      script.src = monacoLoaderUrl;
+      script.src = getMonacoUrls().loaderUrl;
       script.async = true;
 
       script.onload = () => {
@@ -74,7 +58,7 @@ const loadMonacoAMD = async (): Promise<typeof import('monaco-editor')> => {
 
         // 配置 RequireJS
         (window as any).require.config({
-          paths: { "vs": monacoBaseUrl + '/vs' }
+          paths: { "vs": getMonacoUrls().baseUrl + '/vs' }
         });
 
         // 加载 Monaco Editor

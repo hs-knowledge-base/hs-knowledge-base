@@ -1,6 +1,6 @@
 import { BaseCompiler } from '../base-compiler';
 import type { CompilerOptions, CompileResult } from '@/types';
-import { typescriptUrl } from '../../services/vendors';
+import {getCompilerUrls} from '../../services/vendors';
 
 /** TypeScript 编译器 */
 export class TypeScriptCompiler extends BaseCompiler {
@@ -63,7 +63,7 @@ export class TypeScriptCompiler extends BaseCompiler {
 
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = typescriptUrl;
+      script.src = getCompilerUrls().typescriptUrl;
       script.async = true;
 
       script.onload = () => {
@@ -74,7 +74,7 @@ export class TypeScriptCompiler extends BaseCompiler {
         }
       };
 
-      script.onerror = () => reject(new Error(`Failed to load script: ${typescriptUrl}`));
+      script.onerror = () => reject(new Error(`Failed to load script: ${getCompilerUrls().typescriptUrl}`));
 
       document.head.appendChild(script);
     });

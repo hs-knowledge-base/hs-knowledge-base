@@ -5,7 +5,7 @@ import { Logger } from '../utils/logger';
 import { loadMonaco } from '../utils/monaco-loader';
 import { loadMonacoLanguage } from '../utils/monaco-language-loader';
 import { LanguageSelector } from '../ui/language-selector';
-import { getLanguageDisplayName, getLanguageConfig } from '../services/language-service';
+import { getLanguageDisplayName, getLanguageConfig, getSupportedLanguages } from '../services/language-service';
 
 
 
@@ -210,27 +210,74 @@ export class EditorManager {
 
   /** 配置 Monaco Editor 基础服务 */
   private configureLanguageServices(): void {
-    // Monaco Editor 只需要配置基础的编辑器选项
-    // 具体的语言编译和处理由 compilers 目录下的编译器负责
+    // Monaco Editor 只负责提供编辑器界面和基础语法高亮
+    // 所有语言的具体处理都由对应的编译器负责
 
-    this.configureBasicEditorOptions();
+    this.configureDynamicLanguageSupport();
 
     this.logger.info('Monaco Editor 基础服务已配置');
   }
 
-  /** 配置基础编辑器选项 */
-  private configureBasicEditorOptions(): void {
-    // 只配置 Monaco Editor 自身需要的基础选项
-    // 不涉及具体语言的编译逻辑
+  /** 基于语言服务动态配置语言支持 */
+  private configureDynamicLanguageSupport(): void {
+    // 获取所有支持的语言
+    const supportedLanguages = getSupportedLanguages();
 
-    // TypeScript/JavaScript 的基础编辑器配置（仅用于语法高亮和智能提示）
-    const basicCompilerOptions: Monaco.languages.typescript.CompilerOptions = {
+    this.logger.info(`配置 ${supportedLanguages.length} 种语言的 Monaco Editor 支持:`, supportedLanguages);
+
+    // 为每种语言配置基础的编辑器选项
+    supportedLanguages.forEach(language => {
+      this.configureLanguageEditorOptions(language);
+    });
+  }
+
+  /** 为特定语言配置编辑器选项 */
+  private configureLanguageEditorOptions(language: Language): void {
+    const config = getLanguageConfig(language);
+    if (!config) {
+      this.logger.warn(`未找到语言配置: ${language}`);
+      return;
+    }
+
+    // 根据语言类型配置不同的编辑器选项
+    switch (language) {
+      case 'typescript':
+      case 'javascript':
+        this.configureTypeScriptLanguage(language, config);
+        break;
+
+      case 'python':
+        this.configurePythonLanguage(config);
+        break;
+
+      case 'html':
+        this.configureHtmlLanguage(config);
+        break;
+
+      case 'css':
+        this.configureCssLanguage(config);
+        break;
+
+      case 'markdown':
+        this.configureMarkdownLanguage(config);
+        break;
+
+      default:
+        // 对于其他语言，使用默认配置
+        this.configureDefaultLanguage(language, config);
+        break;
+    }
+  }
+
+  /** 配置 TypeScript/JavaScript 语言 */
+  private configureTypeScriptLanguage(language: Language, config: any): void {
+    const compilerOptions: Monaco.languages.typescript.CompilerOptions = {
       target: this.monaco.languages.typescript.ScriptTarget.ES2020,
       lib: ['ES2020', 'DOM', 'DOM.Iterable'],
       allowNonTsExtensions: true,
       moduleResolution: this.monaco.languages.typescript.ModuleResolutionKind.NodeJs,
       module: this.monaco.languages.typescript.ModuleKind.ESNext,
-      noEmit: true, // 重要：Monaco Editor 不负责编译输出
+      noEmit: true, // Monaco Editor 不负责编译输出
       esModuleInterop: true,
       allowSyntheticDefaultImports: true,
       strict: false,
@@ -240,11 +287,44 @@ export class EditorManager {
       checkJs: false
     };
 
-    // 配置 TypeScript 编辑器服务（仅用于编辑器功能）
-    this.monaco.languages.typescript.typescriptDefaults.setCompilerOptions(basicCompilerOptions);
+    if (language === 'typescript') {
+      this.monaco.languages.typescript.typescriptDefaults.setCompilerOptions(compilerOptions);
+      this.logger.info('TypeScript 编辑器选项已配置');
+    } else {
+      this.monaco.languages.typescript.javascriptDefaults.setCompilerOptions(compilerOptions);
+      this.logger.info('JavaScript 编辑器选项已配置');
+    }
+  }
 
-    // 配置 JavaScript 编辑器服务（仅用于编辑器功能）
-    this.monaco.languages.typescript.javascriptDefaults.setCompilerOptions(basicCompilerOptions);
+  /** 配置 Python 语言 */
+  private configurePythonLanguage(config: any): void {
+    // Python 主要依赖 Monaco Editor 的内置语法高亮
+    // 实际执行由 Pyodide 处理
+    this.logger.info('Python 编辑器选项已配置（使用内置语法高亮）');
+  }
+
+  /** 配置 HTML 语言 */
+  private configureHtmlLanguage(config: any): void {
+    // HTML 使用 Monaco Editor 的内置支持
+    this.logger.info('HTML 编辑器选项已配置（使用内置支持）');
+  }
+
+  /** 配置 CSS 语言 */
+  private configureCssLanguage(config: any): void {
+    // CSS 使用 Monaco Editor 的内置支持
+    this.logger.info('CSS 编辑器选项已配置（使用内置支持）');
+  }
+
+  /** 配置 Markdown 语言 */
+  private configureMarkdownLanguage(config: any): void {
+    // Markdown 使用 Monaco Editor 的内置支持
+    this.logger.info('Markdown 编辑器选项已配置（使用内置支持）');
+  }
+
+  /** 配置默认语言 */
+  private configureDefaultLanguage(language: Language, config: any): void {
+    // 对于其他语言，使用 Monaco Editor 的默认配置
+    this.logger.info(`${language} 编辑器选项已配置（使用默认配置）`);
   }
 
 

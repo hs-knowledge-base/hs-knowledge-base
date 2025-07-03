@@ -38,10 +38,10 @@ const languageRegistry: Record<Language, LanguageSpecs> = {
     extensions: ['py'],
     editorType: 'script',
     monacoLanguage: 'python',
-    // Python 需要 Pyodide 运行时来执行代码
+    // Python 需要 Skulpt 运行时来执行代码
     runtime: {
       category: VendorCategory.COMPILER,
-      vendorKey: 'pyodide'
+      vendorKey: 'skulpt'
     },
     aliases: ['py']
   },

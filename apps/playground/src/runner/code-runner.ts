@@ -1,4 +1,4 @@
-import type { Config } from '@/types';
+import type { Config, Language } from '@/types';
 import { EventEmitter } from '@/core/events';
 import { CompilerFactory } from '@/compiler/compiler-factory';
 import { Logger } from '@/utils/logger';
@@ -60,7 +60,8 @@ export class CodeRunner {
       const htmlDocument = this.generateHtmlDocument(
         markupResult.code,
         styleResult.code,
-        scriptResult.code
+        scriptResult.code,
+        config
       );
 
       // 保存当前文档内容
@@ -94,7 +95,7 @@ export class CodeRunner {
     const previewContent = this.container.querySelector('.preview-content');
     if (previewContent) {
       previewContent.innerHTML = `
-        <iframe class="result-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+        <iframe class="result-iframe" sandbox="allow-scripts allow-same-origin allow-downloads allow-forms allow-modals allow-popups allow-top-navigation-by-user-activation"></iframe>
       `;
     }
 
@@ -311,7 +312,7 @@ export class CodeRunner {
     }
   }
 
-  private generateHtmlDocument(markup: string, style: string, script: string): string {
+  private generateHtmlDocument(markup: string, style: string, script: string, config: Config): string {
     return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -330,11 +331,11 @@ export class CodeRunner {
       const originalLog = console.log;
       const originalError = console.error;
       const originalWarn = console.warn;
-      
+
       window.parent.postMessage({
         type: 'console-clear'
       }, '*');
-      
+
       console.log = function(...args) {
         originalLog.apply(console, args);
         window.parent.postMessage({
@@ -343,7 +344,7 @@ export class CodeRunner {
           args: args.map(arg => String(arg))
         }, '*');
       };
-      
+
       console.error = function(...args) {
         originalError.apply(console, args);
         window.parent.postMessage({
@@ -352,7 +353,7 @@ export class CodeRunner {
           args: args.map(arg => String(arg))
         }, '*');
       };
-      
+
       console.warn = function(...args) {
         originalWarn.apply(console, args);
         window.parent.postMessage({
@@ -361,17 +362,78 @@ export class CodeRunner {
           args: args.map(arg => String(arg))
         }, '*');
       };
-      
+
       // 捕获未处理的错误
       window.addEventListener('error', function(e) {
         console.error('运行时错误:', e.message);
       });
+
+      // 捕获未处理的 Promise 拒绝
+      window.addEventListener('unhandledrejection', function(e) {
+        console.error('未处理的 Promise 拒绝:', e.reason);
+      });
     })();
-    
-    ${script}
   </script>
+
+  <!-- 用户脚本 -->
+  ${this.generateScriptSection(script, config.script.language)}
 </body>
 </html>`;
+  }
+
+  /** 根据语言类型生成脚本部分 */
+  private generateScriptSection(script: string, language: Language): string {
+    switch (language) {
+      case 'python':
+        return this.generatePythonScript(script);
+      case 'javascript':
+      case 'typescript':
+      default:
+        return `<script>${script}</script>`;
+    }
+  }
+
+  /** 生成 Python 脚本执行代码 */
+  private generatePythonScript(pythonCode: string): string {
+    return `
+  <script>
+    // Python 代码执行器 - 使用 Skulpt
+    (async function() {
+      try {
+        // 检查 Skulpt 是否已加载
+        if (typeof window.Sk === 'undefined') {
+          console.error('❌ Python 运行环境未准备就绪');
+          console.info('💡 请确保已切换到 Python 语言，运行时会自动加载');
+          return;
+        }
+
+        console.log('🐍 开始执行 Python 代码 (Skulpt)...');
+
+        // 配置 Skulpt 输出
+        window.Sk.configure({
+          output: function(text) {
+            console.log('Python:', text);
+          },
+          read: function(x) {
+            if (window.Sk.builtinFiles === undefined || window.Sk.builtinFiles["files"][x] === undefined)
+              throw "File not found: '" + x + "'";
+            return window.Sk.builtinFiles["files"][x];
+          }
+        });
+
+        // 执行 Python 代码
+        const promise = window.Sk.misceval.asyncToPromise(function() {
+          return window.Sk.importMainWithBody("<stdin>", false, \`${pythonCode.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, true);
+        });
+
+        await promise;
+        console.log('✅ Python 代码执行完成');
+
+      } catch (error) {
+        console.error('❌ Python 执行错误:', error.message || error);
+      }
+    })();
+  </script>`;
   }
 
   private runInIframe(htmlDocument: string): void {

@@ -75,13 +75,22 @@ const compilerVendors: VendorRegistry = {
     cdn: 'esm.sh',
     isModule: true
   },
-  // Python 运行时
-  pyodide: {
-    name: 'pyodide',
-    version: '0.26.4',
-    path: 'pyodide.js',
+  // Python 运行时 - 使用 Skulpt (更轻量的浏览器 Python)
+  skulpt: {
+    name: 'skulpt',
+    version: '0.11.1',
+    path: 'skulpt.min.js',
     cdn: 'jsdelivr',
-    isModule: false
+    isModule: false,
+    external: 'https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt.min.js'
+  },
+  skulptStdlib: {
+    name: 'skulpt-stdlib',
+    version: '0.11.1',
+    path: 'skulpt-stdlib.js',
+    cdn: 'jsdelivr',
+    isModule: false,
+    external: 'https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt-stdlib.js'
   },
   // WebAssembly 相关
   wabt: {
@@ -395,6 +404,11 @@ class VendorService {
     const vendor = allVendors[category]?.[vendorKey];
     if (!vendor) {
       throw new Error(`Vendor not found: ${category}.${vendorKey}`);
+    }
+
+    // 如果有 external URL，直接使用
+    if (vendor.external) {
+      return vendor.external;
     }
 
     const moduleName = this.buildModuleName(vendor);

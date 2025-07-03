@@ -12,7 +12,7 @@ export class PythonCompiler extends BaseCompiler {
       this.validate(code);
 
       // Python 不需要编译，直接返回处理后的代码
-      // 实际的 Python 执行会由 Pyodide 或其他运行时处理
+      // 运行时环境由语言加载器通过 CDN 管理
       const processedCode = this.preprocess(code);
 
       return this.createSuccessResult(processedCode);

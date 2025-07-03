@@ -80,11 +80,27 @@ export interface Config {
   markup: EditorConfig;
   style: EditorConfig;
   script: EditorConfig;
+  editor: MonacoEditorConfig;
+  layout: LayoutConfig;
   tools?: ToolsConfig;
   theme?: 'light' | 'dark';
-  layout?: 'horizontal' | 'vertical';
-  autoupdate?: boolean;
+  autoRun?: boolean;
   delay?: number;
+}
+
+export interface MonacoEditorConfig {
+  theme: string;
+  fontSize: number;
+  tabSize: number;
+  wordWrap: boolean;
+  minimap: boolean;
+  lineNumbers: boolean;
+}
+
+export interface LayoutConfig {
+  direction: 'horizontal' | 'vertical';
+  showPreview: boolean;
+  showConsole: boolean;
 }
 
 export interface EditorConfig {

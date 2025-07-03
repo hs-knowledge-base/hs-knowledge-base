@@ -25,7 +25,7 @@ export class LayoutManager {
 
   async updateConfig(config: Config): Promise<void> {
     this.applyTheme(config.theme || 'dark');
-    this.applyLayout(config.layout || 'horizontal');
+    this.applyLayout(config.layout?.direction || 'horizontal');
     this.updateResultDisplay(config);
   }
 

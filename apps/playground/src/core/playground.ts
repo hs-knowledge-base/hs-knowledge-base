@@ -1,39 +1,61 @@
 import type { Config, PlaygroundOptions, PlaygroundAPI, EventHandler } from '@/types';
 import { EventEmitter } from './events';
 import { CompilerFactory } from '../compiler/compiler-factory';
-import { EditorManager } from '../editor/monaco-manager.ts';
+import { EditorManager } from '../editor/monaco-manager';
 import { CodeRunner } from '../runner/code-runner';
 import { LayoutManager } from '../ui/layout-manager';
 import { Logger } from '../utils/logger';
+import { ConfigManager } from './config-manager';
+import { ServiceContainer } from './service-container';
 
-/** 主要的 Playground 类 */
+/**
+ * 主要的 Playground 类 - 重构后的版本
+ * 职责：协调各个服务，提供统一的 API 接口
+ */
 export class Playground implements PlaygroundAPI {
   private readonly logger = new Logger('Playground');
-  private readonly eventEmitter = new EventEmitter();
-  private readonly compilerFactory = new CompilerFactory();
-  private readonly editorManager: EditorManager;
-  private readonly codeRunner: CodeRunner;
-  private readonly layoutManager: LayoutManager;
-  
-  private config: Config;
+  private readonly serviceContainer: ServiceContainer;
+  private readonly configManager: ConfigManager;
+
   private isDestroyed = false;
+  private isInitialized = false;
 
   constructor(private options: PlaygroundOptions) {
     this.logger.info('初始化 Playground');
 
-    // 初始化配置 - 合并默认配置和用户配置
-    const defaultConfig = this.getDefaultConfig();
-    this.config = {
-      ...defaultConfig,
-      ...this.options.config
-    };
-    
-    // 初始化各个管理器（依赖注入）
-    this.layoutManager = new LayoutManager(this.getContainer(), this.eventEmitter);
-    this.editorManager = new EditorManager(this.eventEmitter);
-    this.codeRunner = new CodeRunner(this.compilerFactory, this.eventEmitter);
-    
+    // 创建服务容器
+    this.serviceContainer = new ServiceContainer();
+
+    // 创建配置管理器
+    this.configManager = new ConfigManager(this.options.config);
+
+    // 注册核心服务
+    this.registerCoreServices();
+
+    // 设置事件处理
     this.setupEventHandlers();
+  }
+
+  /** 注册核心服务到容器 */
+  private registerCoreServices(): void {
+    const eventEmitter = new EventEmitter();
+    const compilerFactory = new CompilerFactory();
+
+    // 注册服务
+    this.serviceContainer.register('eventEmitter', eventEmitter);
+    this.serviceContainer.register('compilerFactory', compilerFactory);
+    this.serviceContainer.register('configManager', this.configManager);
+
+    // 注册管理器（延迟创建）
+    this.serviceContainer.registerFactory('layoutManager', () =>
+      new LayoutManager(this.getContainer(), eventEmitter)
+    );
+    this.serviceContainer.registerFactory('editorManager', () =>
+      new EditorManager(eventEmitter)
+    );
+    this.serviceContainer.registerFactory('codeRunner', () =>
+      new CodeRunner(compilerFactory, eventEmitter)
+    );
   }
 
   /** 初始化 Playground */
@@ -42,39 +64,56 @@ export class Playground implements PlaygroundAPI {
       throw new Error('Playground 已被销毁');
     }
 
+    if (this.isInitialized) {
+      this.logger.warn('Playground 已经初始化过了');
+      return;
+    }
+
     try {
-      this.logger.info('开始初始化各个子系统');
+      this.logger.info('开始初始化 Playground');
 
       // 1. 初始化编译器工厂
-      await this.compilerFactory.initializeBuiltinCompilers();
+      const compilerFactory = this.serviceContainer.resolve<CompilerFactory>('compilerFactory');
+      await compilerFactory.initializeBuiltinCompilers();
 
-      // 2. 初始化布局
-      await this.layoutManager.initialize();
+      // 2. 初始化布局管理器
+      const layoutManager = this.serviceContainer.resolve<LayoutManager>('layoutManager');
+      await layoutManager.initialize();
 
-      // 3. 初始化编辑器
-      await this.editorManager.initialize(this.layoutManager.getEditorContainer());
+      // 3. 初始化编辑器管理器
+      const editorManager = this.serviceContainer.resolve<EditorManager>('editorManager');
+      await editorManager.initialize(layoutManager.getEditorContainer());
 
       // 4. 初始化代码运行器
-      await this.codeRunner.initialize(this.layoutManager.getResultContainer());
+      const codeRunner = this.serviceContainer.resolve<CodeRunner>('codeRunner');
+      await codeRunner.initialize(layoutManager.getResultContainer());
 
-      // 5. 设置初始代码
-      await this.setConfig(this.config);
+      // 5. 设置初始配置
+      await this.setConfig(this.configManager.getConfig());
 
-      // 6. 触发就绪事件
-      this.eventEmitter.emit('ready', {});
+      // 6. 标记为已初始化
+      this.isInitialized = true;
+
+      // 7. 触发就绪事件
+      const eventEmitter = this.serviceContainer.resolve<EventEmitter>('eventEmitter');
+      eventEmitter.emit('ready', {});
 
       this.logger.info('Playground 初始化完成');
       
     } catch (error) {
       this.logger.error('初始化失败:', error);
-      this.eventEmitter.emit('error', { error });
+      const eventEmitter = this.serviceContainer.resolve<EventEmitter>('eventEmitter');
+      eventEmitter.emit('error', { error });
       throw error;
     }
   }
 
   /** 运行代码 */
   async run(): Promise<void> {
-    if (this.isDestroyed) return;
+    if (this.isDestroyed || !this.isInitialized) {
+      this.logger.warn('Playground 未初始化或已销毁');
+      return;
+    }
 
     try {
       this.logger.info('开始运行代码');
@@ -83,14 +122,17 @@ export class Playground implements PlaygroundAPI {
       this.updateRunButtonState('running');
 
       const code = await this.getCode();
-      await this.codeRunner.run(code, this.config);
+      const codeRunner = this.serviceContainer.resolve<CodeRunner>('codeRunner');
+      await codeRunner.run(code, this.configManager.getConfig());
 
-      this.eventEmitter.emit('run', { code });
+      const eventEmitter = this.serviceContainer.resolve<EventEmitter>('eventEmitter');
+      eventEmitter.emit('run', { code });
       this.updateRunButtonState('success');
 
     } catch (error) {
       this.logger.error('运行代码失败:', error);
-      this.eventEmitter.emit('error', { error });
+      const eventEmitter = this.serviceContainer.resolve<EventEmitter>('eventEmitter');
+      eventEmitter.emit('error', { error });
       this.updateRunButtonState('error');
       throw error;
     }
@@ -134,81 +176,79 @@ export class Playground implements PlaygroundAPI {
     }
   }
 
-  /**
-   * 获取代码
-   */
+  /** 获取代码 */
   async getCode(): Promise<{ markup: string; style: string; script: string }> {
-    return this.editorManager.getCode();
+    const editorManager = this.serviceContainer.resolve<EditorManager>('editorManager');
+    return editorManager.getCode();
   }
 
-  /**
-   * 设置代码
-   */
+  /** 设置代码 */
   async setCode(code: Partial<{ markup: string; style: string; script: string }>): Promise<void> {
-    await this.editorManager.setCode(code);
-    this.eventEmitter.emit('code-update', { code });
+    const editorManager = this.serviceContainer.resolve<EditorManager>('editorManager');
+    await editorManager.setCode(code);
+
+    const eventEmitter = this.serviceContainer.resolve<EventEmitter>('eventEmitter');
+    eventEmitter.emit('code-update', { code });
   }
 
-  /**
-   * 获取配置
-   */
+  /** 获取配置 */
   async getConfig(): Promise<Config> {
-    return { ...this.config };
+    return this.configManager.getConfig();
   }
 
-  /**
-   * 设置配置
-   */
+  /** 设置配置 */
   async setConfig(config: Partial<Config>): Promise<void> {
-    this.config = { ...this.config, ...config };
-    
+    // 使用配置管理器更新配置
+    this.configManager.updateConfig(config);
+    const newConfig = this.configManager.getConfig();
+
     // 更新各个子系统
-    await this.editorManager.updateConfig(this.config);
-    await this.layoutManager.updateConfig(this.config);
-    
-    this.eventEmitter.emit('config-update', { config: this.config });
+    const editorManager = this.serviceContainer.resolve<EditorManager>('editorManager');
+    const layoutManager = this.serviceContainer.resolve<LayoutManager>('layoutManager');
+
+    await editorManager.updateConfig(newConfig);
+    await layoutManager.updateConfig(newConfig);
+
+    const eventEmitter = this.serviceContainer.resolve<EventEmitter>('eventEmitter');
+    eventEmitter.emit('config-update', { config: newConfig });
   }
 
-  /**
-   * 格式化代码
-   */
+  /** 格式化代码 */
   async format(): Promise<void> {
-    await this.editorManager.format();
+    const editorManager = this.serviceContainer.resolve<EditorManager>('editorManager');
+    await editorManager.format();
   }
 
-  /**
-   * 监听事件
-   */
+  /** 监听事件 */
   on(event: string, handler: EventHandler): void {
-    this.eventEmitter.on(event, handler);
+    const eventEmitter = this.serviceContainer.resolve<EventEmitter>('eventEmitter');
+    eventEmitter.on(event, handler);
   }
 
-  /**
-   * 移除事件监听
-   */
+  /** 移除事件监听 */
   off(event: string, handler: EventHandler): void {
-    this.eventEmitter.off(event, handler);
+    const eventEmitter = this.serviceContainer.resolve<EventEmitter>('eventEmitter');
+    eventEmitter.off(event, handler);
   }
 
-  /**
-   * 销毁 Playground
-   */
+  /** 销毁 Playground */
   async destroy(): Promise<void> {
     if (this.isDestroyed) return;
-    
+
     this.logger.info('销毁 Playground');
-    
     this.isDestroyed = true;
-    
-    // 销毁各个子系统
-    await this.editorManager.destroy();
-    await this.codeRunner.destroy();
-    await this.layoutManager.destroy();
-    
-    // 清理事件监听器
-    this.eventEmitter.removeAllListeners();
-    
-    this.logger.info('Playground 已销毁');
+
+    try {
+      // 销毁配置管理器
+      this.configManager.destroy();
+
+      // 销毁服务容器（会自动销毁所有服务）
+      this.serviceContainer.destroy();
+
+      this.logger.info('Playground 已销毁');
+    } catch (error) {
+      this.logger.error('销毁 Playground 时出错', error);
+    }
   }
 
   private getContainer(): HTMLElement {
@@ -226,26 +266,32 @@ export class Playground implements PlaygroundAPI {
   }
 
   private setupEventHandlers(): void {
-    // 代码更新时只更新布局，不自动运行
-    this.eventEmitter.on('code-update', async (event) => {
+    const eventEmitter = this.serviceContainer.resolve<EventEmitter>('eventEmitter');
+
+    // 代码更新时的处理
+    eventEmitter.on('code-update', async (event) => {
       this.logger.info('收到代码更新事件:', event);
 
-      // 更新结果显示模式
-      const code = await this.getCode();
-      this.logger.info('当前代码状态:', {
-        markupLength: code.markup.length,
-        styleLength: code.style.length,
-        scriptLength: code.script.length
-      });
-
-      // 调用布局管理器的方法
-      if (this.layoutManager && typeof (this.layoutManager as any).updateResultDisplayByCode === 'function') {
-        (this.layoutManager as any).updateResultDisplayByCode(code);
+      // 如果启用了自动运行，则自动运行代码
+      const config = this.configManager.getConfig();
+      if (config.autoRun && this.isInitialized) {
+        // 延迟执行，避免频繁运行
+        setTimeout(() => {
+          this.run().catch(error => {
+            this.logger.warn('自动运行失败', error);
+          });
+        }, config.delay || 1000);
       }
     });
 
+    // 配置更新时的处理
+    this.configManager.onConfigChange((config) => {
+      this.logger.info('配置已更新');
+      eventEmitter.emit('config-update', { config });
+    });
+
     // 监听运行请求
-    this.eventEmitter.on('run-requested', () => {
+    eventEmitter.on('run-requested', () => {
       this.logger.info('用户请求运行代码');
       this.run().catch(error => {
         this.logger.error('运行失败:', error);
@@ -253,62 +299,49 @@ export class Playground implements PlaygroundAPI {
     });
 
     // 监听格式化请求
-    this.eventEmitter.on('format-requested', () => {
+    eventEmitter.on('format-requested', () => {
       this.logger.info('用户请求格式化代码');
       this.format().catch(error => {
         this.logger.error('格式化失败:', error);
       });
     });
 
-    // 监听设置请求
-    this.eventEmitter.on('settings-requested', () => {
-      this.logger.info('用户请求打开设置');
-      // TODO: 实现设置面板
-    });
-
     // 监听语言变化
-    this.eventEmitter.on('language-change', (event) => {
+    eventEmitter.on('language-change', (event) => {
       this.logger.info('收到语言变化事件:', event);
 
-      // 处理事件数据结构（可能有 payload 包装）
-      const eventData = event.payload || event;
-      const { editorType, language } = eventData;
-
+      const { editorType, language } = event.payload || {};
       if (!editorType || !language) {
-        this.logger.warn('语言变化事件数据不完整:', eventData);
+        this.logger.warn('语言变化事件数据不完整:', event);
         return;
       }
 
       // 更新配置中的语言设置
+      const currentConfig = this.configManager.getConfig();
+      const updates: Partial<Config> = {};
+
       if (editorType === 'markup') {
-        this.config.markup.language = language;
-        this.logger.info(`Markup 语言已更新: ${language}`);
+        updates.markup = { ...currentConfig.markup, language };
       } else if (editorType === 'style') {
-        this.config.style.language = language;
-        this.logger.info(`Style 语言已更新: ${language}`);
+        updates.style = { ...currentConfig.style, language };
       } else if (editorType === 'script') {
-        this.config.script.language = language;
-        this.logger.info(`Script 语言已更新: ${language}`);
+        updates.script = { ...currentConfig.script, language };
       }
 
-      this.logger.info(`当前配置:`, {
-        markup: this.config.markup.language,
-        style: this.config.style.language,
-        script: this.config.script.language
-      });
+      if (Object.keys(updates).length > 0) {
+        this.configManager.updateConfig(updates);
+        this.logger.info(`${editorType} 语言已更新: ${language}`);
+      }
     });
   }
 
-  private getDefaultConfig(): Config {
+  /** 获取服务统计信息 */
+  getStats() {
     return {
-      title: '火山知识库 - 代码演练场',
-      markup: { language: 'html', content: '' },
-      style: { language: 'css', content: '' },
-      script: { language: 'javascript', content: '' },
-      theme: 'dark',
-      layout: 'horizontal',
-      autoupdate: false,
-      delay: 1500
+      isInitialized: this.isInitialized,
+      isDestroyed: this.isDestroyed,
+      serviceContainer: this.serviceContainer.getStats(),
+      configManager: this.configManager.getStats()
     };
   }
 }

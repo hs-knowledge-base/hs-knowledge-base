@@ -116,15 +116,29 @@ features.destructuring();
 features.templateLiterals('火山');`
     },
     
+    editor: {
+      theme: 'playground-dark',
+      fontSize: 14,
+      tabSize: 2,
+      wordWrap: true,
+      minimap: false,
+      lineNumbers: true
+    },
+
+    layout: {
+      direction: 'horizontal',
+      showPreview: true,
+      showConsole: true
+    },
+
     tools: {
       enabled: ['console', 'compiled'],
       active: 'console',
       status: 'open'
     },
-    
+
     theme: 'dark',
-    layout: 'horizontal',
-    autoupdate: false,
+    autoRun: false,
     delay: 1500
   };
 }

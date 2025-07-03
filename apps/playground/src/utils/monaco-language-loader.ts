@@ -1,82 +1,19 @@
 import { Logger } from './logger';
 import {
+  languageService,
   normalizeLanguage,
   getSupportedLanguages,
-  getLanguageDisplayName
-} from '@/services/language-service';
-import {
+  getLanguageDisplayName,
   isLanguageLoaded,
   markLanguageLoaded,
   getCompilerUrl,
   getRuntimeUrl,
   needsCompiler,
-  needsRuntime,
-  languageService
+  needsRuntime
 } from '../services/language-service';
-import { vendorService } from '../services/vendors';
-import {Language, VendorCategory} from '@/types';
+import type { Language } from '@/types';
 
 const logger = new Logger('MonacoLanguageLoader');
-
-/** 显示 Python 加载状态 */
-const showPythonLoadingStatus = (message: string): void => {
-  // 创建或更新加载状态显示
-  let statusElement = document.getElementById('python-loading-status');
-  if (!statusElement) {
-    statusElement = document.createElement('div');
-    statusElement.id = 'python-loading-status';
-    statusElement.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #2d2d30;
-      color: #cccccc;
-      padding: 12px 16px;
-      border-radius: 6px;
-      border: 1px solid #007acc;
-      font-size: 14px;
-      z-index: 10000;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    `;
-    document.body.appendChild(statusElement);
-  }
-
-  statusElement.innerHTML = `
-    <div style="
-      width: 16px;
-      height: 16px;
-      border: 2px solid #007acc;
-      border-top: 2px solid transparent;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    "></div>
-    <span>${message}</span>
-  `;
-
-  // 添加旋转动画
-  if (!document.getElementById('python-loading-styles')) {
-    const style = document.createElement('style');
-    style.id = 'python-loading-styles';
-    style.textContent = `
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-};
-
-/** 隐藏 Python 加载状态 */
-const hidePythonLoadingStatus = (): void => {
-  const statusElement = document.getElementById('python-loading-status');
-  if (statusElement) {
-    statusElement.remove();
-  }
-};
 
 /** 动态加载语言支持 */
 export const loadMonacoLanguage = async (language: string): Promise<void> => {
@@ -130,12 +67,6 @@ const loadLanguageResources = async (language: Language): Promise<void> => {
     const runtimeUrl = getRuntimeUrl(language);
     if (runtimeUrl) {
       logger.info(`加载 ${language} 运行时: ${runtimeUrl}`);
-
-      // 特殊处理 Python 加载状态
-      if (language === 'python') {
-        showPythonLoadingStatus('正在下载 Python 运行环境...');
-      }
-
       promises.push(loadScript(runtimeUrl, `${language}-runtime`));
     }
   }
@@ -165,53 +96,7 @@ const loadScript = async (url: string, id: string): Promise<void> => {
     script.async = true;
     script.setAttribute('data-id', id);
 
-    script.onload = async () => {
-      // 特殊处理 Skulpt 初始化
-      if (id.includes('python') && typeof (window as any).Sk !== 'undefined') {
-        try {
-          logger.info('🐍 开始初始化 Python 运行环境 (Skulpt)...');
-
-          // 显示加载状态
-          showPythonLoadingStatus('正在加载 Python 标准库...');
-
-          // 加载 Skulpt 标准库
-          const stdlibScript = document.createElement('script');
-          stdlibScript.src = vendorService.getVendorUrl(VendorCategory.COMPILER, 'skulptStdlib');
-          document.head.appendChild(stdlibScript);
-
-          await new Promise((resolve, reject) => {
-            stdlibScript.onload = resolve;
-            stdlibScript.onerror = reject;
-          });
-
-          showPythonLoadingStatus('正在初始化 Python 运行环境...');
-
-          // 配置 Skulpt
-          (window as any).Sk.pre = "output";
-          (window as any).Sk.configure({
-            output: function(text: string) {
-              console.log('Python:', text);
-            },
-            read: function(x: string) {
-              if ((window as any).Sk.builtinFiles === undefined || (window as any).Sk.builtinFiles["files"][x] === undefined)
-                throw "File not found: '" + x + "'";
-              return (window as any).Sk.builtinFiles["files"][x];
-            }
-          });
-
-          hidePythonLoadingStatus();
-          logger.info('✅ Python 运行环境准备完成 (Skulpt)');
-
-        } catch (error) {
-          hidePythonLoadingStatus();
-          logger.error('❌ Python 运行环境初始化失败:', error);
-          reject(error);
-          return;
-        }
-      }
-      resolve();
-    };
-
+    script.onload = () => resolve();
     script.onerror = () => reject(new Error(`Failed to load script: ${url}`));
 
     document.head.appendChild(script);

@@ -5,16 +5,47 @@ export type Language =
   | 'javascript' | 'typescript' | 'python'
   | 'html' | 'css' | 'markdown';
 
+/**
+ * 编辑器类型
+ */
 export type EditorId = 'markup' | 'style' | 'script';
 
+/**
+ * Vendor 类别枚举
+ */
+export enum VendorCategory {
+  MONACO = 'monaco',
+  COMPILER = 'compiler',
+  FRAMEWORK = 'framework',
+  TOOL = 'tool',
+  STYLE = 'style',
+  TEMPLATE = 'template',
+  CHART = 'chart',
+  ANIMATION = 'animation',
+  UTILITY = 'utility',
+  TEST = 'test'
+}
+
+/**
+ * 语言配置接口
+ */
 export interface LanguageSpecs {
   name: Language;
   title: string;
   longTitle?: string;
-  compiler: Compiler | Language;
   extensions: string[];
-  editor: EditorId;
-  editorLanguage?: Language;
+  editorType: EditorId;
+  monacoLanguage?: string;
+  compiler?: {
+    category: VendorCategory;
+    vendorKey: string;
+    needsRuntime?: boolean;
+  };
+  runtime?: {
+    category: VendorCategory;
+    vendorKey: string;
+  };
+  aliases?: string[];
   largeDownload?: boolean;
 }
 

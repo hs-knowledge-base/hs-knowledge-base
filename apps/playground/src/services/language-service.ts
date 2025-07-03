@@ -1,31 +1,11 @@
-import { vendorService, VendorCategory } from './vendors';
+import { vendorService } from './vendors';
 import { CompilerFactory } from '../compiler/compiler-factory';
-import type { Language } from '@/types';
+import {Language, LanguageSpecs, VendorCategory} from '@/types';
 import { Logger } from '@/utils/logger';
 
-/** 语言配置接口 */
-export interface LanguageConfig {
-  name: Language;
-  title: string;
-  longTitle?: string;
-  extensions: string[];
-  editorType: 'markup' | 'style' | 'script';
-  monacoLanguage?: string;
-  compiler?: {
-    category: VendorCategory;
-    vendorKey: string;
-    needsRuntime?: boolean;
-  };
-  runtime?: {
-    category: VendorCategory;
-    vendorKey: string;
-  };
-  isBuiltin?: boolean;
-  aliases?: string[];
-}
 
 /** 语言注册表 */
-const languageRegistry: Record<Language, LanguageConfig> = {
+const languageRegistry: Record<Language, LanguageSpecs> = {
   // 脚本语言
   javascript: {
     name: 'javascript',
@@ -114,7 +94,7 @@ class LanguageService {
   }
 
   /** 获取语言配置 */
-  getLanguageConfig(language: Language): LanguageConfig | null {
+  getLanguageConfig(language: Language): LanguageSpecs | null {
     return languageRegistry[language] || null;
   }
 
@@ -302,12 +282,12 @@ class LanguageService {
   }
 
   /** 添加自定义语言配置 */
-  addLanguage(language: Language, config: LanguageConfig): void {
+  addLanguage(language: Language, config: LanguageSpecs): void {
     languageRegistry[language] = config;
   }
 
   /** 更新语言配置 */
-  updateLanguage(language: Language, updates: Partial<LanguageConfig>): void {
+  updateLanguage(language: Language, updates: Partial<LanguageSpecs>): void {
     const existing = languageRegistry[language];
     if (existing) {
       languageRegistry[language] = { ...existing, ...updates };

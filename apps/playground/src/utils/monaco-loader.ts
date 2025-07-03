@@ -1,6 +1,7 @@
-import { vendorService, VendorCategory } from '../services/vendors';
+import { vendorService } from '../services/vendors';
 import { Logger } from './logger';
 import { preloadCommonLanguages } from './monaco-language-loader';
+import { VendorCategory } from "@/types";
 
 const logger = new Logger('MonacoLoader');
 

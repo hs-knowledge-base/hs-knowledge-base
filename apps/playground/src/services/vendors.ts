@@ -1,4 +1,5 @@
 import { modulesService, type CDN } from './modules';
+import { VendorCategory } from '@/types';
 
 /** Vendor 配置接口 */
 export interface VendorConfig {
@@ -8,30 +9,6 @@ export interface VendorConfig {
   cdn?: CDN;
   isModule?: boolean;
   external?: string;
-}
-
-/** Vendor 类别枚举 */
-export enum VendorCategory {
-  /** Monaco Editor 相关 */
-  MONACO = 'monaco',
-  /** 编译器相关 */
-  COMPILER = 'compiler',
-  /** 框架相关 */
-  FRAMEWORK = 'framework',
-  /** 工具库相关 */
-  TOOL = 'tool',
-  /** 样式处理相关 */
-  STYLE = 'style',
-  /** 模板引擎相关 */
-  TEMPLATE = 'template',
-  /** 图表库相关 */
-  CHART = 'chart',
-  /** 动画库相关 */
-  ANIMATION = 'animation',
-  /** 工具函数相关 */
-  UTILITY = 'utility',
-  /** 测试框架相关 */
-  TEST = 'test'
 }
 
 /** Vendor 注册表接口 */

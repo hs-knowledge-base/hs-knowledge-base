@@ -173,15 +173,31 @@ export class CodeRunner {
         background: rgba(255, 255, 255, 0.1);
       }
 
+      /* 控制台和编译结果面板 */
+      .console-panel,
+      .compiled-panel {
+        height: 100%;
+        display: none;
+        flex-direction: column;
+        flex: 1;
+      }
+
+      .console-panel.active,
+      .compiled-panel.active {
+        display: flex;
+      }
+
       /* 控制台消息区域 */
       .console-messages {
-        height: calc(100% - 35px);
+        flex: 1;
+        min-height: 200px;
         padding: 8px;
         font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
         font-size: 12px;
         color: #d4d4d4;
         background: #1e1e1e;
         overflow-y: auto;
+        border: 1px solid #3e3e3e;
       }
 
       .console-message {
@@ -275,15 +291,18 @@ export class CodeRunner {
 
   private addConsoleMessage(level: string, args: string[]): void {
     const consoleMessages = this.container.querySelector('.console-messages');
-    if (!consoleMessages) return;
+    if (!consoleMessages) {
+      return;
+    }
 
     const messageElement = document.createElement('div');
     messageElement.className = `console-message console-${level}`;
 
     const timestamp = new Date().toLocaleTimeString();
+    const messageText = args.join(' ');
     messageElement.innerHTML = `
       <span class="console-timestamp">${timestamp}</span>
-      <span class="console-text">${args.join(' ')}</span>
+      <span class="console-text">${messageText}</span>
     `;
 
     consoleMessages.appendChild(messageElement);
@@ -367,7 +386,10 @@ export class CodeRunner {
         console.error('运行时错误:', e.message);
       });
     })();
-    
+
+    // 测试控制台输出
+    console.log('🔥 代码运行器已启动');
+
     ${script}
   </script>
 </body>

@@ -432,6 +432,15 @@ export class LayoutManager {
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        min-height: 200px;
+      }
+
+      .console-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0;
       }
 
       .console-tabs {

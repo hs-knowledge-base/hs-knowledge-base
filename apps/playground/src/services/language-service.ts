@@ -1,6 +1,7 @@
 import { vendorService, VendorCategory } from './vendors';
-import { modulesService } from './modules';
-import type { Language } from '../types';
+import { CompilerFactory } from '../compiler/compiler-factory';
+import type { Language } from '@/types';
+import { Logger } from '@/utils/logger';
 
 /** 语言配置接口 */
 export interface LanguageConfig {
@@ -99,128 +100,59 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     extensions: ['css'],
     editorType: 'style',
     monacoLanguage: 'css'
-    // CSS 由 Monaco Editor 原生支持
-  },
-  
-  // 数据格式
-  json: {
-    name: 'json',
-    title: 'JSON',
-    longTitle: 'JSON',
-    extensions: ['json'],
-    editorType: 'script',
-    monacoLanguage: 'json'
-    // JSON 由 Monaco Editor 原生支持
-  },
-  yaml: {
-    name: 'yaml',
-    title: 'YAML',
-    longTitle: 'YAML',
-    extensions: ['yaml', 'yml'],
-    editorType: 'script',
-    monacoLanguage: 'yaml',
-    // YAML 由 Monaco Editor 原生支持
-    aliases: ['yml']
-  },
-
-  // JSX/TSX
-  jsx: {
-    name: 'jsx',
-    title: 'JSX',
-    longTitle: 'React JSX',
-    extensions: ['jsx'],
-    editorType: 'script',
-    monacoLanguage: 'javascript',
-    // JSX 需要 Babel 编译器来转译
-    compiler: {
-      category: VendorCategory.COMPILER,
-      vendorKey: 'babel'
-    }
-  },
-  tsx: {
-    name: 'tsx',
-    title: 'TSX',
-    longTitle: 'React TSX',
-    extensions: ['tsx'],
-    editorType: 'script',
-    monacoLanguage: 'typescript',
-    // TSX 需要 TypeScript 编译器来转译
-    compiler: {
-      category: VendorCategory.COMPILER,
-      vendorKey: 'typescript'
-    }
-  },
-  
-  // 框架
-  vue: {
-    name: 'vue',
-    title: 'Vue',
-    longTitle: 'Vue.js',
-    extensions: ['vue'],
-    editorType: 'script',
-    monacoLanguage: 'html',
-    // Vue 单文件组件需要专门的编译器
-    compiler: {
-      category: VendorCategory.FRAMEWORK,
-      vendorKey: 'vueCompilerSfc'
-    }
-  },
-  svelte: {
-    name: 'svelte',
-    title: 'Svelte',
-    longTitle: 'Svelte',
-    extensions: ['svelte'],
-    editorType: 'script',
-    monacoLanguage: 'html',
-    // Svelte 组件需要专门的编译器
-    compiler: {
-      category: VendorCategory.FRAMEWORK,
-      vendorKey: 'svelte'
-    }
-  },
-
-  // 系统语言（仅语法高亮，暂不支持运行）
-  go: {
-    name: 'go',
-    title: 'Go',
-    longTitle: 'Go',
-    extensions: ['go'],
-    editorType: 'script',
-    monacoLanguage: 'go'
-    // Go 仅提供语法高亮，无运行时支持
-  },
-  rust: {
-    name: 'rust',
-    title: 'Rust',
-    longTitle: 'Rust',
-    extensions: ['rs'],
-    editorType: 'script',
-    monacoLanguage: 'rust'
-    // Rust 仅提供语法高亮，无运行时支持
-  },
-  java: {
-    name: 'java',
-    title: 'Java',
-    longTitle: 'Java',
-    extensions: ['java'],
-    editorType: 'script',
-    monacoLanguage: 'java'
-    // Java 仅提供语法高亮，无运行时支持
   }
 };
 
 /** 语言服务类 */
 class LanguageService {
+  private readonly logger = new Logger('LanguageService');
   private readonly loadedLanguages = new Set<string>();
+  private readonly compilerFactory = new CompilerFactory();
+
+  constructor() {
+    this.validateLanguageCompilerConsistency();
+  }
 
   /** 获取语言配置 */
   getLanguageConfig(language: Language): LanguageConfig | null {
     return languageRegistry[language] || null;
   }
 
-  /** 获取所有支持的语言 */
+  /** 验证语言配置与编译器的一致性 */
+  private validateLanguageCompilerConsistency(): void {
+    const configuredLanguages = Object.keys(languageRegistry) as Language[];
+    const compilableLanguages = this.compilerFactory.getSupportedLanguages();
+
+    this.logger.info('语言配置验证:');
+    this.logger.info(`- 配置的语言: ${configuredLanguages.join(', ')}`);
+    this.logger.info(`- 有编译器的语言: ${compilableLanguages.join(', ')}`);
+
+    // 检查配置的语言是否都有对应的编译器
+    const missingCompilers = configuredLanguages.filter(lang =>
+      !compilableLanguages.includes(lang)
+    );
+
+    if (missingCompilers.length > 0) {
+      this.logger.warn(`以下语言缺少编译器: ${missingCompilers.join(', ')}`);
+    }
+
+    // 检查是否有编译器但没有语言配置
+    const missingConfigs = compilableLanguages.filter(lang =>
+      !configuredLanguages.includes(lang)
+    );
+
+    if (missingConfigs.length > 0) {
+      this.logger.warn(`以下编译器缺少语言配置: ${missingConfigs.join(', ')}`);
+    }
+
+    if (missingCompilers.length === 0 && missingConfigs.length === 0) {
+      this.logger.info('✅ 语言配置与编译器完全一致');
+    }
+  }
+
+  /** 获取所有支持的语言（基于编译器） */
   getSupportedLanguages(): Language[] {
-    return Object.keys(languageRegistry) as Language[];
+    return this.compilerFactory.getSupportedLanguages();
   }
 
   /** 获取无需额外资源的语言（Monaco Editor 原生支持） */
@@ -331,6 +263,44 @@ class LanguageService {
     return null;
   }
 
+  /** 获取编译器 */
+  getCompiler(language: Language) {
+    return this.compilerFactory.getCompiler(language);
+  }
+
+  /** 编译代码 */
+  async compile(code: string, language: Language, options: any = {}) {
+    return this.compilerFactory.compileWithCache(code, language, options);
+  }
+
+  /** 检查语言是否支持编译 */
+  supports(language: Language): boolean {
+    return this.compilerFactory.supports(language);
+  }
+
+  /** 清除编译缓存 */
+  clearCache(): void {
+    this.compilerFactory.clearCache();
+    this.logger.info('编译缓存已清除');
+  }
+
+  /** 获取统计信息 */
+  getStats() {
+    const supportedLanguages = this.getSupportedLanguages();
+    const languagesByType = {
+      markup: this.getLanguagesByEditorType('markup'),
+      style: this.getLanguagesByEditorType('style'),
+      script: this.getLanguagesByEditorType('script')
+    };
+
+    return {
+      totalLanguages: supportedLanguages.length,
+      supportedLanguages,
+      languagesByType,
+      compilerCacheSize: (this.compilerFactory as any).cache?.size || 0
+    };
+  }
+
   /** 添加自定义语言配置 */
   addLanguage(language: Language, config: LanguageConfig): void {
     languageRegistry[language] = config;
@@ -375,3 +345,15 @@ export const getMonacoLanguage = (language: Language) =>
   languageService.getMonacoLanguage(language);
 export const getLanguageByExtension = (extension: string) =>
   languageService.getLanguageByExtension(extension);
+
+// 编译器相关导出
+export const getCompiler = (language: Language) =>
+  languageService.getCompiler(language);
+export const compile = (code: string, language: Language, options?: any) =>
+  languageService.compile(code, language, options);
+export const supports = (language: Language) =>
+  languageService.supports(language);
+export const clearCache = () =>
+  languageService.clearCache();
+export const getStats = () =>
+  languageService.getStats();

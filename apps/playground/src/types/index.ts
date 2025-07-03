@@ -1,9 +1,9 @@
-// 基于 LiveCodes 架构的类型定义
-
-export type Language = 
-  | 'javascript' | 'typescript' | 'python' | 'go' | 'rust' | 'java'
-  | 'html' | 'css' | 'jsx' | 'tsx' | 'vue' | 'svelte'
-  | 'markdown' | 'json' | 'yaml';
+/**
+ * 支持的语言类型
+ */
+export type Language =
+  | 'javascript' | 'typescript' | 'python'
+  | 'html' | 'css' | 'markdown';
 
 export type EditorId = 'markup' | 'style' | 'script';
 

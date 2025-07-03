@@ -1,15 +1,17 @@
 import { Logger } from './logger';
 import {
-  languageService,
   normalizeLanguage,
   getSupportedLanguages,
-  getLanguageDisplayName,
+  getLanguageDisplayName
+} from '@/services/language-service';
+import {
   isLanguageLoaded,
   markLanguageLoaded,
   getCompilerUrl,
   getRuntimeUrl,
   needsCompiler,
-  needsRuntime
+  needsRuntime,
+  languageService
 } from '../services/language-service';
 import type { Language } from '@/types';
 
@@ -105,7 +107,7 @@ const loadScript = async (url: string, id: string): Promise<void> => {
 
 /** 预加载常用语言 */
 export const preloadCommonLanguages = async (): Promise<void> => {
-  const commonLanguages: Language[] = ['javascript', 'typescript', 'css', 'html', 'json'];
+  const commonLanguages: Language[] = ['javascript', 'typescript', 'css', 'html'];
 
   logger.info('开始预加载常用语言...');
 

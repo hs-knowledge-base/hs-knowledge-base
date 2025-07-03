@@ -1,21 +1,16 @@
 import type { Language } from '@/types';
 import { BaseCompiler } from './base-compiler';
-import { JavaScriptCompiler } from './compilers/javascript';
-import { TypeScriptCompiler } from './compilers/typescript';
-import { HtmlCompiler } from './compilers/html';
-import { CssCompiler } from './compilers/css';
-import { MarkdownCompiler } from './compilers/markdown';
 import { Logger } from '@/utils/logger';
 
 /** 编译器工厂 */
 export class CompilerFactory {
   private readonly logger = new Logger('CompilerFactory');
   private readonly compilers = new Map<Language, BaseCompiler>();
-  private readonly compilerClasses = new Map<Language, any>();
+  private readonly compilerClasses = new Map<Language, new () => BaseCompiler>();
   private readonly cache = new Map<string, any>();
 
   constructor() {
-    this.registerBuiltinCompilers();
+    // 不再自动注册编译器，改为按需注册
   }
 
   /** 获取编译器实例 */
@@ -91,11 +86,20 @@ export class CompilerFactory {
   /**
    * 注册编译器类
    */
-  registerCompiler(language: Language, compilerClass: any): void {
+  registerCompiler(language: Language, compilerClass: new () => BaseCompiler): void {
     this.logger.info(`注册编译器: ${language}`);
     this.compilerClasses.set(language, compilerClass);
 
     // 清除缓存的实例，强制重新创建
+    this.compilers.delete(language);
+  }
+
+  /**
+   * 注销编译器
+   */
+  unregisterCompiler(language: Language): void {
+    this.logger.info(`注销编译器: ${language}`);
+    this.compilerClasses.delete(language);
     this.compilers.delete(language);
   }
 
@@ -145,7 +149,18 @@ export class CompilerFactory {
     }
   }
 
-  private registerBuiltinCompilers(): void {
+  /**
+   * 初始化内置编译器
+   * 这个方法需要在应用启动时调用
+   */
+  async initializeBuiltinCompilers(): Promise<void> {
+    // 动态导入编译器类，避免循环依赖
+    const { JavaScriptCompiler } = await import('./compilers/javascript');
+    const { TypeScriptCompiler } = await import('./compilers/typescript');
+    const { HtmlCompiler } = await import('./compilers/html');
+    const { CssCompiler } = await import('./compilers/css');
+    const { MarkdownCompiler } = await import('./compilers/markdown');
+
     // 注册内置编译器
     this.registerCompiler('javascript', JavaScriptCompiler);
     this.registerCompiler('typescript', TypeScriptCompiler);
@@ -153,10 +168,6 @@ export class CompilerFactory {
     this.registerCompiler('css', CssCompiler);
     this.registerCompiler('markdown', MarkdownCompiler);
 
-    this.logger.info(`注册了 ${this.compilerClasses.size} 个内置编译器`);
-  }
-
-  private capitalize(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+    this.logger.info(`初始化了 ${this.compilerClasses.size} 个内置编译器`);
   }
 }

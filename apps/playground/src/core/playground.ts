@@ -44,22 +44,25 @@ export class Playground implements PlaygroundAPI {
 
     try {
       this.logger.info('开始初始化各个子系统');
-      
-      // 1. 初始化布局
+
+      // 1. 初始化编译器工厂
+      await this.compilerFactory.initializeBuiltinCompilers();
+
+      // 2. 初始化布局
       await this.layoutManager.initialize();
-      
-      // 2. 初始化编辑器
+
+      // 3. 初始化编辑器
       await this.editorManager.initialize(this.layoutManager.getEditorContainer());
-      
-      // 3. 初始化代码运行器
+
+      // 4. 初始化代码运行器
       await this.codeRunner.initialize(this.layoutManager.getResultContainer());
-      
-      // 4. 设置初始代码
+
+      // 5. 设置初始代码
       await this.setConfig(this.config);
-      
-      // 5. 触发就绪事件
+
+      // 6. 触发就绪事件
       this.eventEmitter.emit('ready', {});
-      
+
       this.logger.info('Playground 初始化完成');
       
     } catch (error) {

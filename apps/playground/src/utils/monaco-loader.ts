@@ -7,7 +7,7 @@ const logger = new Logger('MonacoLoader');
 
 /** Monaco Editor 全局加载状态 */
 let monacoGloballyLoaded = false;
-let monacoLoadPromise: Promise<typeof import('monaco-editor')> | null = null;
+let monacoLoadPromise: Promise<any> | null = null;
 
 /** Monaco Editor 配置 */
 const monacoConfig = {
@@ -16,15 +16,12 @@ const monacoConfig = {
   },
   get loaderUrl() {
     return vendorService.getVendorUrl(VendorCategory.MONACO, 'monacoLoader');
-  },
-  get workerMainUrl() {
-    return vendorService.getVendorUrl(VendorCategory.MONACO, 'monacoWorkerMain');
   }
 };
 
 
 /** 动态加载 Monaco Editor */
-export const loadMonaco = async (): Promise<typeof import('monaco-editor')> => {
+export const loadMonaco = async (): Promise<any> => {
   // 如果已经加载过，直接返回
   if (monacoGloballyLoaded && (window as any).monaco) {
     return (window as any).monaco;
@@ -36,12 +33,16 @@ export const loadMonaco = async (): Promise<typeof import('monaco-editor')> => {
   }
 
   // 开始加载 Monaco Editor
-  monacoLoadPromise = loadMonacoAMD();
+  monacoLoadPromise = loadMonacoFromCDN();
 
   try {
     const monaco = await monacoLoadPromise;
     monacoGloballyLoaded = true;
     (window as any).monaco = monaco;
+
+    // 配置 Workers
+    configureMonacoWorkers();
+
     logger.info('Monaco Editor 加载成功');
 
     // 预加载常用语言
@@ -57,11 +58,10 @@ export const loadMonaco = async (): Promise<typeof import('monaco-editor')> => {
   }
 };
 
-/** 使用 AMD 方式加载 Monaco Editor */
-const loadMonacoAMD = async (): Promise<typeof import('monaco-editor')> => {
+/** 从 CDN 加载 Monaco Editor */
+const loadMonacoFromCDN = async (): Promise<any> => {
   return new Promise((resolve, reject) => {
     try {
-
       // 动态加载 RequireJS loader
       const script = document.createElement('script');
       script.src = monacoConfig.loaderUrl;
@@ -97,10 +97,40 @@ const loadMonacoAMD = async (): Promise<typeof import('monaco-editor')> => {
 
       document.head.appendChild(script);
     } catch (error) {
-      logger.error('Monaco Editor AMD 加载初始化失败', error);
+      logger.error('Monaco Editor CDN 加载初始化失败', error);
       reject(error);
     }
   });
+};
+
+/** 配置 Monaco Editor Workers */
+const configureMonacoWorkers = (): void => {
+  if (!(window as any).MonacoEnvironment) {
+    (window as any).MonacoEnvironment = {
+      getWorkerUrl: function (moduleId: string, label: string) {
+        const baseUrl = monacoConfig.baseUrl;
+
+        switch (label) {
+          case 'json':
+            return `${baseUrl}/vs/language/json/json.worker.js`;
+          case 'css':
+          case 'scss':
+          case 'less':
+            return `${baseUrl}/vs/language/css/css.worker.js`;
+          case 'html':
+          case 'handlebars':
+          case 'razor':
+            return `${baseUrl}/vs/language/html/html.worker.js`;
+          case 'typescript':
+          case 'javascript':
+            return `${baseUrl}/vs/language/typescript/ts.worker.js`;
+          default:
+            return `${baseUrl}/vs/editor/editor.worker.js`;
+        }
+      }
+    };
+    logger.info('Monaco Editor Workers 配置完成');
+  }
 };
 
 /** 检查 Monaco Editor 是否已加载 */
@@ -109,13 +139,6 @@ export const isMonacoLoaded = (): boolean => {
 };
 
 /** 获取已加载的 Monaco Editor 实例 */
-export const getMonaco = (): typeof import('monaco-editor') | null => {
+export const getMonaco = (): any | null => {
   return isMonacoLoaded() ? (window as any).monaco : null;
-};
-
-/** 预加载 Monaco Editor Workers */
-export const preloadMonacoWorkers = async (): Promise<void> => {
-  // 这个函数可以在应用启动时调用，预加载 Workers
-  // 目前只是占位符，实际的 Worker 配置在 monaco-manager.ts 中
-  logger.info('Monaco Editor Workers 预加载完成');
 };

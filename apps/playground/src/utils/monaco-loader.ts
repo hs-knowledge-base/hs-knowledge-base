@@ -1,4 +1,4 @@
-import { getMonacoUrls } from '../services/vendors';
+import { vendorService, VendorCategory } from '../services/vendors';
 import { Logger } from './logger';
 import { preloadCommonLanguages } from './monaco-language-loader';
 
@@ -7,6 +7,19 @@ const logger = new Logger('MonacoLoader');
 /** Monaco Editor 全局加载状态 */
 let monacoGloballyLoaded = false;
 let monacoLoadPromise: Promise<typeof import('monaco-editor')> | null = null;
+
+/** Monaco Editor 配置 */
+const monacoConfig = {
+  get baseUrl() {
+    return vendorService.getVendorUrl(VendorCategory.MONACO, 'monacoEditor');
+  },
+  get loaderUrl() {
+    return vendorService.getVendorUrl(VendorCategory.MONACO, 'monacoLoader');
+  },
+  get workerMainUrl() {
+    return vendorService.getVendorUrl(VendorCategory.MONACO, 'monacoWorkerMain');
+  }
+};
 
 
 /** 动态加载 Monaco Editor */
@@ -50,7 +63,7 @@ const loadMonacoAMD = async (): Promise<typeof import('monaco-editor')> => {
 
       // 动态加载 RequireJS loader
       const script = document.createElement('script');
-      script.src = getMonacoUrls().loaderUrl;
+      script.src = monacoConfig.loaderUrl;
       script.async = true;
 
       script.onload = () => {
@@ -58,7 +71,7 @@ const loadMonacoAMD = async (): Promise<typeof import('monaco-editor')> => {
 
         // 配置 RequireJS
         (window as any).require.config({
-          paths: { "vs": getMonacoUrls().baseUrl + '/vs' }
+          paths: { "vs": monacoConfig.baseUrl + '/vs' }
         });
 
         // 加载 Monaco Editor

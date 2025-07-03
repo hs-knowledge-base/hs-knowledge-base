@@ -506,30 +506,3 @@ export const getCompilerUrls = () => ({
   postcssUrl: vendorService.getVendorUrl(VendorCategory.COMPILER, 'postcss'),
   autoprefixerUrl: vendorService.getVendorUrl(VendorCategory.COMPILER, 'autoprefixer')
 });
-
-/** 便捷方法：获取工具库相关 URLs */
-export const getToolUrls = () => ({
-  prettierUrl: vendorService.getVendorUrl(VendorCategory.TOOL, 'prettier'),
-  prettierParserBabelUrl: vendorService.getVendorUrl(VendorCategory.TOOL, 'prettierParserBabel'),
-  prettierParserTypescriptUrl: vendorService.getVendorUrl(VendorCategory.TOOL, 'prettierParserTypescript'),
-  prettierParserHtmlUrl: vendorService.getVendorUrl(VendorCategory.TOOL, 'prettierParserHtml'),
-  prettierParserCssUrl: vendorService.getVendorUrl(VendorCategory.TOOL, 'prettierParserCss')
-});
-
-/** 便捷方法：获取框架相关 URLs */
-export const getFrameworkUrls = () => ({
-  reactUrl: vendorService.getVendorUrl(VendorCategory.FRAMEWORK, 'react'),
-  reactDomUrl: vendorService.getVendorUrl(VendorCategory.FRAMEWORK, 'reactDom'),
-  vueUrl: vendorService.getVendorUrl(VendorCategory.FRAMEWORK, 'vue'),
-  vueCompilerSfcUrl: vendorService.getVendorUrl(VendorCategory.FRAMEWORK, 'vueCompilerSfc')
-});
-
-/** 便捷方法：获取常用库 URLs */
-export const getUtilityUrls = () => ({
-  lodashUrl: vendorService.getVendorUrl(VendorCategory.UTILITY, 'lodash'),
-  axiosUrl: vendorService.getVendorUrl(VendorCategory.UTILITY, 'axios'),
-  dayJsUrl: vendorService.getVendorUrl(VendorCategory.UTILITY, 'dayjs'),
-  momentUrl: vendorService.getVendorUrl(VendorCategory.UTILITY, 'moment'),
-  uuidUrl: vendorService.getVendorUrl(VendorCategory.UTILITY, 'uuid'),
-  validatorUrl: vendorService.getVendorUrl(VendorCategory.UTILITY, 'validator')
-});

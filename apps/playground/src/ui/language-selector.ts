@@ -1,22 +1,26 @@
-import { getSupportedLanguages, getLanguageDisplayName } from '../utils/monaco-language-loader';
+import {
+  getLanguageDisplayName,
+  getLanguagesByEditorType
+} from '../services/language-service';
 import { Logger } from '../utils/logger';
+import type { Language } from '@/types';
 
 const logger = new Logger('LanguageSelector');
 
 /** 语言选择器配置 */
 interface LanguageSelectorConfig {
   container: HTMLElement;
-  editorType: string;
-  currentLanguage: string;
-  onLanguageChange: (language: string) => void;
+  editorType: 'markup' | 'style' | 'script';
+  currentLanguage: Language;
+  onLanguageChange: (language: Language) => void;
 }
 
 /** 语言选择器类 */
 export class LanguageSelector {
   private container: HTMLElement;
-  private editorType: string;
-  private currentLanguage: string;
-  private onLanguageChange: (language: string) => void;
+  private editorType: 'markup' | 'style' | 'script';
+  private currentLanguage: Language;
+  private onLanguageChange: (language: Language) => void;
   private selectElement!: HTMLSelectElement;
 
   constructor(config: LanguageSelectorConfig) {
@@ -52,7 +56,7 @@ export class LanguageSelector {
     // 监听语言变化
     this.selectElement.addEventListener('change', (event) => {
       const target = event.target as HTMLSelectElement;
-      const newLanguage = target.value;
+      const newLanguage = target.value as Language;
       this.setLanguage(newLanguage);
     });
     
@@ -69,11 +73,9 @@ export class LanguageSelector {
 
   /** 填充语言选项 */
   private populateLanguageOptions(): void {
-    const supportedLanguages = getSupportedLanguages();
-    
-    // 根据编辑器类型过滤语言
-    const relevantLanguages = this.getRelevantLanguages(supportedLanguages);
-    
+    // 根据编辑器类型获取相关语言
+    const relevantLanguages = getLanguagesByEditorType(this.editorType);
+
     relevantLanguages.forEach(language => {
       const option = document.createElement('option');
       option.value = language;
@@ -82,35 +84,23 @@ export class LanguageSelector {
     });
   }
 
-  /** 根据编辑器类型获取相关语言 */
-  private getRelevantLanguages(allLanguages: string[]): string[] {
-    const languageGroups: Record<string, string[]> = {
-      markup: ['html', 'xml', 'markdown'],
-      style: ['css', 'scss', 'less', 'sass'],
-      script: ['javascript', 'typescript', 'json', 'python', 'shell']
-    };
-
-    const relevantLanguages = languageGroups[this.editorType] || allLanguages;
-    return relevantLanguages.filter(lang => allLanguages.includes(lang));
-  }
-
   /** 设置语言 */
-  setLanguage(language: string): void {
+  setLanguage(language: Language): void {
     if (language === this.currentLanguage) {
       return;
     }
 
     this.currentLanguage = language;
     this.selectElement.value = language;
-    
+
     // 触发语言变化回调
     this.onLanguageChange(language);
-    
+
     logger.info(`编辑器 ${this.editorType} 语言已切换为 ${language}`);
   }
 
   /** 获取当前语言 */
-  getCurrentLanguage(): string {
+  getCurrentLanguage(): Language {
     return this.currentLanguage;
   }
 

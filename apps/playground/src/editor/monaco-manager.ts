@@ -1,10 +1,11 @@
 import type * as Monaco from 'monaco-editor';
-import type { Config } from '@/types';
+import type { Config, Language } from '../types';
 import { EventEmitter } from '../core/events';
 import { Logger } from '../utils/logger';
 import { loadMonaco } from '../utils/monaco-loader';
 import { loadMonacoLanguage } from '../utils/monaco-language-loader';
 import { LanguageSelector } from '../ui/language-selector';
+import { getLanguageDisplayName, getLanguageConfig } from '../services/language-service';
 
 
 
@@ -74,41 +75,25 @@ export class EditorManager {
   async format(): Promise<void> {
     this.logger.info('格式化代码');
 
-    for (const [editorType, editor] of this.editors) {
+    this.editors.forEach(async (editor, editorType) => {
       if (editor) {
         await editor.getAction('editor.action.formatDocument')?.run();
       }
-    }
+    });
   }
 
   /** 更新面板标题 */
-  private updatePanelTitle(editorType: string, language: string): void {
+  private updatePanelTitle(editorType: string, language: Language): void {
     const panelTitle = this.container.querySelector(`[data-editor="${editorType}"] .panel-title`) as HTMLElement;
     if (panelTitle) {
-      // 语言显示名称映射
-      const languageDisplayNames: Record<string, string> = {
-        html: 'HTML',
-        css: 'CSS',
-        javascript: 'JavaScript',
-        typescript: 'TypeScript',
-        markdown: 'Markdown',
-        json: 'JSON',
-        python: 'Python',
-        xml: 'XML',
-        yaml: 'YAML',
-        scss: 'SCSS',
-        less: 'Less',
-        sass: 'Sass'
-      };
-
-      const displayName = languageDisplayNames[language] || language.toUpperCase();
+      const displayName = getLanguageDisplayName(language);
       panelTitle.textContent = displayName;
       this.logger.info(`面板 ${editorType} 标题已更新为 ${displayName}`);
     }
   }
 
   /** 设置编辑器语言 */
-  async setLanguage(editorType: string, language: string): Promise<void> {
+  async setLanguage(editorType: string, language: Language): Promise<void> {
     this.logger.info(`开始设置编辑器语言: ${editorType} -> ${language}`);
 
     const editor = this.editors.get(editorType);
@@ -175,24 +160,9 @@ export class EditorManager {
   }
 
   /** 根据语言获取文件扩展名 */
-  private getFileExtension(language: string): string {
-    const extensionMap: Record<string, string> = {
-      'html': 'html',
-      'css': 'css',
-      'scss': 'scss',
-      'less': 'less',
-      'sass': 'sass',
-      'javascript': 'js',
-      'typescript': 'ts',
-      'json': 'json',
-      'xml': 'xml',
-      'markdown': 'md',
-      'python': 'py',
-      'shell': 'sh',
-      'bash': 'sh'
-    };
-
-    return extensionMap[language] || 'txt';
+  private getFileExtension(language: Language): string {
+    const config = getLanguageConfig(language);
+    return config?.extensions[0] || 'txt';
   }
 
   /** 销毁编辑器 */
@@ -200,15 +170,15 @@ export class EditorManager {
     this.logger.info('销毁编辑器管理器');
 
     // 销毁编辑器实例
-    for (const editor of this.editors.values()) {
+    this.editors.forEach((editor) => {
       editor.dispose();
-    }
+    });
     this.editors.clear();
 
     // 销毁语言选择器
-    for (const selector of this.languageSelectors.values()) {
+    this.languageSelectors.forEach((selector) => {
       selector.destroy();
-    }
+    });
     this.languageSelectors.clear();
 
     this.container.innerHTML = '';
@@ -304,11 +274,11 @@ export class EditorManager {
       declare const document: Document;
       declare const window: Window;
 
-      // 常用工具类型
-      type Partial<T> = { [P in keyof T]?: T[P] };
-      type Required<T> = { [P in keyof T]-?: T[P] };
-      type Pick<T, K extends keyof T> = { [P in K]: T[P] };
-      type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
+      // 常用工具类型（简化版本）
+      type PlaygroundPartial<T> = any;
+      type PlaygroundRequired<T> = any;
+      type PlaygroundPick<T, K> = any;
+      type PlaygroundOmit<T, K> = any;
     `;
 
     // 添加类型定义到 TypeScript 和 JavaScript 服务
@@ -362,12 +332,13 @@ export class EditorManager {
   /** 创建 Monaco 编辑器实例 */
   private createEditors(): void {
     const editorConfigs = [
-      { type: 'markup', language: 'html', placeholder: '输入 HTML 代码...', extension: 'html' },
-      { type: 'style', language: 'css', placeholder: '输入 CSS 代码...', extension: 'css' },
-      { type: 'script', language: 'javascript', placeholder: '输入 JavaScript 代码...', extension: 'js' }
+      { type: 'markup' as const, language: 'html' as const, placeholder: '输入 HTML 代码...', extension: 'html' as const },
+      { type: 'style' as const, language: 'css' as const, placeholder: '输入 CSS 代码...', extension: 'css' as const },
+      { type: 'script' as const, language: 'javascript' as const, placeholder: '输入 JavaScript 代码...', extension: 'js' as const }
     ];
 
-    editorConfigs.forEach(({ type, language, placeholder, extension }) => {
+    editorConfigs.forEach((config) => {
+      const { type, language, placeholder, extension } = config;
       const panel = this.container.querySelector(`[data-editor="${type}"] .panel-content`) as HTMLElement;
 
       // 创建具有正确 URI 的模型
@@ -412,12 +383,13 @@ export class EditorManager {
   /** 创建语言选择器 */
   private createLanguageSelectors(): void {
     const editorConfigs = [
-      { type: 'markup', language: 'html' },
-      { type: 'style', language: 'css' },
-      { type: 'script', language: 'javascript' }
+      { type: 'markup' as const, language: 'html' as const },
+      { type: 'style' as const, language: 'css' as const },
+      { type: 'script' as const, language: 'javascript' as const }
     ];
 
-    editorConfigs.forEach(({ type, language }) => {
+    editorConfigs.forEach((config) => {
+      const { type, language } = config;
       const panelHeader = this.container.querySelector(`[data-editor="${type}"] .panel-header`) as HTMLElement;
 
       if (panelHeader) {
@@ -425,7 +397,7 @@ export class EditorManager {
           container: panelHeader,
           editorType: type,
           currentLanguage: language,
-          onLanguageChange: (newLanguage: string) => {
+          onLanguageChange: (newLanguage) => {
             this.setLanguage(type, newLanguage);
           }
         });

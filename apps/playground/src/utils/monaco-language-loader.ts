@@ -31,21 +31,14 @@ export const loadMonacoLanguage = async (language: string): Promise<void> => {
     return;
   }
 
-  // 检查是否是内置语言
-  if (languageConfig.isBuiltin) {
-    // 内置语言不需要额外加载
-    markLanguageLoaded(normalizedLang);
-    logger.info(`内置语言 ${language} 已可用`);
-    return;
-  }
-
-  // 对于非内置语言，尝试加载编译器或运行时
+  // 尝试加载语言所需的额外资源（编译器、运行时等）
   try {
     await loadLanguageResources(normalizedLang);
     markLanguageLoaded(normalizedLang);
-    logger.info(`语言 ${language} 资源加载成功`);
+    logger.info(`语言 ${language} 资源加载完成`);
   } catch (error) {
-    logger.warn(`语言 ${language} 资源加载失败，使用基础语法高亮:`, error);
+    // 即使资源加载失败，Monaco Editor 仍可提供基础语法高亮
+    logger.warn(`语言 ${language} 额外资源加载失败，使用基础语法高亮:`, error);
     markLanguageLoaded(normalizedLang); // 标记为已处理，避免重复尝试
   }
 };
@@ -53,26 +46,40 @@ export const loadMonacoLanguage = async (language: string): Promise<void> => {
 /** 加载语言资源（编译器、运行时等） */
 const loadLanguageResources = async (language: Language): Promise<void> => {
   const promises: Promise<void>[] = [];
+  const config = languageService.getLanguageConfig(language);
 
-  // 加载编译器
+  if (!config) {
+    logger.warn(`未找到语言配置: ${language}`);
+    return;
+  }
+
+  // 加载编译器（如果需要）
   if (needsCompiler(language)) {
     const compilerUrl = getCompilerUrl(language);
     if (compilerUrl) {
+      logger.info(`加载 ${language} 编译器: ${compilerUrl}`);
       promises.push(loadScript(compilerUrl, `${language}-compiler`));
     }
   }
 
-  // 加载运行时
+  // 加载运行时（如果需要）
   if (needsRuntime(language)) {
     const runtimeUrl = getRuntimeUrl(language);
     if (runtimeUrl) {
+      logger.info(`加载 ${language} 运行时: ${runtimeUrl}`);
       promises.push(loadScript(runtimeUrl, `${language}-runtime`));
     }
   }
 
-  if (promises.length > 0) {
-    await Promise.all(promises);
+  // 如果没有额外资源需要加载，直接返回
+  if (promises.length === 0) {
+    logger.info(`语言 ${language} 无需额外资源，使用 Monaco Editor 内置支持`);
+    return;
   }
+
+  // 并行加载所有资源
+  await Promise.all(promises);
+  logger.info(`语言 ${language} 的 ${promises.length} 个额外资源加载完成`);
 };
 
 /** 动态加载脚本 */

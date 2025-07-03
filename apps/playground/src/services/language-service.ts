@@ -33,7 +33,7 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     extensions: ['js', 'mjs'],
     editorType: 'script',
     monacoLanguage: 'javascript',
-    isBuiltin: true,
+    // JavaScript 由 Monaco Editor 原生支持，无需额外资源
     aliases: ['js']
   },
   typescript: {
@@ -43,11 +43,11 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     extensions: ['ts'],
     editorType: 'script',
     monacoLanguage: 'typescript',
+    // TypeScript 需要编译器进行类型检查和转译
     compiler: {
       category: VendorCategory.COMPILER,
       vendorKey: 'typescript'
     },
-    isBuiltin: true,
     aliases: ['ts']
   },
   python: {
@@ -57,11 +57,11 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     extensions: ['py'],
     editorType: 'script',
     monacoLanguage: 'python',
+    // Python 需要 Pyodide 运行时来执行代码
     runtime: {
       category: VendorCategory.COMPILER,
       vendorKey: 'pyodide'
     },
-    isBuiltin: true,
     aliases: ['py']
   },
   
@@ -73,7 +73,7 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     extensions: ['html', 'htm'],
     editorType: 'markup',
     monacoLanguage: 'html',
-    isBuiltin: true,
+    // HTML 由 Monaco Editor 原生支持
     aliases: ['htm']
   },
   markdown: {
@@ -83,14 +83,14 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     extensions: ['md', 'markdown'],
     editorType: 'markup',
     monacoLanguage: 'markdown',
+    // Markdown 需要编译器来渲染为 HTML
     compiler: {
       category: VendorCategory.COMPILER,
       vendorKey: 'markdownIt'
     },
-    isBuiltin: true,
     aliases: ['md']
   },
-  
+
   // 样式语言
   css: {
     name: 'css',
@@ -98,8 +98,8 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     longTitle: 'CSS',
     extensions: ['css'],
     editorType: 'style',
-    monacoLanguage: 'css',
-    isBuiltin: true
+    monacoLanguage: 'css'
+    // CSS 由 Monaco Editor 原生支持
   },
   
   // 数据格式
@@ -109,8 +109,8 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     longTitle: 'JSON',
     extensions: ['json'],
     editorType: 'script',
-    monacoLanguage: 'json',
-    isBuiltin: true
+    monacoLanguage: 'json'
+    // JSON 由 Monaco Editor 原生支持
   },
   yaml: {
     name: 'yaml',
@@ -119,10 +119,10 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     extensions: ['yaml', 'yml'],
     editorType: 'script',
     monacoLanguage: 'yaml',
-    isBuiltin: true,
+    // YAML 由 Monaco Editor 原生支持
     aliases: ['yml']
   },
-  
+
   // JSX/TSX
   jsx: {
     name: 'jsx',
@@ -131,11 +131,11 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     extensions: ['jsx'],
     editorType: 'script',
     monacoLanguage: 'javascript',
+    // JSX 需要 Babel 编译器来转译
     compiler: {
       category: VendorCategory.COMPILER,
       vendorKey: 'babel'
-    },
-    isBuiltin: true
+    }
   },
   tsx: {
     name: 'tsx',
@@ -144,11 +144,11 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     extensions: ['tsx'],
     editorType: 'script',
     monacoLanguage: 'typescript',
+    // TSX 需要 TypeScript 编译器来转译
     compiler: {
       category: VendorCategory.COMPILER,
       vendorKey: 'typescript'
-    },
-    isBuiltin: true
+    }
   },
   
   // 框架
@@ -159,11 +159,11 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     extensions: ['vue'],
     editorType: 'script',
     monacoLanguage: 'html',
+    // Vue 单文件组件需要专门的编译器
     compiler: {
       category: VendorCategory.FRAMEWORK,
       vendorKey: 'vueCompilerSfc'
-    },
-    isBuiltin: false
+    }
   },
   svelte: {
     name: 'svelte',
@@ -172,22 +172,22 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     extensions: ['svelte'],
     editorType: 'script',
     monacoLanguage: 'html',
+    // Svelte 组件需要专门的编译器
     compiler: {
       category: VendorCategory.FRAMEWORK,
       vendorKey: 'svelte'
-    },
-    isBuiltin: false
+    }
   },
-  
-  // 系统语言（暂不支持编译，仅语法高亮）
+
+  // 系统语言（仅语法高亮，暂不支持运行）
   go: {
     name: 'go',
     title: 'Go',
     longTitle: 'Go',
     extensions: ['go'],
     editorType: 'script',
-    monacoLanguage: 'go',
-    isBuiltin: false
+    monacoLanguage: 'go'
+    // Go 仅提供语法高亮，无运行时支持
   },
   rust: {
     name: 'rust',
@@ -195,8 +195,8 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     longTitle: 'Rust',
     extensions: ['rs'],
     editorType: 'script',
-    monacoLanguage: 'rust',
-    isBuiltin: false
+    monacoLanguage: 'rust'
+    // Rust 仅提供语法高亮，无运行时支持
   },
   java: {
     name: 'java',
@@ -204,8 +204,8 @@ const languageRegistry: Record<Language, LanguageConfig> = {
     longTitle: 'Java',
     extensions: ['java'],
     editorType: 'script',
-    monacoLanguage: 'java',
-    isBuiltin: false
+    monacoLanguage: 'java'
+    // Java 仅提供语法高亮，无运行时支持
   }
 };
 
@@ -223,11 +223,12 @@ class LanguageService {
     return Object.keys(languageRegistry) as Language[];
   }
 
-  /** 获取内置语言 */
-  getBuiltinLanguages(): Language[] {
-    return this.getSupportedLanguages().filter(lang => 
-      languageRegistry[lang].isBuiltin
-    );
+  /** 获取无需额外资源的语言（Monaco Editor 原生支持） */
+  getNativeLanguages(): Language[] {
+    return this.getSupportedLanguages().filter(lang => {
+      const config = languageRegistry[lang];
+      return !config.compiler && !config.runtime;
+    });
   }
 
   /** 根据编辑器类型获取语言 */
@@ -349,7 +350,7 @@ export const languageService = new LanguageService();
 
 /** 便捷导出 */
 export const getSupportedLanguages = () => languageService.getSupportedLanguages();
-export const getBuiltinLanguages = () => languageService.getBuiltinLanguages();
+export const getNativeLanguages = () => languageService.getNativeLanguages();
 export const getLanguagesByEditorType = (editorType: 'markup' | 'style' | 'script') =>
   languageService.getLanguagesByEditorType(editorType);
 export const getLanguageDisplayName = (language: Language) =>

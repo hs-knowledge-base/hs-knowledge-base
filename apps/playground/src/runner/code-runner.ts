@@ -39,6 +39,12 @@ export class CodeRunner {
         scriptCompiler.compile(code.script, { config, language: config.script.language })
       ]);
 
+      // 清空之前的结果
+      this.clearCompiledResult();
+
+      // 显示编译结果
+      this.showCompiledResults(code, config, { markupResult, styleResult, scriptResult });
+
       // 调试日志
       this.logger.info('编译结果:', {
         markup: { language: config.markup.language, codeLength: markupResult.code.length, hasError: !!markupResult.error },
@@ -52,6 +58,7 @@ export class CodeRunner {
         .map(result => result.error);
 
       if (errors.length > 0) {
+        this.showCompilationErrors(errors);
         this.showError(errors.join('\n'));
         return;
       }
@@ -248,6 +255,125 @@ export class CodeRunner {
         line-height: 1.5;
       }
 
+      /* 编译结果样式 */
+      .compiled-section {
+        margin-bottom: 20px;
+        border: 1px solid #3e3e3e;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .compiled-section-header {
+        padding: 10px 16px;
+        background: #2d2d30;
+        border-bottom: 1px solid #3e3e3e;
+      }
+
+      .compiled-section-title {
+        font-weight: 600;
+        color: #569cd6;
+        font-size: 14px;
+      }
+
+      .code-comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        background: #3e3e3e;
+      }
+
+      .code-block {
+        background: #1e1e1e;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .code-block-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: #252526;
+        border-bottom: 1px solid #3e3e3e;
+      }
+
+      .code-block-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: #cccccc;
+      }
+
+      .copy-code-btn {
+        background: none;
+        border: none;
+        color: #d4d4d4;
+        cursor: pointer;
+        padding: 4px 6px;
+        border-radius: 3px;
+        font-size: 12px;
+        transition: background 0.2s;
+      }
+
+      .copy-code-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .code-block .compiled-code {
+        margin: 0;
+        padding: 12px;
+        background: #1e1e1e;
+        color: #d4d4d4;
+        font-size: 11px;
+        line-height: 1.4;
+        overflow-x: auto;
+        white-space: pre;
+        flex: 1;
+        min-height: 100px;
+      }
+
+      .compiled-result {
+        background: #1a1a1a !important;
+        border-left: 3px solid #007acc;
+      }
+
+      /* 响应式设计 */
+      @media (max-width: 768px) {
+        .code-comparison {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .no-compilation {
+        padding: 20px;
+        text-align: center;
+        color: #888;
+        font-style: italic;
+      }
+
+      .compilation-error {
+        margin-bottom: 12px;
+        border: 1px solid #dc3545;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .compilation-error .error-header {
+        padding: 8px 12px;
+        background: #dc3545;
+        color: white;
+        font-weight: 500;
+      }
+
+      .compilation-error .error-message {
+        margin: 0;
+        padding: 12px;
+        background: rgba(220, 53, 69, 0.1);
+        color: #f48771;
+        font-size: 11px;
+        line-height: 1.4;
+        white-space: pre-wrap;
+      }
+
       /* 错误显示 */
       .error-display {
         padding: 16px;
@@ -314,6 +440,144 @@ export class CodeRunner {
     if (consoleMessages) {
       consoleMessages.innerHTML = '';
     }
+  }
+
+  /** 清空编译结果 */
+  private clearCompiledResult(): void {
+    const compiledContent = this.container.querySelector('.compiled-content');
+    if (compiledContent) {
+      compiledContent.innerHTML = '';
+    }
+  }
+
+  /** 显示编译结果 */
+  private showCompiledResults(
+    originalCode: { markup: string; style: string; script: string },
+    config: Config,
+    results: { markupResult: any; styleResult: any; scriptResult: any }
+  ): void {
+    const compiledContent = this.container.querySelector('.compiled-content');
+    if (!compiledContent) return;
+
+    const sections = [];
+
+    // 显示 Markup 代码和编译结果
+    if (originalCode.markup.trim()) {
+      sections.push({
+        title: 'Markup',
+        originalTitle: `原代码 (${config.markup.language.toUpperCase()})`,
+        compiledTitle: '编译结果',
+        originalCode: originalCode.markup,
+        compiledCode: results.markupResult.code,
+        language: config.markup.language
+      });
+    }
+
+    // 显示 Style 代码和编译结果
+    if (originalCode.style.trim()) {
+      sections.push({
+        title: 'Style',
+        originalTitle: `原代码 (${config.style.language.toUpperCase()})`,
+        compiledTitle: '编译结果',
+        originalCode: originalCode.style,
+        compiledCode: results.styleResult.code,
+        language: config.style.language
+      });
+    }
+
+    // 显示 Script 代码和编译结果
+    if (originalCode.script.trim()) {
+      sections.push({
+        title: 'Script',
+        originalTitle: `原代码 (${config.script.language.toUpperCase()})`,
+        compiledTitle: '编译结果',
+        originalCode: originalCode.script,
+        compiledCode: results.scriptResult.code,
+        language: config.script.language
+      });
+    }
+
+    if (sections.length === 0) {
+      compiledContent.innerHTML = '<div class="no-compilation">没有代码需要显示</div>';
+      return;
+    }
+
+    const html = sections.map(section => `
+      <div class="compiled-section">
+        <div class="compiled-section-header">
+          <span class="compiled-section-title">${section.title}</span>
+        </div>
+        <div class="code-comparison">
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-title">${section.originalTitle}</span>
+              <button class="copy-code-btn" data-code="${encodeURIComponent(section.originalCode)}" title="复制原代码">📋</button>
+            </div>
+            <pre class="compiled-code language-${section.language}"><code>${this.escapeHtml(section.originalCode)}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-block-title">${section.compiledTitle}</span>
+              <button class="copy-code-btn" data-code="${encodeURIComponent(section.compiledCode)}" title="复制编译结果">📋</button>
+            </div>
+            <pre class="compiled-code compiled-result"><code>${this.escapeHtml(section.compiledCode)}</code></pre>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    compiledContent.innerHTML = html;
+
+    // 添加复制功能
+    this.setupCopyButtons();
+  }
+
+  /** 显示编译错误 */
+  private showCompilationErrors(errors: string[]): void {
+    const compiledContent = this.container.querySelector('.compiled-content');
+    if (!compiledContent) return;
+
+    const errorHtml = errors.map(error => `
+      <div class="compilation-error">
+        <div class="error-header">编译错误</div>
+        <pre class="error-message">${this.escapeHtml(error)}</pre>
+      </div>
+    `).join('');
+
+    compiledContent.innerHTML = errorHtml;
+  }
+
+  /** 设置复制按钮功能 */
+  private setupCopyButtons(): void {
+    const copyButtons = this.container.querySelectorAll('.copy-code-btn');
+    copyButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const code = decodeURIComponent(button.getAttribute('data-code') || '');
+        navigator.clipboard.writeText(code).then(() => {
+          // 临时改变按钮文本
+          const originalText = button.textContent;
+          button.textContent = '✓';
+          setTimeout(() => {
+            button.textContent = originalText;
+          }, 1000);
+        }).catch(() => {
+          // 如果复制失败，使用传统方法
+          const textarea = document.createElement('textarea');
+          textarea.value = code;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+        });
+      });
+    });
+  }
+
+  /** 转义 HTML */
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 
   private refreshPreview(): void {

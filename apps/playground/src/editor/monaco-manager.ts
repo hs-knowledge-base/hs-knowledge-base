@@ -208,16 +208,29 @@ export class EditorManager {
     this.configureLanguageServices();
   }
 
-  /** 配置语言服务 */
+  /** 配置 Monaco Editor 基础服务 */
   private configureLanguageServices(): void {
-    // 基于 LiveCodes 的编译器选项配置
-    const compilerOptions: Monaco.languages.typescript.CompilerOptions = {
+    // Monaco Editor 只需要配置基础的编辑器选项
+    // 具体的语言编译和处理由 compilers 目录下的编译器负责
+
+    this.configureBasicEditorOptions();
+
+    this.logger.info('Monaco Editor 基础服务已配置');
+  }
+
+  /** 配置基础编辑器选项 */
+  private configureBasicEditorOptions(): void {
+    // 只配置 Monaco Editor 自身需要的基础选项
+    // 不涉及具体语言的编译逻辑
+
+    // TypeScript/JavaScript 的基础编辑器配置（仅用于语法高亮和智能提示）
+    const basicCompilerOptions: Monaco.languages.typescript.CompilerOptions = {
       target: this.monaco.languages.typescript.ScriptTarget.ES2020,
       lib: ['ES2020', 'DOM', 'DOM.Iterable'],
       allowNonTsExtensions: true,
       moduleResolution: this.monaco.languages.typescript.ModuleResolutionKind.NodeJs,
       module: this.monaco.languages.typescript.ModuleKind.ESNext,
-      noEmit: true,
+      noEmit: true, // 重要：Monaco Editor 不负责编译输出
       esModuleInterop: true,
       allowSyntheticDefaultImports: true,
       strict: false,
@@ -227,71 +240,14 @@ export class EditorManager {
       checkJs: false
     };
 
-    // TypeScript 配置
-    this.monaco.languages.typescript.typescriptDefaults.setCompilerOptions(compilerOptions);
+    // 配置 TypeScript 编辑器服务（仅用于编辑器功能）
+    this.monaco.languages.typescript.typescriptDefaults.setCompilerOptions(basicCompilerOptions);
 
-    // JavaScript 配置
-    this.monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-      ...compilerOptions,
-      allowJs: true,
-      checkJs: false
-    });
-
-    // 基于 LiveCodes 的诊断选项配置
-    const diagnosticsOptions: Monaco.languages.typescript.DiagnosticsOptions = {
-      noSemanticValidation: false,
-      noSyntaxValidation: false,
-      noSuggestionDiagnostics: false,
-      diagnosticCodesToIgnore: [
-        2354, // tslib 未找到错误（LiveCodes 忽略的）
-        1108, // 'return' statement outside function
-        2304, // Cannot find name
-        2580, // Cannot find name. Do you need to install type definitions
-        7027, // Unreachable code detected
-        6133  // Variable is declared but never used
-      ]
-    };
-
-    this.monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions(diagnosticsOptions);
-    this.monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(diagnosticsOptions);
-
-    // 添加常用的类型定义
-    this.addCommonTypeDefinitions();
+    // 配置 JavaScript 编辑器服务（仅用于编辑器功能）
+    this.monaco.languages.typescript.javascriptDefaults.setCompilerOptions(basicCompilerOptions);
   }
 
-  /** 添加常用类型定义 */
-  private addCommonTypeDefinitions(): void {
-    // 基于 LiveCodes 的简化类型定义
-    const commonTypes = `
-      // 全局变量和函数
-      declare const console: Console;
-      declare function setTimeout(callback: () => void, delay?: number): number;
-      declare function setInterval(callback: () => void, delay?: number): number;
-      declare function clearTimeout(id: number): void;
-      declare function clearInterval(id: number): void;
 
-      // DOM 基础类型
-      declare const document: Document;
-      declare const window: Window;
-
-      // 常用工具类型（简化版本）
-      type PlaygroundPartial<T> = any;
-      type PlaygroundRequired<T> = any;
-      type PlaygroundPick<T, K> = any;
-      type PlaygroundOmit<T, K> = any;
-    `;
-
-    // 添加类型定义到 TypeScript 和 JavaScript 服务
-    this.monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      commonTypes,
-      'file:///playground-types.d.ts'
-    );
-
-    this.monaco.languages.typescript.javascriptDefaults.addExtraLib(
-      commonTypes,
-      'file:///playground-types.d.ts'
-    );
-  }
 
   /** 创建编辑器界面 */
   private createEditorInterface(): void {

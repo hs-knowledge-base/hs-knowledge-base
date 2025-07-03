@@ -27,20 +27,20 @@ export interface VendorRegistry {
 const monacoVendors: VendorRegistry = {
   monacoEditor: {
     name: 'monaco-editor',
-    version: '0.45.0',
+    version: '0.41.0',
     path: 'min',
     cdn: 'unpkg',
-    fallbackCdns: ['jsdelivr', 'cdnjs'],
+    fallbackCdns: ['jsdelivr'],
     isModule: false,
     critical: true,
     priority: 1
   },
   monacoLoader: {
     name: 'monaco-editor',
-    version: '0.45.0',
+    version: '0.41.0',
     path: 'min/vs/loader.js',
     cdn: 'unpkg',
-    fallbackCdns: ['jsdelivr', 'cdnjs'],
+    fallbackCdns: ['jsdelivr'],
     isModule: false,
     critical: true,
     priority: 1
@@ -51,20 +51,21 @@ const monacoVendors: VendorRegistry = {
 const compilerVendors: VendorRegistry = {
   typescript: {
     name: 'typescript',
-    version: '5.6.2',
+    version: '5.0.4',
     path: 'lib/typescript.js',
     cdn: 'unpkg',
-    fallbackCdns: ['jsdelivr', 'cdnjs'],
+    fallbackCdns: ['jsdelivr'],
     isModule: false,
     critical: true,
-    priority: 1
+    priority: 1,
+    external: 'https://unpkg.com/typescript@5.0.4/lib/typescript.js'
   },
   babel: {
     name: '@babel/standalone',
-    version: '7.26.4',
+    version: '7.23.0',
     path: 'babel.js',
-    cdn: 'jsdelivr',
-    fallbackCdns: ['unpkg', 'cdnjs'],
+    cdn: 'unpkg',
+    fallbackCdns: ['jsdelivr'],
     isModule: false,
     critical: true,
     priority: 2

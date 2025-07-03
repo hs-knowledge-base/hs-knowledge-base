@@ -46,17 +46,35 @@ export class ResourceLoader {
     return new Promise((resolve, reject) => {
       // 检查是否已经存在相同 ID 的脚本
       if (document.querySelector(`script[data-resource-id="${id}"]`)) {
+        this.logger.debug(`脚本已存在，跳过加载: ${id}`);
         resolve();
         return;
       }
+
+      this.logger.debug(`开始加载脚本: ${url}`);
 
       const script = document.createElement('script');
       script.src = url;
       script.async = true;
       script.setAttribute('data-resource-id', id);
 
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error(`Failed to load script: ${url}`));
+      script.onload = () => {
+        this.logger.debug(`脚本加载成功: ${url}`);
+        resolve();
+      };
+
+      script.onerror = (error) => {
+        this.logger.error(`脚本加载失败: ${url}`, error);
+        reject(new Error(`Failed to load script: ${url}`));
+      };
+
+      // 设置超时
+      setTimeout(() => {
+        if (!script.onload) {
+          this.logger.error(`脚本加载超时: ${url}`);
+          reject(new Error(`Script load timeout: ${url}`));
+        }
+      }, 15000);
 
       document.head.appendChild(script);
     });

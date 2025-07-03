@@ -39,17 +39,26 @@ export class TypeScriptCompiler extends BaseCompiler {
       return;
     }
 
-    // 使用统一的资源加载器加载 TypeScript
-    await resourceLoader.loadCompiler('typescript');
+    try {
+      this.logger.info('开始加载 TypeScript 编译器...');
 
-    // 获取全局 TypeScript 对象
-    this.ts = (window as any).ts;
+      // 使用统一的资源加载器加载 TypeScript
+      await resourceLoader.loadCompiler('typescript');
 
-    if (!this.ts) {
-      throw new Error('TypeScript 编译器加载失败');
+
+
+      // 获取全局 TypeScript 对象
+      this.ts = (window as any).ts;
+
+      if (!this.ts || typeof this.ts.transpile !== 'function') {
+        throw new Error('TypeScript 编译器对象无效或缺少 transpile 方法');
+      }
+
+      this.logger.info('TypeScript 编译器加载成功');
+    } catch (error) {
+      this.logger.error('TypeScript 编译器加载失败', error);
+      throw new Error(`TypeScript 编译器加载失败: ${error.message}`);
     }
-
-    this.logger.info('TypeScript 编译器加载成功');
   }
 
   /** 获取 TypeScript 编译选项 */

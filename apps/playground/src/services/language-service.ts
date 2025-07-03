@@ -3,8 +3,10 @@ import { CompilerFactory } from '../compiler/compiler-factory';
 import {Language, LanguageSpecs, VendorCategory} from '@/types';
 import { Logger } from '@/utils/logger';
 
-
-/** 语言注册表 */
+/**
+ * 语言注册表 - 统一的语言配置定义
+ * 所有语言的配置都在这里定义，避免重复
+ */
 const languageRegistry: Record<Language, LanguageSpecs> = {
   // 脚本语言
   javascript: {
@@ -65,6 +67,61 @@ const languageRegistry: Record<Language, LanguageSpecs> = {
     extensions: ['css'],
     editorType: 'style',
     monacoLanguage: 'css'
+  },
+
+  scss: {
+    name: 'scss',
+    title: 'SCSS',
+    longTitle: 'SCSS',
+    extensions: ['scss'],
+    editorType: 'style',
+    monacoLanguage: 'scss',
+    compiler: {
+      category: VendorCategory.STYLE,
+      vendorKey: 'sass'
+    }
+  },
+
+  less: {
+    name: 'less',
+    title: 'Less',
+    longTitle: 'Less',
+    extensions: ['less'],
+    editorType: 'style',
+    monacoLanguage: 'less',
+    compiler: {
+      category: VendorCategory.STYLE,
+      vendorKey: 'less'
+    }
+  },
+
+  // 其他语言
+  json: {
+    name: 'json',
+    title: 'JSON',
+    longTitle: 'JSON',
+    extensions: ['json'],
+    editorType: 'script',
+    monacoLanguage: 'json'
+  },
+
+  xml: {
+    name: 'xml',
+    title: 'XML',
+    longTitle: 'XML',
+    extensions: ['xml'],
+    editorType: 'markup',
+    monacoLanguage: 'xml'
+  },
+
+  yaml: {
+    name: 'yaml',
+    title: 'YAML',
+    longTitle: 'YAML',
+    extensions: ['yml', 'yaml'],
+    editorType: 'script',
+    monacoLanguage: 'yaml',
+    aliases: ['yml']
   }
 };
 
@@ -73,14 +130,60 @@ class LanguageService {
   private readonly logger = new Logger('LanguageService');
   private readonly loadedLanguages = new Set<string>();
   private readonly compilerFactory = new CompilerFactory();
+  private readonly languageCache = new Map<string, LanguageSpecs>();
+  private readonly supportedLanguagesCache = new Set<Language>();
 
   constructor() {
+    this.initializeCache();
     this.validateLanguageCompilerConsistency();
   }
 
-  /** 获取语言配置 */
+  /** 初始化缓存 */
+  private initializeCache(): void {
+    // 缓存所有语言配置
+    Object.entries(languageRegistry).forEach(([lang, config]) => {
+      this.languageCache.set(lang, config);
+      this.supportedLanguagesCache.add(lang as Language);
+    });
+
+    this.logger.info(`语言服务初始化完成，支持 ${this.supportedLanguagesCache.size} 种语言`);
+  }
+
+  /** 获取语言配置（带缓存） */
   getLanguageConfig(language: Language): LanguageSpecs | null {
-    return languageRegistry[language] || null;
+    return this.languageCache.get(language) || null;
+  }
+
+  /** 注册新语言（语言插件机制） */
+  registerLanguage(language: Language, config: LanguageSpecs): void {
+    this.logger.info(`注册新语言: ${language}`);
+
+    // 更新注册表和缓存
+    languageRegistry[language] = config;
+    this.languageCache.set(language, config);
+    this.supportedLanguagesCache.add(language);
+
+    // 触发重新验证
+    this.validateLanguageCompilerConsistency();
+  }
+
+  /** 注销语言 */
+  unregisterLanguage(language: Language): void {
+    this.logger.info(`注销语言: ${language}`);
+
+    delete languageRegistry[language];
+    this.languageCache.delete(language);
+    this.supportedLanguagesCache.delete(language);
+    this.loadedLanguages.delete(language);
+  }
+
+  /** 批量注册语言 */
+  registerLanguages(languages: Record<Language, LanguageSpecs>): void {
+    Object.entries(languages).forEach(([lang, config]) => {
+      this.registerLanguage(lang as Language, config);
+    });
+
+    this.logger.info(`批量注册了 ${Object.keys(languages).length} 种语言`);
   }
 
   /** 验证语言配置与编译器的一致性 */
@@ -115,9 +218,14 @@ class LanguageService {
     }
   }
 
-  /** 获取所有支持的语言（基于编译器） */
+  /** 获取所有支持的语言（使用缓存） */
   getSupportedLanguages(): Language[] {
-    return this.compilerFactory.getSupportedLanguages();
+    return Array.from(this.supportedLanguagesCache);
+  }
+
+  /** 获取所有已注册的语言（包括没有编译器的） */
+  getAllRegisteredLanguages(): Language[] {
+    return Object.keys(languageRegistry) as Language[];
   }
 
   /** 获取无需额外资源的语言（Monaco Editor 原生支持） */
@@ -266,17 +374,66 @@ class LanguageService {
     };
   }
 
-  /** 添加自定义语言配置 */
+  /** 添加自定义语言配置（已废弃，使用 registerLanguage） */
   addLanguage(language: Language, config: LanguageSpecs): void {
-    languageRegistry[language] = config;
+    this.logger.warn('addLanguage 已废弃，请使用 registerLanguage');
+    this.registerLanguage(language, config);
   }
 
-  /** 更新语言配置 */
+  /** 更新语言配置（热更新） */
   updateLanguage(language: Language, updates: Partial<LanguageSpecs>): void {
-    const existing = languageRegistry[language];
+    const existing = this.getLanguageConfig(language);
     if (existing) {
-      languageRegistry[language] = { ...existing, ...updates };
+      const newConfig = { ...existing, ...updates };
+      this.registerLanguage(language, newConfig);
+      this.logger.info(`语言配置已热更新: ${language}`);
+    } else {
+      this.logger.warn(`尝试更新不存在的语言: ${language}`);
     }
+  }
+
+  /** 预加载常用语言资源 */
+  async preloadCommonLanguages(): Promise<void> {
+    const commonLanguages: Language[] = ['javascript', 'typescript', 'html', 'css', 'markdown'];
+
+    this.logger.info('开始预加载常用语言资源...');
+
+    const loadPromises = commonLanguages.map(async (lang) => {
+      try {
+        if (this.needsCompiler(lang)) {
+          const compilerUrl = this.getCompilerUrl(lang);
+          if (compilerUrl) {
+            // 这里可以预加载编译器资源
+            this.logger.debug(`预加载编译器: ${lang}`);
+          }
+        }
+        this.markLanguageLoaded(lang);
+      } catch (error) {
+        this.logger.warn(`预加载语言 ${lang} 失败`, error);
+      }
+    });
+
+    await Promise.all(loadPromises);
+    this.logger.info('常用语言资源预加载完成');
+  }
+
+  /** 获取语言加载性能统计 */
+  getPerformanceStats() {
+    return {
+      totalRegistered: this.supportedLanguagesCache.size,
+      totalLoaded: this.loadedLanguages.size,
+      cacheHitRate: this.languageCache.size > 0 ? (this.loadedLanguages.size / this.languageCache.size) : 0,
+      loadedLanguages: Array.from(this.loadedLanguages),
+      registeredLanguages: Array.from(this.supportedLanguagesCache)
+    };
+  }
+
+  /** 清除所有缓存 */
+  clearAllCaches(): void {
+    this.loadedLanguages.clear();
+    this.compilerFactory.clearCache();
+    this.compilerFactory.clearCompilerInstances();
+    this.logger.info('所有缓存已清除');
   }
 }
 

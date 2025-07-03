@@ -1,5 +1,6 @@
 import { modulesService, type CDN } from './modules';
 import { VendorCategory } from '@/types';
+import { Logger } from '@/utils/logger';
 
 /** Vendor 配置接口 */
 export interface VendorConfig {
@@ -9,6 +10,12 @@ export interface VendorConfig {
   cdn?: CDN;
   isModule?: boolean;
   external?: string;
+  /** 备用 CDN 列表 */
+  fallbackCdns?: CDN[];
+  /** 优先级（数字越小优先级越高） */
+  priority?: number;
+  /** 是否为关键资源 */
+  critical?: boolean;
 }
 
 /** Vendor 注册表接口 */
@@ -23,21 +30,20 @@ const monacoVendors: VendorRegistry = {
     version: '0.45.0',
     path: 'min',
     cdn: 'unpkg',
-    isModule: false
+    fallbackCdns: ['jsdelivr', 'cdnjs'],
+    isModule: false,
+    critical: true,
+    priority: 1
   },
   monacoLoader: {
     name: 'monaco-editor',
     version: '0.45.0',
     path: 'min/vs/loader.js',
     cdn: 'unpkg',
-    isModule: false
-  },
-  monacoWorkerMain: {
-    name: 'monaco-editor',
-    version: '0.45.0',
-    path: 'min/vs/base/worker/workerMain.js',
-    cdn: 'unpkg',
-    isModule: false
+    fallbackCdns: ['jsdelivr', 'cdnjs'],
+    isModule: false,
+    critical: true,
+    priority: 1
   }
 };
 
@@ -48,20 +54,28 @@ const compilerVendors: VendorRegistry = {
     version: '5.6.2',
     path: 'lib/typescript.js',
     cdn: 'unpkg',
-    isModule: false
+    fallbackCdns: ['jsdelivr', 'cdnjs'],
+    isModule: false,
+    critical: true,
+    priority: 1
   },
   babel: {
     name: '@babel/standalone',
     version: '7.26.4',
     path: 'babel.js',
     cdn: 'jsdelivr',
-    isModule: false
+    fallbackCdns: ['unpkg', 'cdnjs'],
+    isModule: false,
+    critical: true,
+    priority: 2
   },
   markdownIt: {
     name: 'markdown-it',
     version: '14.1.0',
     cdn: 'esm.sh',
-    isModule: true
+    fallbackCdns: ['unpkg', 'jsdelivr'],
+    isModule: true,
+    priority: 3
   },
   postcss: {
     name: 'postcss',
@@ -390,7 +404,24 @@ const allVendors: Record<VendorCategory, VendorRegistry> = {
 
 /** Vendor 服务类 */
 class VendorService {
+  private readonly logger = new Logger('VendorService');
   private readonly modulesService = modulesService;
+  private readonly urlCache = new Map<string, string>();
+  private readonly failedCdns = new Set<string>();
+  private readonly cdnPerformance = new Map<string, number>();
+
+  constructor() {
+    this.initializeCdnPerformance();
+  }
+
+  /** 初始化 CDN 性能统计 */
+  private initializeCdnPerformance(): void {
+    // 初始化 CDN 性能评分（可以根据实际测试结果调整）
+    this.cdnPerformance.set('unpkg', 90);
+    this.cdnPerformance.set('jsdelivr', 95);
+    this.cdnPerformance.set('cdnjs', 85);
+    this.cdnPerformance.set('esm.sh', 80);
+  }
 
   /** 构建模块名称 */
   private buildModuleName(config: VendorConfig): string {
@@ -399,29 +430,102 @@ class VendorService {
     return path ? `${baseModule}/${path}` : baseModule;
   }
 
-  /** 获取 Vendor URL */
+  /** 智能选择最佳 CDN */
+  private selectBestCdn(config: VendorConfig): CDN {
+    const availableCdns = [config.cdn, ...(config.fallbackCdns || [])].filter(Boolean) as CDN[];
+
+    // 过滤掉已知失败的 CDN
+    const workingCdns = availableCdns.filter(cdn => !this.failedCdns.has(cdn));
+
+    if (workingCdns.length === 0) {
+      this.logger.warn('所有 CDN 都不可用，使用默认 CDN');
+      return config.cdn || 'unpkg';
+    }
+
+    // 根据性能评分选择最佳 CDN
+    const bestCdn = workingCdns.reduce((best, current) => {
+      const bestScore = this.cdnPerformance.get(best) || 0;
+      const currentScore = this.cdnPerformance.get(current) || 0;
+      return currentScore > bestScore ? current : best;
+    });
+
+    return bestCdn;
+  }
+
+  /** 获取 Vendor URL（带缓存和智能 CDN 选择） */
   getVendorUrl(category: VendorCategory, vendorKey: string): string {
+    const cacheKey = `${category}.${vendorKey}`;
+
+    // 检查缓存
+    if (this.urlCache.has(cacheKey)) {
+      return this.urlCache.get(cacheKey)!;
+    }
+
     const vendor = allVendors[category]?.[vendorKey];
     if (!vendor) {
       throw new Error(`Vendor not found: ${category}.${vendorKey}`);
     }
 
+    let url: string;
+
     // 如果有 external URL，直接使用
     if (vendor.external) {
-      return vendor.external;
+      url = vendor.external;
+    } else {
+      const moduleName = this.buildModuleName(vendor);
+      const bestCdn = this.selectBestCdn(vendor);
+
+      if (vendor.isModule) {
+        url = this.modulesService.getModuleUrl(moduleName, {
+          isModule: true,
+          defaultCDN: bestCdn,
+          external: vendor.external
+        });
+      } else {
+        url = this.modulesService.getUrl(moduleName, bestCdn);
+      }
     }
 
+    // 缓存结果
+    this.urlCache.set(cacheKey, url);
+    this.logger.debug(`生成 URL: ${cacheKey} -> ${url}`);
+
+    return url;
+  }
+
+  /** 获取带回退的 Vendor URL 列表 */
+  getVendorUrlsWithFallback(category: VendorCategory, vendorKey: string): string[] {
+    const vendor = allVendors[category]?.[vendorKey];
+    if (!vendor) {
+      throw new Error(`Vendor not found: ${category}.${vendorKey}`);
+    }
+
+    const urls: string[] = [];
     const moduleName = this.buildModuleName(vendor);
 
-    if (vendor.isModule) {
-      return this.modulesService.getModuleUrl(moduleName, {
-        isModule: true,
-        defaultCDN: vendor.cdn,
-        external: vendor.external
-      });
-    } else {
-      return this.modulesService.getUrl(moduleName, vendor.cdn);
+    // 如果有 external URL，优先使用
+    if (vendor.external) {
+      urls.push(vendor.external);
     }
+
+    // 生成所有可能的 CDN URL
+    const allCdns = [vendor.cdn, ...(vendor.fallbackCdns || [])].filter(Boolean) as CDN[];
+
+    for (const cdn of allCdns) {
+      try {
+        const url = vendor.isModule
+          ? this.modulesService.getModuleUrl(moduleName, { isModule: true, defaultCDN: cdn })
+          : this.modulesService.getUrl(moduleName, cdn);
+
+        if (!urls.includes(url)) {
+          urls.push(url);
+        }
+      } catch (error) {
+        this.logger.warn(`生成 ${cdn} URL 失败: ${vendorKey}`, error);
+      }
+    }
+
+    return urls;
   }
 
   /** 获取指定类别的所有 Vendor */
@@ -472,11 +576,72 @@ class VendorService {
         const key = `${category}.${vendorKey}`;
         result[key] = this.getVendorUrl(category, vendorKey);
       } catch (error) {
-        console.warn(`Failed to get URL for ${category}.${vendorKey}:`, error);
+        this.logger.warn(`获取 URL 失败: ${category}.${vendorKey}`, error);
       }
     }
 
     return result;
+  }
+
+  /** 标记 CDN 为失败状态 */
+  markCdnAsFailed(cdn: CDN): void {
+    this.failedCdns.add(cdn);
+    this.logger.warn(`CDN 标记为失败: ${cdn}`);
+  }
+
+  /** 重置 CDN 失败状态 */
+  resetCdnFailures(): void {
+    this.failedCdns.clear();
+    this.logger.info('CDN 失败状态已重置');
+  }
+
+  /** 更新 CDN 性能评分 */
+  updateCdnPerformance(cdn: CDN, score: number): void {
+    this.cdnPerformance.set(cdn, score);
+    this.logger.debug(`CDN 性能评分更新: ${cdn} = ${score}`);
+  }
+
+  /** 获取 CDN 性能统计 */
+  getCdnPerformanceStats(): Record<string, number> {
+    return Object.fromEntries(this.cdnPerformance);
+  }
+
+  /** 清除 URL 缓存 */
+  clearUrlCache(): void {
+    this.urlCache.clear();
+    this.logger.info('URL 缓存已清除');
+  }
+
+  /** 获取缓存统计 */
+  getCacheStats() {
+    return {
+      urlCacheSize: this.urlCache.size,
+      failedCdnsCount: this.failedCdns.size,
+      cdnPerformanceEntries: this.cdnPerformance.size,
+      failedCdns: Array.from(this.failedCdns),
+      cachedUrls: Array.from(this.urlCache.keys())
+    };
+  }
+
+  /** 预热缓存 */
+  async preloadCriticalResources(): Promise<void> {
+    this.logger.info('开始预热关键资源缓存...');
+
+    const criticalResources = [
+      { category: VendorCategory.MONACO, vendorKey: 'monacoLoader' },
+      { category: VendorCategory.COMPILER, vendorKey: 'typescript' },
+      { category: VendorCategory.COMPILER, vendorKey: 'babel' }
+    ];
+
+    for (const { category, vendorKey } of criticalResources) {
+      try {
+        this.getVendorUrl(category, vendorKey);
+      } catch (error) {
+        this.logger.warn(`预热资源失败: ${category}.${vendorKey}`, error);
+      }
+    }
+
+    this.logger.info('关键资源缓存预热完成');
   }
 }
 /** Vendor 服务实例 */

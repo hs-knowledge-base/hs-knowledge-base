@@ -3,7 +3,8 @@
  */
 export type Language =
   | 'javascript' | 'typescript'
-  | 'html' | 'css' | 'markdown';
+  | 'html' | 'css' | 'scss' | 'less' | 'markdown'
+  | 'json' | 'xml' | 'yaml';
 
 /**
  * 编辑器类型

@@ -1,13 +1,22 @@
-import type { Config } from '@/types';
+import type { Config, LayoutConfig } from '@/types';
 import { EventEmitter } from '@/core/events';
 import { Logger } from '@/utils/logger';
 
-/** 布局管理器 */
+/**
+ * 布局管理器 - 重构版本
+ * 负责管理 Playground 的整体布局，支持响应式设计
+ */
 export class LayoutManager {
   private readonly logger = new Logger('LayoutManager');
   private editorContainer!: HTMLElement;
   private resultContainer!: HTMLElement;
   private toolbarContainer!: HTMLElement;
+  private currentLayout: LayoutConfig = {
+    direction: 'horizontal',
+    showPreview: true,
+    showConsole: true
+  };
+  private resizeObserver?: ResizeObserver;
 
   constructor(
     private container: HTMLElement,
@@ -18,15 +27,20 @@ export class LayoutManager {
     this.logger.info('初始化布局管理器');
     this.createLayout();
     this.setupEventHandlers();
-
-    // 初始化时设置为只显示控制台（因为默认没有模板内容）
-    this.updateLayoutByMarkup(false);
+    this.setupResizeObserver();
+    this.applyResponsiveLayout();
   }
 
   async updateConfig(config: Config): Promise<void> {
     this.applyTheme(config.theme || 'dark');
-    this.applyLayout(config.layout?.direction || 'horizontal');
-    this.updateResultDisplay(config);
+    this.updateLayout(config.layout);
+  }
+
+  /** 更新布局配置 */
+  updateLayout(layout: Partial<LayoutConfig>): void {
+    this.currentLayout = { ...this.currentLayout, ...layout };
+    this.applyLayout();
+    this.logger.info('布局已更新', this.currentLayout);
   }
 
   getEditorContainer(): HTMLElement {
@@ -41,59 +55,15 @@ export class LayoutManager {
     return this.toolbarContainer;
   }
 
-  async destroy(): Promise<void> {
-    this.logger.info('销毁布局管理器');
-    this.container.innerHTML = '';
-  }
-
+  /** 创建布局结构 */
   private createLayout(): void {
     this.container.innerHTML = `
-      <div class="playground-layout">
-        <div class="toolbar-container">
-          <div class="toolbar-left">
-            <span class="app-title">🔥 火山知识库 - 代码演练场</span>
-          </div>
-          <div class="toolbar-center">
-            <button class="run-btn" title="运行代码 (Ctrl+Enter)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-              <span>运行</span>
-            </button>
-          </div>
-          <div class="toolbar-right">
-            <button class="format-btn" title="格式化代码">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
-            </button>
-            <button class="settings-btn" title="设置">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
-              </svg>
-            </button>
-          </div>
-        </div>
+      <div class="playground-layout" data-layout="${this.currentLayout.direction}">
+        ${this.createToolbar()}
         <div class="main-container">
           <div class="editor-container"></div>
           <div class="result-container">
-            <div class="preview-area">
-              <div class="preview-toolbar">
-                <span class="preview-title">预览</span>
-                <button class="refresh-btn" title="刷新">🔄</button>
-              </div>
-              <div class="preview-content"></div>
-            </div>
-            <div class="console-area">
-              <div class="console-tabs">
-                <button class="console-tab active" data-tab="console">控制台</button>
-                <button class="console-tab" data-tab="compiled">编译结果</button>
-              </div>
-              <div class="console-content">
-                <div class="console-panel active" data-content="console"></div>
-                <div class="compiled-panel" data-content="compiled"></div>
-              </div>
-            </div>
+            ${this.createResultArea()}
           </div>
         </div>
       </div>
@@ -104,20 +74,166 @@ export class LayoutManager {
     this.editorContainer = this.container.querySelector('.editor-container')!;
     this.resultContainer = this.container.querySelector('.result-container')!;
 
-    // 应用基础样式
-    this.applyBaseStyles();
+    // 应用样式
+    this.applyLayoutStyles();
+  }
+
+  /** 创建工具栏 */
+  private createToolbar(): string {
+    return `
+      <div class="toolbar-container">
+        <div class="toolbar-left">
+          <span class="app-title">🔥 火山知识库 - 代码演练场</span>
+        </div>
+        <div class="toolbar-center">
+          <button class="run-btn" title="运行代码 (Ctrl+Enter)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            <span>运行</span>
+          </button>
+        </div>
+        <div class="toolbar-right">
+          <button class="format-btn" title="格式化代码">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+          </button>
+          <button class="layout-toggle-btn" title="切换布局">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  /** 创建结果区域 */
+  private createResultArea(): string {
+    return `
+      <div class="preview-area" ${!this.currentLayout.showPreview ? 'style="display: none;"' : ''}>
+        <div class="preview-toolbar">
+          <span class="preview-title">预览</span>
+          <button class="refresh-btn" title="刷新">🔄</button>
+        </div>
+        <div class="preview-content"></div>
+      </div>
+      <div class="console-area" ${!this.currentLayout.showConsole ? 'style="display: none;"' : ''}>
+        <div class="console-tabs">
+          <button class="console-tab active" data-tab="console">控制台</button>
+          <button class="console-tab" data-tab="compiled">编译结果</button>
+        </div>
+        <div class="console-content">
+          <div class="console-panel active" data-content="console"></div>
+          <div class="compiled-panel" data-content="compiled"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  /** 应用布局 */
+  private applyLayout(): void {
+    const layout = this.container.querySelector('.playground-layout') as HTMLElement;
+    if (layout) {
+      layout.setAttribute('data-layout', this.currentLayout.direction);
+    }
+
+    // 更新结果区域显示
+    this.updateResultAreaVisibility();
+
+    // 触发布局变化事件
+    this.eventEmitter.emit('layout-change', { layout: this.currentLayout });
+  }
+
+  /** 更新结果区域可见性 */
+  private updateResultAreaVisibility(): void {
+    const previewArea = this.container.querySelector('.preview-area') as HTMLElement;
+    const consoleArea = this.container.querySelector('.console-area') as HTMLElement;
+
+    if (previewArea) {
+      previewArea.style.display = this.currentLayout.showPreview ? 'flex' : 'none';
+    }
+    if (consoleArea) {
+      consoleArea.style.display = this.currentLayout.showConsole ? 'flex' : 'none';
+    }
+  }
+
+  /** 设置响应式观察器 */
+  private setupResizeObserver(): void {
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          this.handleResize(entry.contentRect);
+        }
+      });
+      this.resizeObserver.observe(this.container);
+    }
+  }
+
+  /** 处理容器大小变化 */
+  private handleResize(rect: DOMRectReadOnly): void {
+    const isSmallScreen = rect.width < 768;
+
+    // 在小屏幕上自动切换到垂直布局
+    if (isSmallScreen && this.currentLayout.direction === 'horizontal') {
+      this.updateLayout({ direction: 'vertical' });
+    }
+  }
+
+  /** 应用响应式布局 */
+  private applyResponsiveLayout(): void {
+    const rect = this.container.getBoundingClientRect();
+    this.handleResize(rect);
+  }
+
+  private setupEventHandlers(): void {
     this.setupConsoleTabs();
     this.setupToolbarEvents();
   }
 
-  private applyBaseStyles(): void {
+  /** 应用布局样式 */
+  private applyLayoutStyles(): void {
     const style = document.createElement('style');
+    style.id = 'playground-layout-styles';
+
+    // 移除旧样式
+    const oldStyle = document.getElementById('playground-layout-styles');
+    if (oldStyle) {
+      oldStyle.remove();
+    }
+
     style.textContent = `
       .playground-layout {
         height: 100vh;
         display: flex;
         flex-direction: column;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        overflow: hidden;
+      }
+
+      /* 响应式布局 */
+      .playground-layout[data-layout="horizontal"] .main-container {
+        flex-direction: row;
+      }
+
+      .playground-layout[data-layout="vertical"] .main-container {
+        flex-direction: column;
+      }
+
+      /* 移动端适配 */
+      @media (max-width: 768px) {
+        .playground-layout .main-container {
+          flex-direction: column !important;
+        }
+
+        .toolbar-left .app-title {
+          display: none;
+        }
+
+        .toolbar-center .run-btn span {
+          display: none;
+        }
       }
 
       .toolbar-container {
@@ -400,21 +516,14 @@ export class LayoutManager {
     document.head.appendChild(style);
   }
 
-  private applyTheme(theme: 'light' | 'dark'): void {
-    this.container.querySelector('.playground-layout')?.classList.remove('light', 'dark');
-    this.container.querySelector('.playground-layout')?.classList.add(theme);
-  }
-
-  private applyLayout(layout: 'horizontal' | 'vertical'): void {
-    this.container.querySelector('.playground-layout')?.classList.remove('horizontal', 'vertical');
-    this.container.querySelector('.playground-layout')?.classList.add(layout);
-  }
-
-  private setupEventHandlers(): void {
-    // 监听窗口大小变化
-    window.addEventListener('resize', () => {
-      this.eventEmitter.emit('layout-resize', {});
-    });
+  /** 应用主题 */
+  applyTheme(theme: 'light' | 'dark'): void {
+    const layout = this.container.querySelector('.playground-layout') as HTMLElement;
+    if (layout) {
+      layout.classList.remove('light', 'dark');
+      layout.classList.add(theme);
+      this.logger.debug(`主题已切换到: ${theme}`);
+    }
   }
 
   private setupToolbarEvents(): void {
@@ -430,10 +539,17 @@ export class LayoutManager {
       this.eventEmitter.emit('format-requested', {});
     });
 
-    // 设置按钮
-    const settingsBtn = this.container.querySelector('.settings-btn');
-    settingsBtn?.addEventListener('click', () => {
-      this.eventEmitter.emit('settings-requested', {});
+    // 布局切换按钮
+    const layoutToggleBtn = this.container.querySelector('.layout-toggle-btn');
+    layoutToggleBtn?.addEventListener('click', () => {
+      const newDirection = this.currentLayout.direction === 'horizontal' ? 'vertical' : 'horizontal';
+      this.updateLayout({ direction: newDirection });
+    });
+
+    // 刷新按钮
+    const refreshBtn = this.container.querySelector('.refresh-btn');
+    refreshBtn?.addEventListener('click', () => {
+      this.eventEmitter.emit('refresh-requested', {});
     });
 
     // 键盘快捷键
@@ -499,5 +615,37 @@ export class LayoutManager {
       resultContainer.classList.add('console-only');
       this.logger.info('只显示控制台区域');
     }
+  }
+
+  /** 获取布局统计信息 */
+  getLayoutStats() {
+    return {
+      currentLayout: this.currentLayout,
+      containerSize: {
+        width: this.container.clientWidth,
+        height: this.container.clientHeight
+      },
+      hasResizeObserver: !!this.resizeObserver
+    };
+  }
+
+  /** 销毁布局管理器 */
+  async destroy(): Promise<void> {
+    // 断开 ResizeObserver
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = undefined;
+    }
+
+    // 移除样式
+    const style = document.getElementById('playground-layout-styles');
+    if (style) {
+      style.remove();
+    }
+
+    // 清空容器
+    this.container.innerHTML = '';
+
+    this.logger.info('布局管理器已销毁');
   }
 }

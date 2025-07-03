@@ -2,7 +2,6 @@ import type { Language } from '@/types';
 import { BaseCompiler } from './base-compiler';
 import { JavaScriptCompiler } from './compilers/javascript';
 import { TypeScriptCompiler } from './compilers/typescript';
-import { PythonCompiler } from './compilers/python';
 import { HtmlCompiler } from './compilers/html';
 import { CssCompiler } from './compilers/css';
 import { MarkdownCompiler } from './compilers/markdown';
@@ -150,7 +149,6 @@ export class CompilerFactory {
     // 注册内置编译器
     this.registerCompiler('javascript', JavaScriptCompiler);
     this.registerCompiler('typescript', TypeScriptCompiler);
-    this.registerCompiler('python', PythonCompiler);
     this.registerCompiler('html', HtmlCompiler);
     this.registerCompiler('css', CssCompiler);
     this.registerCompiler('markdown', MarkdownCompiler);

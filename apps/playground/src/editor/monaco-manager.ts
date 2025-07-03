@@ -1,5 +1,5 @@
 import type * as Monaco from 'monaco-editor';
-import type { Config, Language } from '../types';
+import type { Config, Language } from '@/types';
 import { EventEmitter } from '../core/events';
 import { Logger } from '../utils/logger';
 import { loadMonaco } from '../utils/monaco-loader';
@@ -246,10 +246,6 @@ export class EditorManager {
         this.configureTypeScriptLanguage(language, config);
         break;
 
-      case 'python':
-        this.configurePythonLanguage(config);
-        break;
-
       case 'html':
         this.configureHtmlLanguage(config);
         break;
@@ -294,13 +290,6 @@ export class EditorManager {
       this.monaco.languages.typescript.javascriptDefaults.setCompilerOptions(compilerOptions);
       this.logger.info('JavaScript 编辑器选项已配置');
     }
-  }
-
-  /** 配置 Python 语言 */
-  private configurePythonLanguage(config: any): void {
-    // Python 主要依赖 Monaco Editor 的内置语法高亮
-    // 实际执行由 Pyodide 处理
-    this.logger.info('Python 编辑器选项已配置（使用内置语法高亮）');
   }
 
   /** 配置 HTML 语言 */

@@ -2,7 +2,7 @@
  * 支持的语言类型
  */
 export type Language =
-  | 'javascript' | 'typescript' | 'python'
+  | 'javascript' | 'typescript'
   | 'html' | 'css' | 'markdown';
 
 /**

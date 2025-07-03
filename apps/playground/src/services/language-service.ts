@@ -31,21 +31,6 @@ const languageRegistry: Record<Language, LanguageSpecs> = {
     },
     aliases: ['ts']
   },
-  python: {
-    name: 'python',
-    title: 'Python',
-    longTitle: 'Python',
-    extensions: ['py'],
-    editorType: 'script',
-    monacoLanguage: 'python',
-    // Python 需要 Skulpt 运行时来执行代码
-    runtime: {
-      category: VendorCategory.COMPILER,
-      vendorKey: 'skulpt'
-    },
-    aliases: ['py']
-  },
-  
   // 标记语言
   html: {
     name: 'html',
@@ -325,15 +310,3 @@ export const getMonacoLanguage = (language: Language) =>
   languageService.getMonacoLanguage(language);
 export const getLanguageByExtension = (extension: string) =>
   languageService.getLanguageByExtension(extension);
-
-// 编译器相关导出
-export const getCompiler = (language: Language) =>
-  languageService.getCompiler(language);
-export const compile = (code: string, language: Language, options?: any) =>
-  languageService.compile(code, language, options);
-export const supports = (language: Language) =>
-  languageService.supports(language);
-export const clearCache = () =>
-  languageService.clearCache();
-export const getStats = () =>
-  languageService.getStats();

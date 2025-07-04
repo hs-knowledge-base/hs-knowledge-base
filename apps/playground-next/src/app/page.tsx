@@ -36,7 +36,7 @@ const CompilerOutput = dynamic(() => import('@/components/playground/compiler-ou
   )
 });
 
-const SimpleConsole = dynamic(() => import('@/components/playground/simple-console').then(mod => ({ default: mod.SimpleConsole })), {
+const EnhancedConsole = dynamic(() => import('@/components/playground/enhanced-console').then(mod => ({ default: mod.EnhancedConsole })), {
   ssr: false,
   loading: () => (
     <div className="h-full bg-gray-900 flex items-center justify-center">
@@ -238,7 +238,7 @@ export default function Home() {
                 }
               >
                 <div className="h-[calc(100%-40px)]">
-                  <SimpleConsole className="h-full" />
+                  <EnhancedConsole className="h-full" />
                 </div>
               </Tab>
               <Tab

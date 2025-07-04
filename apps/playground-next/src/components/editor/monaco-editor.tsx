@@ -71,10 +71,6 @@ export function MonacoEditor({
   const editorConfig = { ...configs[editorType], ...config };
   const currentValue = contents[editorType] || defaultValue;
 
-  // 调试信息
-  console.log(`[MonacoEditor] ${editorType} - currentValue length:`, currentValue?.length);
-  console.log(`[MonacoEditor] ${editorType} - contents[${editorType}]:`, contents[editorType]?.substring(0, 100));
-
   /** 加载 Monaco Editor */
   const loadMonaco = useCallback(async () => {
     try {

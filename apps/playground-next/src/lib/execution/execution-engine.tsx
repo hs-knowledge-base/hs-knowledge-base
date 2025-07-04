@@ -5,6 +5,7 @@ import type { Language } from '@/types';
 import { getGlobalRuntimeManager, type RuntimeResult } from '@/lib/services/language-runtimes';
 import { useEditorStore } from '@/stores/editor-store';
 import { usePlaygroundStore } from '@/stores/playground-store';
+import { getGlobalCompilerFactory, type ConsoleMessage } from '@/lib/compiler/compiler-factory';
 
 interface ExecutionEngineProps {
   className?: string;
@@ -18,6 +19,7 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
   const { contents, configs } = useEditorStore();
   const { addConsoleMessage, manualRunTrigger } = usePlaygroundStore();
   const runtimeManager = getGlobalRuntimeManager();
+  const compilerFactory = getGlobalCompilerFactory();
 
   /** 执行代码的主要逻辑 */
   const executeCode = async () => {
@@ -165,58 +167,40 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
 
   /** 处理脚本内容 */
   const handleScriptContent = async (result: RuntimeResult, language: Language): Promise<string> => {
+    try {
+      // 尝试获取对应的编译器
+      const compiler = await compilerFactory.getCompiler(language);
+      
+      // 如果编译器有processExecutionResult方法，使用它
+      if (compiler && typeof compiler.processExecutionResult === 'function') {
+        const executionResult = compiler.processExecutionResult(result);
+        
+        // 将控制台消息添加到我们的控制台
+        executionResult.consoleMessages.forEach((msg: ConsoleMessage) => {
+          addConsoleMessage(msg);
+        });
+        
+        return executionResult.previewCode;
+      }
+      
+      // 降级到默认处理（为了向后兼容）
+      return getDefaultScriptContent(result, language);
+      
+    } catch (error) {
+      console.warn('[ExecutionEngine] 无法获取编译器，使用默认处理:', error);
+      return getDefaultScriptContent(result, language);
+    }
+  };
+
+  /** 默认脚本内容处理（向后兼容） */
+  const getDefaultScriptContent = (result: RuntimeResult, language: Language): string => {
     switch (language) {
       case 'javascript':
-        // JavaScript 直接返回原始代码
         return contents.script;
-        
       case 'typescript':
-        // TypeScript 返回编译后的 JavaScript
         return result.output || '';
-        
-      case 'python':
-        // Python 的输出已经通过运行时显示在控制台，这里显示执行结果
-        if (result.success && result.output) {
-          // 将Python的输出显示在我们的控制台中
-          const outputLines = result.output.split('\n').filter(line => line.trim());
-          outputLines.forEach(line => {
-            addConsoleMessage({
-              type: 'log',
-              message: line
-            });
-          });
-          return `// Python 代码已执行，输出显示在控制台中
-console.log('✅ Python 代码执行完成');`;
-        }
-        return `// Python 代码执行失败
-console.error('❌ Python 代码执行失败');`;
-        
-      case 'go':
-        // Go 使用 GopherJS，返回编译后的 JavaScript
-        return result.output || '';
-        
-      case 'php':
-        // PHP 使用 Uniter，返回包装代码
-        return `
-          // PHP 代码 (Uniter)
-          if (window.phpUniter) {
-            try {
-              window.phpUniter.createEngine().execute(\`${contents.script.replace(/`/g, '\\`')}\`);
-            } catch (e) {
-              console.error('PHP 执行错误:', e);
-            }
-          }
-        `;
-        
-      case 'java':
-        // Java 使用 DoppioJVM (暂未实现)
-        return `
-          // Java 代码 (DoppioJVM - 开发中)
-          console.log('Java 运行时正在开发中...');
-        `;
-        
       default:
-        return result.output || '';
+        return result.output || `// ${language} 代码已执行\nconsole.log('✅ ${language} 代码执行完成');`;
     }
   };
 

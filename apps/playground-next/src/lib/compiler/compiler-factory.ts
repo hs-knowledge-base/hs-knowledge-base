@@ -3,6 +3,26 @@ import type { Language, CompileResult } from '@/types';
 import { useGlobalVendorService } from '@/lib/services/vendors';
 import { useCompilerStore } from '@/stores/compiler-store';
 
+/** 控制台消息类型 */
+export interface ConsoleMessage {
+  type: 'log' | 'warn' | 'error' | 'info';
+  message: string;
+}
+
+/** 执行结果接口 */
+export interface ExecutionResult {
+  /** 是否成功 */
+  success: boolean;
+  /** 编译后的代码（用于预览） */
+  previewCode: string;
+  /** 控制台消息 */
+  consoleMessages: ConsoleMessage[];
+  /** 错误信息 */
+  error?: string;
+  /** 执行时间 */
+  duration?: number;
+}
+
 /** 编译器接口 */
 export interface ICompiler {
   /** 编译器名称 */
@@ -15,6 +35,8 @@ export interface ICompiler {
   needsVendor(): boolean;
   /** 获取依赖的 vendor 键名 */
   getVendorKey(): string | null;
+  /** 处理执行结果（新增方法） */
+  processExecutionResult?(result: any): ExecutionResult;
 }
 
 /** 编译选项 */

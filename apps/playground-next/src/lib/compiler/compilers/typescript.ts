@@ -1,6 +1,6 @@
 import type { Language, CompileResult } from '@/types';
 import { BaseCompiler } from '../base-compiler';
-import {CompileOptions} from "@/lib/compiler/compiler-factory";
+import {CompileOptions, ExecutionResult, ConsoleMessage} from "@/lib/compiler/compiler-factory";
 
 /**
  * TypeScript 编译器
@@ -82,6 +82,70 @@ export class TypeScriptCompiler extends BaseCompiler {
     }
 
     throw new Error('TypeScript 编译器加载超时，请确保 TypeScript 库已正确加载');
+  }
+
+  /** 处理TypeScript特有的执行结果 */
+  processExecutionResult(result: any): ExecutionResult {
+    if (result.success) {
+      const consoleMessages: ConsoleMessage[] = [];
+      
+      // 添加编译成功消息
+      consoleMessages.push({
+        type: 'info',
+        message: '✅ TypeScript 编译成功，代码已转换为 JavaScript'
+      });
+      
+      // 处理控制台输出
+      if (result.consoleOutput && result.consoleOutput.trim()) {
+        const outputLines = result.consoleOutput.split('\n').filter((line: string) => line.trim());
+        outputLines.forEach((line: string) => {
+          if (line.startsWith('[ERROR]')) {
+            consoleMessages.push({
+              type: 'error',
+              message: line.substring(7).trim()
+            });
+          } else if (line.startsWith('[WARN]')) {
+            consoleMessages.push({
+              type: 'warn',
+              message: line.substring(6).trim()
+            });
+          } else if (line.startsWith('[INFO]')) {
+            consoleMessages.push({
+              type: 'info',
+              message: line.substring(6).trim()
+            });
+          } else {
+            consoleMessages.push({
+              type: 'log',
+              message: line
+            });
+          }
+        });
+      }
+
+      return {
+        success: true,
+        previewCode: result.output || '',
+        consoleMessages,
+        duration: result.duration
+      };
+    } else {
+      return {
+        success: false,
+        previewCode: `// TypeScript 编译失败\nconsole.error('❌ TypeScript 编译失败: ${result.error || '未知错误'}');`,
+        consoleMessages: [{
+          type: 'error',
+          message: `TypeScript 编译失败: ${result.error || '未知错误'}`
+        }],
+        error: result.error
+      };
+    }
+  }
+
+  /** 重写getPreviewCode方法 */
+  protected getPreviewCode(result: any): string {
+    // TypeScript直接返回编译后的JavaScript
+    return result.output || '';
   }
 }
 

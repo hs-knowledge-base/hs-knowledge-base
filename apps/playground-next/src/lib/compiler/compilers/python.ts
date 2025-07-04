@@ -1,6 +1,6 @@
 import type { Language, CompileResult } from '@/types';
 import { BaseCompiler } from '../base-compiler';
-import { CompileOptions } from "@/lib/compiler/compiler-factory";
+import { CompileOptions, ExecutionResult, ConsoleMessage } from "@/lib/compiler/compiler-factory";
 
 /**
  * Python 运行时编译器
@@ -132,6 +132,46 @@ export class PythonCompiler extends BaseCompiler {
     }
 
     throw new Error('Brython 运行时加载超时。请确保 brython.min.js 和 brython_stdlib.js 都已正确加载');
+  }
+
+  /** 处理Python特有的执行结果 */
+  processExecutionResult(result: any): ExecutionResult {
+    if (result.success) {
+      const consoleMessages: ConsoleMessage[] = [];
+      
+      // 处理Python的输出
+      if (result.output && result.output.trim()) {
+        const outputLines = result.output.split('\n').filter((line: string) => line.trim());
+        outputLines.forEach((line: string) => {
+          consoleMessages.push({
+            type: 'log',
+            message: line
+          });
+        });
+      }
+
+      return {
+        success: true,
+        previewCode: `// Python 代码已执行，输出显示在控制台中\nconsole.log('✅ Python 代码执行完成');`,
+        consoleMessages,
+        duration: result.duration
+      };
+    } else {
+      return {
+        success: false,
+        previewCode: `// Python 代码执行失败\nconsole.error('❌ Python 代码执行失败: ${result.error || '未知错误'}');`,
+        consoleMessages: [{
+          type: 'error',
+          message: result.error || 'Python 执行失败'
+        }],
+        error: result.error
+      };
+    }
+  }
+
+  /** 重写getPreviewCode方法 */
+  protected getPreviewCode(result: any): string {
+    return `// Python 代码已执行，输出显示在控制台中\nconsole.log('✅ Python 代码执行完成');`;
   }
 }
 

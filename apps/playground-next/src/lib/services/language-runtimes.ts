@@ -23,6 +23,7 @@ export interface RuntimeResult {
   error?: string;
   logs?: string[];
   duration?: number;
+  consoleOutput?: string; // 新增：控制台输出
 }
 
 /** 支持的语言运行时配置 */
@@ -71,14 +72,62 @@ const RUNTIME_CONFIGS: Record<Language, RuntimeConfig> = {
           module: window.ts.ModuleKind.ES2020,
         });
         
-        // 执行编译后的 JavaScript
-        const result = new Function(compiled)();
-        
-        return {
-          success: true,
-          output: String(result || ''),
-          duration: Date.now() - start
+        // 捕获控制台输出
+        const outputs: string[] = [];
+        const originalConsole = {
+          log: console.log,
+          warn: console.warn,
+          error: console.error,
+          info: console.info
         };
+        
+        // 重定向控制台输出
+        console.log = (...args: any[]) => {
+          const message = args.map(arg => String(arg)).join(' ');
+          outputs.push(message);
+          originalConsole.log.apply(console, args);
+        };
+        
+        console.warn = (...args: any[]) => {
+          const message = '[WARN] ' + args.map(arg => String(arg)).join(' ');
+          outputs.push(message);
+          originalConsole.warn.apply(console, args);
+        };
+        
+        console.error = (...args: any[]) => {
+          const message = '[ERROR] ' + args.map(arg => String(arg)).join(' ');
+          outputs.push(message);
+          originalConsole.error.apply(console, args);
+        };
+        
+        console.info = (...args: any[]) => {
+          const message = '[INFO] ' + args.map(arg => String(arg)).join(' ');
+          outputs.push(message);
+          originalConsole.info.apply(console, args);
+        };
+
+        try {
+          // 执行编译后的 JavaScript
+          const result = new Function(compiled)();
+          
+          // 如果函数有返回值，也包含在输出中
+          if (result !== undefined && result !== null) {
+            outputs.push(`返回值: ${String(result)}`);
+          }
+          
+          return {
+            success: true,
+            output: compiled, // 返回编译后的JavaScript代码用于预览
+            consoleOutput: outputs.join('\n'), // 控制台输出
+            duration: Date.now() - start
+          };
+        } finally {
+          // 恢复原始控制台函数
+          console.log = originalConsole.log;
+          console.warn = originalConsole.warn;
+          console.error = originalConsole.error;
+          console.info = originalConsole.info;
+        }
       } catch (error) {
         return {
           success: false,

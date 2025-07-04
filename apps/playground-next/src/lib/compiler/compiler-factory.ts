@@ -75,17 +75,17 @@ export class CompilerFactory {
   }
 
   /** 创建编译器实例 */
-  private async createCompiler(language: Language): Promise<ICompiler | null> {
+  private async createCompiler(language: Language): Promise<ICompiler | undefined> {
     const compilerFactory = this.compilerClasses.get(language);
 
     if (!compilerFactory) {
       console.warn(`[CompilerFactory] 未找到编译器类: ${language}`);
-      return null;
+      return undefined;
     }
 
     try {
       const compiler = compilerFactory();
-      
+
       // 如果编译器需要外部依赖，先加载
       if (compiler.needsVendor() && this.vendorService) {
         const vendorKey = compiler.getVendorKey();
@@ -97,7 +97,7 @@ export class CompilerFactory {
       return compiler;
     } catch (error) {
       console.error(`[CompilerFactory] 创建编译器失败 ${language}:`, error);
-      return null;
+      return undefined;
     }
   }
 
@@ -106,13 +106,13 @@ export class CompilerFactory {
     try {
       const compiler = await this.getCompiler(language);
       const result = await compiler.compile(code, options);
-      
+
       console.debug(`[CompilerFactory] 编译完成: ${language}`);
       return result;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '编译失败';
       console.error(`[CompilerFactory] 编译失败 ${language}:`, error);
-      
+
       return {
         code: '',
         error: errorMessage
@@ -201,7 +201,7 @@ export class CompilerFactory {
 }
 
 // 全局编译器工厂实例
-let globalCompilerFactory: CompilerFactory | null = null;
+let globalCompilerFactory: CompilerFactory | undefined = undefined;
 
 /** 获取全局编译器工厂 */
 export function getGlobalCompilerFactory(): CompilerFactory {
@@ -215,7 +215,7 @@ export function getGlobalCompilerFactory(): CompilerFactory {
 export function destroyGlobalCompilerFactory(): void {
   if (globalCompilerFactory) {
     globalCompilerFactory.destroy();
-    globalCompilerFactory = null;
+    globalCompilerFactory = undefined;
   }
 }
 
@@ -223,7 +223,7 @@ export function destroyGlobalCompilerFactory(): void {
  * React Hook: 使用编译器工厂
  */
 export function useCompilerFactory(): CompilerFactory {
-  const factoryRef = useRef<CompilerFactory | null>(null);
+  const factoryRef = useRef<CompilerFactory | undefined>(undefined);
   const vendorService = useGlobalVendorService();
 
   if (!factoryRef.current) {
@@ -234,7 +234,7 @@ export function useCompilerFactory(): CompilerFactory {
     return () => {
       if (factoryRef.current) {
         factoryRef.current.destroy();
-        factoryRef.current = null;
+        factoryRef.current = undefined;
       }
     };
   }, []);

@@ -256,7 +256,7 @@ export function MonacoEditor({
     const initEditor = async () => {
       try {
         const monaco = await loadMonaco();
-        if (mounted) {
+        if (mounted && containerRef.current) {
           await createEditor(monaco);
         }
       } catch (error) {
@@ -266,19 +266,28 @@ export function MonacoEditor({
       }
     };
 
-    // 只在编辑器还没有创建时才初始化
-    if (!editorRef.current) {
+    // 只在编辑器还没有创建且容器存在时才初始化
+    if (!editorRef.current && containerRef.current) {
+      console.log(`[MonacoEditor] ${editorType} - 开始初始化编辑器`);
       initEditor();
     }
 
     return () => {
       mounted = false;
+      // 不在这里销毁编辑器，让编辑器实例保持存在
+    };
+  }, [isMounted, editorType]); // 添加必要的依赖
+
+  /** 组件卸载时清理编辑器 */
+  useEffect(() => {
+    return () => {
       if (editorRef.current) {
+        console.log(`[MonacoEditor] ${editorType} - 销毁编辑器`);
         editorRef.current.dispose();
         editorRef.current = null;
       }
     };
-  }, []); // 移除依赖，只在组件挂载时执行一次
+  }, []); // 只在组件真正卸载时执行
 
   /** 更新编辑器配置 */
   useEffect(() => {

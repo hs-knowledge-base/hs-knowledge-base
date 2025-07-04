@@ -218,6 +218,7 @@ export function EditorPanel({
         {showToolbar && renderToolbar(type)}
         <div className={showToolbar ? 'h-[calc(100%-50px)]' : 'h-full'}>
           <MonacoEditor
+            key={`monaco-editor-${type}`}
             editorType={type}
             config={configs[type]}
             className="w-full h-full"
@@ -287,8 +288,15 @@ export function EditorPanel({
       </div>
 
       {/* 编辑器内容区域 */}
-      <div className="flex-1 bg-gray-900">
-        {renderEditorContent(activeTab)}
+      <div className="flex-1 bg-gray-900 relative">
+        {visibleEditors.map((type) => (
+          <div
+            key={`editor-container-${type}`}
+            className={`absolute inset-0 ${activeTab === type ? 'block' : 'hidden'}`}
+          >
+            {renderEditorContent(type)}
+          </div>
+        ))}
       </div>
     </div>
   );

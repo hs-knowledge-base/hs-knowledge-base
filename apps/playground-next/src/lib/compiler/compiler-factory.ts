@@ -216,33 +216,25 @@ export class CompilerFactory {
   /** 注册直通编译器 */
   private registerPassthroughCompilers(): void {
     // 动态导入编译器类
-    const {
-      HtmlCompiler,
-      CssCompiler,
-      JavaScriptCompiler,
-      JsonCompiler,
-      XmlCompiler,
-      YamlCompiler
-    } = require('./compilers/passthrough-compiler');
+    const { HtmlCompiler } = require('./compilers/html');
+    const { CssCompiler } = require('./compilers/css');
+    const { JavaScriptCompiler } = require('./compilers/javascript');
 
     // 注册具体的编译器类
     this.registerCompiler('html', () => new HtmlCompiler());
     this.registerCompiler('css', () => new CssCompiler());
     this.registerCompiler('javascript', () => new JavaScriptCompiler());
-    this.registerCompiler('json', () => new JsonCompiler());
-    this.registerCompiler('xml', () => new XmlCompiler());
-    this.registerCompiler('yaml', () => new YamlCompiler());
 
-    console.info('[CompilerFactory] 注册了 6 个直通编译器');
+    console.info('[CompilerFactory] 注册了 3 个直通编译器');
   }
 
   /** 注册转译编译器 */
   private registerTranspileCompilers(): void {
     // 动态导入编译器类
-    const { TypeScriptCompiler } = require('./compilers/typescript-compiler');
-    const { MarkdownCompiler } = require('./compilers/markdown-compiler');
-    const { ScssCompiler } = require('./compilers/scss-compiler');
-    const { LessCompiler } = require('./compilers/less-compiler');
+    const { TypeScriptCompiler } = require('./compilers/typescript');
+    const { MarkdownCompiler } = require('./compilers/markdown');
+    const { ScssCompiler } = require('./compilers/scss');
+    const { LessCompiler } = require('./compilers/less');
 
     // TypeScript 编译器
     this.registerCompiler('typescript', () => new TypeScriptCompiler());
@@ -266,7 +258,7 @@ export class CompilerFactory {
 
   /** 获取直通语言 */
   getPassthroughLanguages(): Language[] {
-    return ['html', 'css', 'javascript', 'json', 'xml', 'yaml'];
+    return ['html', 'css', 'javascript'];
   }
 
   /** 检查语言是否需要编译 */
@@ -274,22 +266,7 @@ export class CompilerFactory {
     return this.getTranspileLanguages().includes(language);
   }
 
-  /** 获取统计信息 */
-  getStats() {
-    const registeredLanguages = this.getSupportedLanguages();
-    const transpileLanguages = this.getTranspileLanguages();
-    const passthroughLanguages = this.getPassthroughLanguages();
 
-    return {
-      initialized: this.initialized,
-      totalLanguages: registeredLanguages.length,
-      transpileLanguages: transpileLanguages.length,
-      passthroughLanguages: passthroughLanguages.length,
-      registeredLanguages,
-      transpileLanguages,
-      passthroughLanguages
-    };
-  }
 
   /** 销毁工厂 */
   destroy(): void {

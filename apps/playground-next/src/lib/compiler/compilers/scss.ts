@@ -1,6 +1,5 @@
 import type { Language, CompileResult } from '@/types';
-import { BaseCompiler } from '../base-compiler';
-import {CompileOptions} from "@/lib/compiler/compiler-factory";
+import { BaseCompiler, type CompileOptions } from '../base-compiler';
 
 /**
  * SCSS 编译器
@@ -27,18 +26,18 @@ export class ScssCompiler extends BaseCompiler {
         throw new Error('Sass 编译器未加载');
       }
 
-      const Sass = window.Sass;
+      const sass = window.Sass;
       
+      // 编译 SCSS
       return new Promise((resolve) => {
-        Sass.compile(code, {
-          style: options.minify ? Sass.style.compressed : Sass.style.expanded,
-          includePaths: [],
+        sass.compile(code, {
+          style: sass.style.expanded,
           ...options
         }, (result: any) => {
           if (result.status === 0) {
             resolve(this.createSuccessResult(result.text));
           } else {
-            resolve(this.handleCompileError(new Error(result.message || result.formatted)));
+            resolve(this.createErrorResult(result.formatted || result.message || 'SCSS 编译失败'));
           }
         });
       });

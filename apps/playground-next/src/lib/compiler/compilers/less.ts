@@ -28,13 +28,13 @@ export class LessCompiler extends BaseCompiler {
 
       const less = window.less;
       
+      // 编译 Less
       const result = await less.render(code, {
-        compress: options.minify || false,
-        sourceMap: options.sourceMap ? {} : undefined,
+        compress: false,
         ...options
       });
       
-      return this.createSuccessResult(result.css, result.map);
+      return this.createSuccessResult(result.css);
     } catch (error) {
       return this.handleCompileError(error);
     }

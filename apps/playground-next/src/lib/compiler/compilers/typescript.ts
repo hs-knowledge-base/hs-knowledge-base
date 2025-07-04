@@ -1,6 +1,5 @@
 import type { Language, CompileResult } from '@/types';
-import { BaseCompiler } from '../base-compiler';
-import {CompileOptions} from "@/lib/compiler/compiler-factory";
+import { BaseCompiler, type CompileOptions } from '../base-compiler';
 
 /**
  * TypeScript 编译器
@@ -33,17 +32,17 @@ export class TypeScriptCompiler extends BaseCompiler {
       const compilerOptions = {
         target: ts.ScriptTarget.ES2020,
         module: ts.ModuleKind.ES2020,
-        strict: false,
-        esModuleInterop: true,
-        skipLibCheck: true,
+        moduleResolution: ts.ModuleResolutionKind.NodeJs,
         allowJs: true,
-        declaration: false,
-        sourceMap: options.sourceMap || false,
+        esModuleInterop: true,
+        allowSyntheticDefaultImports: true,
+        strict: false,
+        skipLibCheck: true,
         ...options
       };
 
-      // 编译代码
-      const result = ts.transpile(code, compilerOptions, undefined, undefined, undefined);
+      // 编译 TypeScript 代码
+      const result = ts.transpile(code, compilerOptions);
       
       return this.createSuccessResult(result);
     } catch (error) {

@@ -119,16 +119,6 @@ export function EditorPanel({
     }
   };
 
-  /** 处理格式化代码 */
-  const handleFormatCode = () => {
-    formatCode(activeTab);
-  };
-
-  /** 处理重置编辑器 */
-  const handleResetEditor = () => {
-    resetEditor(activeTab);
-  };
-
   /** 渲染工具栏 */
   const renderToolbar = (type: EditorType) => {
     const tabInfo = getTabInfo(type);
@@ -191,32 +181,6 @@ export function EditorPanel({
               </div>
             )}
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* 格式化按钮 */}
-          <Button
-            variant="flat"
-            size="sm"
-            className="bg-gray-700 text-gray-300 hover:bg-gray-600 border-gray-600"
-            onPress={handleFormatCode}
-            isDisabled={!tabInfo.hasContent}
-          >
-            <span className="text-xs">⚡</span>
-            格式化
-          </Button>
-
-          {/* 重置按钮 */}
-          <Button
-            variant="flat"
-            size="sm"
-            className="bg-gray-700 text-gray-300 hover:bg-gray-600 border-gray-600"
-            onPress={handleResetEditor}
-            isDisabled={!tabInfo.hasContent}
-          >
-            <span className="text-xs">🔄</span>
-            重置
-          </Button>
         </div>
       </div>
     );

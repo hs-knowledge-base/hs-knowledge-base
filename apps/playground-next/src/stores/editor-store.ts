@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { devtools } from 'zustand/middleware';
 import type { EditorConfig, EditorType, Language } from '@/types';
-import { DEFAULT_EDITOR_CONFIG, STORAGE_KEYS } from '@/constants';
+import { DEFAULT_EDITOR_CONFIG } from '@/constants';
 
 interface EditorState {
   // 编辑器配置
@@ -235,8 +235,7 @@ features.templateLiterals('火山');`
 
 export const useEditorStore = create<EditorStore>()(
   devtools(
-    persist(
-      (set, get) => ({
+    (set, get) => ({
         ...initialState,
         
         // 编辑器配置
@@ -441,17 +440,7 @@ export const useEditorStore = create<EditorStore>()(
             }
           }, false, 'resetAllEditors');
         }
-      }),
-      {
-        name: STORAGE_KEYS.SETTINGS + '_editor',
-        partialize: (state) => ({
-          configs: state.configs,
-          activeEditor: state.activeEditor,
-          visibility: state.visibility,
-          contents: state.contents
-        })
-      }
-    ),
+    }),
     { name: 'editor-store' }
   )
 );

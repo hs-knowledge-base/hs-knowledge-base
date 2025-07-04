@@ -1,18 +1,9 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, Chip, Spinner, Tabs, Tab } from '@nextui-org/react';
+import { Button, Card, CardBody, Spinner, Tabs, Tab } from '@nextui-org/react';
 import { usePlaygroundStore } from '@/stores/playground-store';
-import { useLayoutStore } from '@/stores/layout-store';
-import { useGlobalServiceContainer } from '@/lib/core/service-container';
-import { useConfigManager } from '@/lib/core/config-manager';
-import { useGlobalLanguageService } from '@/lib/services/language-service';
-import { useGlobalEventEmitter } from '@/lib/core/events';
-import { useGlobalVendorService } from '@/lib/services/vendors';
-import { useGlobalResourceLoader } from '@/lib/services/resource-loader';
+import { useCodeInitialization, useShareLink } from '@/hooks/use-code-initialization';
 import dynamic from 'next/dynamic';
-import { useEditorStore } from '@/stores/editor-store';
-import { useCompilerStore } from '@/stores/compiler-store';
-import { useCompilerInitialization } from '@/lib/compiler/compiler-registry';
 
 // 动态导入编辑器相关组件，避免 SSR 问题
 const EditorPanel = dynamic(() => import('@/components/editor/editor-panel').then(mod => ({ default: mod.EditorPanel })), {
@@ -69,6 +60,10 @@ const SimpleConsole = dynamic(() => import('@/components/playground/simple-conso
 
 export default function Home() {
   const { addConsoleMessage, clearConsole } = usePlaygroundStore();
+  const { generateLink } = useShareLink();
+
+  // 初始化代码（从 URL 参数或使用默认代码）
+  const { isFromKnowledgeBase, hasParams } = useCodeInitialization();
 
   /** 处理运行代码 */
   const handleRunCode = () => {
@@ -90,6 +85,34 @@ export default function Home() {
     }, 500);
   };
 
+  /** 处理分享代码 */
+  const handleShare = async () => {
+    try {
+      const shareUrl = generateLink(false);
+
+      if (navigator.share) {
+        // 使用原生分享 API
+        await navigator.share({
+          title: '火山知识库 - 代码演练场',
+          text: '查看我的代码',
+          url: shareUrl
+        });
+      } else {
+        // 复制到剪贴板
+        await navigator.clipboard.writeText(shareUrl);
+        addConsoleMessage({
+          type: 'success',
+          message: '🔗 分享链接已复制到剪贴板！'
+        });
+      }
+    } catch (error) {
+      addConsoleMessage({
+        type: 'error',
+        message: '❌ 分享失败，请手动复制 URL'
+      });
+    }
+  };
+
   return (
     <div className="h-screen bg-gray-900 text-gray-100 flex flex-col">
       {/* 顶部工具栏 */}
@@ -102,6 +125,11 @@ export default function Home() {
           </div>
           <div className="text-sm font-medium text-gray-300">
             🔥 火山知识库 - 代码演练场
+            {isFromKnowledgeBase && (
+              <span className="ml-2 text-xs text-blue-400 bg-blue-500/20 px-2 py-1 rounded">
+                来自知识库
+              </span>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -113,8 +141,13 @@ export default function Home() {
           >
             🚀 运行
           </Button>
-          <Button size="sm" variant="flat" className="bg-gray-700 text-gray-300">
-            分享
+          <Button
+            size="sm"
+            variant="flat"
+            className="bg-gray-700 text-gray-300 hover:bg-gray-600"
+            onPress={handleShare}
+          >
+            🔗 分享
           </Button>
           <Button size="sm" variant="flat" className="bg-gray-700 text-gray-300">
             设置

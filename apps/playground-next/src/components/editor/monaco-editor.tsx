@@ -123,7 +123,7 @@ export function MonacoEditor({
     try {
       // 创建编辑器实例
       const editor = monaco.editor.create(containerRef.current, {
-        value: defaultValue, // 使用 defaultValue 而不是 currentValue
+        value: currentValue, // 使用 store 中的内容
         language: getMonacoLanguage(editorConfig.language),
         theme: 'vs-dark', // 强制使用深色主题
         fontSize: editorConfig.fontSize || 14,

@@ -40,10 +40,32 @@ export class CompilerFactory {
   private readonly compilerClasses = new Map<Language, () => ICompiler>();
   private readonly cache = new Map<string, CompileResult>();
   private readonly vendorService: any;
+  private initialized = false;
 
   constructor(vendorService?: any) {
     this.vendorService = vendorService;
     console.info('[CompilerFactory] 编译器工厂初始化完成');
+  }
+
+  /** 初始化所有编译器 */
+  async initialize(): Promise<void> {
+    if (this.initialized) {
+      return;
+    }
+
+    try {
+      // 注册直通编译器（原生支持的语言）
+      this.registerPassthroughCompilers();
+
+      // 注册需要编译的语言
+      this.registerTranspileCompilers();
+
+      this.initialized = true;
+      console.info('[CompilerFactory] 编译器工厂初始化完成');
+    } catch (error) {
+      console.error('[CompilerFactory] 初始化失败:', error);
+      throw error;
+    }
   }
 
   /** 注册编译器类 */
@@ -191,11 +213,90 @@ export class CompilerFactory {
     };
   }
 
+  /** 注册直通编译器 */
+  private registerPassthroughCompilers(): void {
+    // 动态导入编译器类
+    const {
+      HtmlCompiler,
+      CssCompiler,
+      JavaScriptCompiler,
+      JsonCompiler,
+      XmlCompiler,
+      YamlCompiler
+    } = require('./compilers/passthrough-compiler');
+
+    // 注册具体的编译器类
+    this.registerCompiler('html', () => new HtmlCompiler());
+    this.registerCompiler('css', () => new CssCompiler());
+    this.registerCompiler('javascript', () => new JavaScriptCompiler());
+    this.registerCompiler('json', () => new JsonCompiler());
+    this.registerCompiler('xml', () => new XmlCompiler());
+    this.registerCompiler('yaml', () => new YamlCompiler());
+
+    console.info('[CompilerFactory] 注册了 6 个直通编译器');
+  }
+
+  /** 注册转译编译器 */
+  private registerTranspileCompilers(): void {
+    // 动态导入编译器类
+    const { TypeScriptCompiler } = require('./compilers/typescript-compiler');
+    const { MarkdownCompiler } = require('./compilers/markdown-compiler');
+    const { ScssCompiler } = require('./compilers/scss-compiler');
+    const { LessCompiler } = require('./compilers/less-compiler');
+
+    // TypeScript 编译器
+    this.registerCompiler('typescript', () => new TypeScriptCompiler());
+
+    // Markdown 编译器
+    this.registerCompiler('markdown', () => new MarkdownCompiler());
+
+    // SCSS 编译器
+    this.registerCompiler('scss', () => new ScssCompiler());
+
+    // Less 编译器
+    this.registerCompiler('less', () => new LessCompiler());
+
+    console.info('[CompilerFactory] 注册了转译编译器');
+  }
+
+  /** 获取需要编译的语言 */
+  getTranspileLanguages(): Language[] {
+    return ['typescript', 'markdown', 'scss', 'less'];
+  }
+
+  /** 获取直通语言 */
+  getPassthroughLanguages(): Language[] {
+    return ['html', 'css', 'javascript', 'json', 'xml', 'yaml'];
+  }
+
+  /** 检查语言是否需要编译 */
+  needsCompilation(language: Language): boolean {
+    return this.getTranspileLanguages().includes(language);
+  }
+
+  /** 获取统计信息 */
+  getStats() {
+    const registeredLanguages = this.getSupportedLanguages();
+    const transpileLanguages = this.getTranspileLanguages();
+    const passthroughLanguages = this.getPassthroughLanguages();
+
+    return {
+      initialized: this.initialized,
+      totalLanguages: registeredLanguages.length,
+      transpileLanguages: transpileLanguages.length,
+      passthroughLanguages: passthroughLanguages.length,
+      registeredLanguages,
+      transpileLanguages,
+      passthroughLanguages
+    };
+  }
+
   /** 销毁工厂 */
   destroy(): void {
     this.compilers.clear();
     this.compilerClasses.clear();
     this.cache.clear();
+    this.initialized = false;
     console.info('[CompilerFactory] 编译器工厂已销毁');
   }
 }
@@ -247,10 +348,17 @@ export function useCompilerFactory(): CompilerFactory {
  */
 export function useGlobalCompilerFactory(): CompilerFactory {
   const vendorService = useGlobalVendorService();
-  
+
   if (!globalCompilerFactory) {
     globalCompilerFactory = new CompilerFactory(vendorService);
   }
+
+  useEffect(() => {
+    // 自动初始化编译器
+    globalCompilerFactory?.initialize().catch(error => {
+      console.error('[useGlobalCompilerFactory] 初始化失败:', error);
+    });
+  }, []);
 
   return globalCompilerFactory;
 }

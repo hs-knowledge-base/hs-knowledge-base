@@ -114,8 +114,6 @@ export class CompilerRegistry {
       transpileLanguages: transpileLanguages.length,
       passthroughLanguages: passthroughLanguages.length,
       registeredLanguages,
-      transpileLanguages,
-      passthroughLanguages
     };
   }
 

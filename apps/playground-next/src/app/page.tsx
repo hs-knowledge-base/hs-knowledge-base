@@ -2,7 +2,6 @@
 
 import { Button, Card, CardBody, Spinner, Tabs, Tab } from '@nextui-org/react';
 import { usePlaygroundStore } from '@/stores/playground-store';
-import { useCodeInitialization, useShareLink } from '@/hooks/use-code-initialization';
 import dynamic from 'next/dynamic';
 
 // 动态导入编辑器相关组件，避免 SSR 问题
@@ -60,10 +59,6 @@ const SimpleConsole = dynamic(() => import('@/components/playground/simple-conso
 
 export default function Home() {
   const { addConsoleMessage, clearConsole } = usePlaygroundStore();
-  const { generateLink } = useShareLink();
-
-  // 初始化代码（从 URL 参数或使用默认代码）
-  const { isFromKnowledgeBase, hasParams } = useCodeInitialization();
 
   /** 处理运行代码 */
   const handleRunCode = () => {
@@ -85,34 +80,6 @@ export default function Home() {
     }, 500);
   };
 
-  /** 处理分享代码 */
-  const handleShare = async () => {
-    try {
-      const shareUrl = generateLink(false);
-
-      if (navigator.share) {
-        // 使用原生分享 API
-        await navigator.share({
-          title: '火山知识库 - 代码演练场',
-          text: '查看我的代码',
-          url: shareUrl
-        });
-      } else {
-        // 复制到剪贴板
-        await navigator.clipboard.writeText(shareUrl);
-        addConsoleMessage({
-          type: 'success',
-          message: '🔗 分享链接已复制到剪贴板！'
-        });
-      }
-    } catch (error) {
-      addConsoleMessage({
-        type: 'error',
-        message: '❌ 分享失败，请手动复制 URL'
-      });
-    }
-  };
-
   return (
     <div className="h-screen bg-gray-900 text-gray-100 flex flex-col">
       {/* 顶部工具栏 */}
@@ -125,11 +92,6 @@ export default function Home() {
           </div>
           <div className="text-sm font-medium text-gray-300">
             🔥 火山知识库 - 代码演练场
-            {isFromKnowledgeBase && (
-              <span className="ml-2 text-xs text-blue-400 bg-blue-500/20 px-2 py-1 rounded">
-                来自知识库
-              </span>
-            )}
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -139,18 +101,7 @@ export default function Home() {
             className="bg-blue-600 text-white hover:bg-blue-700"
             onPress={handleRunCode}
           >
-            🚀 运行
-          </Button>
-          <Button
-            size="sm"
-            variant="flat"
-            className="bg-gray-700 text-gray-300 hover:bg-gray-600"
-            onPress={handleShare}
-          >
-            🔗 分享
-          </Button>
-          <Button size="sm" variant="flat" className="bg-gray-700 text-gray-300">
-            设置
+            运行
           </Button>
         </div>
       </div>

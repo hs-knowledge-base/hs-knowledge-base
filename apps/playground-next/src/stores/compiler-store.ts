@@ -94,7 +94,18 @@ const initialState: CompilerState = {
   },
   loadedCompilers: new Set(),
   loadingCompilers: new Set(),
-  compilerErrors: {},
+  compilerErrors: {
+    html: '',
+    markdown: '',
+    css: '',
+    scss: '',
+    less: '',
+    javascript: '',
+    typescript: '',
+    json: '',
+    xml: '',
+    yaml: ''
+  },
   compileHistory: [],
   autoCompile: false,
   compileDelay: 1000,
@@ -264,50 +275,11 @@ export const useCompilerStore = create<CompilerStore>()(
           performance: { ...state.performance, ...metrics }
         }), false, 'updatePerformanceMetrics');
       },
-      
-      // 批量操作
-      compileAll: async () => {
-        const types: EditorType[] = ['markup', 'style', 'script'];
-        
-        console.log('[CompilerStore] 开始批量编译');
-        
-        // 这里应该调用实际的编译器服务
-        for (const type of types) {
-          get().startCompile(type);
-          
-          // 模拟编译过程
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          get().finishCompile(type, {
-            code: `// 编译后的 ${type} 代码`,
-            sourceMap: undefined
-          });
-        }
-        
-        console.log('[CompilerStore] 批量编译完成');
-      },
+
       
       resetCompiler: () => {
         set(initialState, false, 'resetCompiler');
       },
-      
-      // 统计信息
-      getCompilerStats: () => {
-        const state = get();
-        const totalCompilers = Object.keys(state.compilerErrors).length + state.loadedCompilers.size + state.loadingCompilers.size;
-        const errorCompilers = Object.keys(state.compilerErrors).length;
-        const compileSuccessRate = state.performance.totalCompiles > 0 
-          ? (state.performance.successfulCompiles / state.performance.totalCompiles) * 100 
-          : 0;
-        
-        return {
-          totalCompilers,
-          loadedCompilers: state.loadedCompilers.size,
-          loadingCompilers: state.loadingCompilers.size,
-          errorCompilers,
-          compileSuccessRate
-        };
-      }
     }),
     { name: 'compiler-store' }
   )

@@ -70,5 +70,10 @@ declare global {
     marked: any;
     Sass: any;
     less: any;
+    brython: any;
+    __BRYTHON__: any;
+    Go: any;
+    uniter: any;
+    Doppio: any;
   }
 }

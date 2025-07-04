@@ -5,6 +5,7 @@ import { usePlaygroundStore } from '@/stores/playground-store';
 import { useEditorStore } from '@/stores/editor-store';
 import { useCompile } from '@/lib/compiler/compiler-factory';
 import dynamic from 'next/dynamic';
+import { useEffect } from 'react';
 
 // 动态导入编辑器相关组件，避免 SSR 问题
 const EditorPanel = dynamic(() => import('@/components/editor/editor-panel').then(mod => ({ default: mod.EditorPanel })), {
@@ -59,10 +60,44 @@ const SimpleConsole = dynamic(() => import('@/components/playground/simple-conso
   )
 });
 
+// 动态导入执行引擎组件，避免 SSR 问题
+const ExecutionEngine = dynamic(() => import('@/lib/execution/execution-engine').then(mod => ({ default: mod.ExecutionEngine })), {
+  ssr: false,
+  loading: () => (
+    <Card className="h-[600px]">
+      <CardBody className="flex items-center justify-center">
+        <div className="text-center">
+          <Spinner size="lg" />
+          <p className="mt-2 text-default-500">执行引擎加载中...</p>
+        </div>
+      </CardBody>
+    </Card>
+  )
+});
+
 export default function Home() {
   const { addConsoleMessage, clearConsole, setRunStatus, triggerManualRun } = usePlaygroundStore();
   const { contents, configs } = useEditorStore();
-  const { compile } = useCompile();
+  const { compile, factory } = useCompile();
+
+  // 确保编译器工厂已初始化
+  useEffect(() => {
+    const initializeFactory = async () => {
+      try {
+        await factory.initialize();
+        console.log('[Home] 编译器工厂初始化完成');
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : '编译器初始化失败';
+        console.error('[Home] 编译器工厂初始化失败:', error);
+        addConsoleMessage({
+          type: 'error',
+          message: `❌ 编译器初始化失败: ${errorMessage}`
+        });
+      }
+    };
+
+    initializeFactory();
+  }, [factory, addConsoleMessage]);
 
   /** 处理运行代码 */
   const handleRunCode = async () => {
@@ -76,6 +111,15 @@ export default function Home() {
         type: 'info',
         message: '🔄 开始编译代码...'
       });
+
+      // 确保编译器工厂已完全初始化
+      if (!factory.initialized) {
+        addConsoleMessage({
+          type: 'info',
+          message: '⏳ 正在初始化编译器...'
+        });
+        await factory.initialize();
+      }
 
       // 编译所有代码
       const compilePromises = [
@@ -168,7 +212,7 @@ export default function Home() {
           <div className="h-1/2 border-b border-gray-700">
             <div className="h-full bg-gray-800">
               <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
-                <h3 className="text-sm font-medium text-gray-300">预览</h3>
+                <h3 className="text-sm font-medium text-gray-300">多语言预览</h3>
                 <Button
                   size="sm"
                   variant="flat"
@@ -179,7 +223,7 @@ export default function Home() {
                 </Button>
               </div>
               <div className="h-[calc(100%-40px)]">
-                <SimplePreview className="h-full" />
+                <ExecutionEngine className="h-full" />
               </div>
             </div>
           </div>

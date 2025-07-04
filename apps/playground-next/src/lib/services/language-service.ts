@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 import type { Language, EditorType } from '@/types';
-import { SUPPORTED_LANGUAGES, LANGUAGE_NAMES, LANGUAGE_EXTENSIONS } from '@/constants';
+import { LANGUAGE_DISPLAY_NAMES, LANGUAGE_EXTENSIONS } from '@/constants';
 
 /**
  * 语言规格配置
@@ -50,7 +50,55 @@ const languageRegistry: Record<Language, LanguageSpecs> = {
     },
     aliases: ['ts']
   },
-
+  python: {
+    name: 'python',
+    title: 'PY',
+    longTitle: 'Python',
+    extensions: ['py'],
+    editorType: 'script',
+    monacoLanguage: 'python',
+    runtime: {
+      vendorKey: 'brython',
+      url: 'https://cdn.jsdelivr.net/npm/brython@3.11.4/brython.min.js'
+    },
+    aliases: ['py']
+  },
+  go: {
+    name: 'go',
+    title: 'GO',
+    longTitle: 'Go',
+    extensions: ['go'],
+    editorType: 'script',
+    monacoLanguage: 'go',
+    compiler: {
+      vendorKey: 'gopherjs',
+      url: 'https://cdn.jsdelivr.net/npm/gopherjs@latest/gopherjs.min.js'
+    }
+  },
+  php: {
+    name: 'php',
+    title: 'PHP',
+    longTitle: 'PHP',
+    extensions: ['php'],
+    editorType: 'script',
+    monacoLanguage: 'php',
+    runtime: {
+      vendorKey: 'uniter',
+      url: 'https://cdn.jsdelivr.net/npm/uniter@2.18.0/dist/uniter.min.js'
+    }
+  },
+  java: {
+    name: 'java',
+    title: 'JAVA',
+    longTitle: 'Java',
+    extensions: ['java'],
+    editorType: 'script',
+    monacoLanguage: 'java',
+    runtime: {
+      vendorKey: 'doppio',
+      url: 'https://cdn.jsdelivr.net/npm/doppio-jvm@latest/dist/doppio.min.js'
+    }
+  },
 
   // 标记语言
   html: {
@@ -224,7 +272,7 @@ export class LanguageService {
   /** 获取语言显示名称 */
   getLanguageDisplayName(language: Language): string {
     const config = this.getLanguageConfig(language);
-    return config?.longTitle || config?.title || LANGUAGE_NAMES[language] || language;
+    return config?.longTitle || config?.title || LANGUAGE_DISPLAY_NAMES[language] || language;
   }
 
   /** 标准化语言名称（处理别名） */

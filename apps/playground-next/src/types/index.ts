@@ -5,6 +5,7 @@ export type Language =
   | 'html' | 'markdown'
   | 'css' | 'scss' | 'less'
   | 'javascript' | 'typescript'
+  | 'python' | 'go' | 'php' | 'java'
   | 'json' | 'xml' | 'yaml';
 
 /** 编辑器类型 */

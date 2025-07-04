@@ -103,8 +103,61 @@ const compilerVendors: VendorRegistry = {
     isModule: false,
     priority: 3,
     external: 'https://cdn.jsdelivr.net/npm/less@4.2.0/dist/less.min.js'
-  },
+  }
+};
 
+/** 运行时相关配置 */
+const runtimeVendors: VendorRegistry = {
+  brython: {
+    name: 'brython',
+    version: '3.13.1',
+    path: 'brython.min.js',
+    cdn: 'jsdelivr',
+    fallbackCdns: ['unpkg'],
+    isModule: false,
+    priority: 3,
+    external: 'https://cdn.jsdelivr.net/npm/brython@3.13.1/brython.min.js'
+  },
+  brythonStdlib: {
+    name: 'brython',
+    version: '3.13.1',
+    path: 'brython_stdlib.js',
+    cdn: 'jsdelivr',
+    fallbackCdns: ['unpkg'],
+    isModule: false,
+    priority: 3,
+    external: 'https://cdn.jsdelivr.net/npm/brython@3.13.1/brython_stdlib.js'
+  },
+  gopherjs: {
+    name: 'gopherjs',
+    version: '1.18.1',
+    path: 'dist/gopherjs.min.js',
+    cdn: 'jsdelivr',
+    fallbackCdns: ['unpkg'],
+    isModule: false,
+    priority: 3,
+    external: 'https://cdn.jsdelivr.net/npm/gopherjs@1.18.1/dist/gopherjs.min.js'
+  },
+  uniter: {
+    name: 'uniter',
+    version: '2.18.0',
+    path: 'dist/uniter.min.js',
+    cdn: 'jsdelivr',
+    fallbackCdns: ['unpkg'],
+    isModule: false,
+    priority: 3,
+    external: 'https://cdn.jsdelivr.net/npm/uniter@2.18.0/dist/uniter.min.js'
+  },
+  doppio: {
+    name: 'doppio-jvm',
+    version: '0.5.1',
+    path: 'dist/doppio.min.js',
+    cdn: 'jsdelivr',
+    fallbackCdns: ['unpkg'],
+    isModule: false,
+    priority: 3,
+    external: 'https://cdn.jsdelivr.net/npm/doppio-jvm@0.5.1/dist/doppio.min.js'
+  }
 };
 
 /** 样式处理器相关配置 */
@@ -129,6 +182,7 @@ const styleVendors: VendorRegistry = {
 const allVendors: VendorRegistry = {
   ...monacoVendors,
   ...compilerVendors,
+  ...runtimeVendors,
   ...styleVendors
 };
 
@@ -244,32 +298,71 @@ export class VendorService {
 
     for (const url of urls) {
       try {
+        console.info(`[VendorService] 尝试加载 ${vendorKey} 从: ${url}`);
         await this.loadScript(url, config.isModule);
+        console.info(`[VendorService] ${vendorKey} 加载成功`);
+        
+        // 对于 TypeScript，验证是否正确加载
+        if (vendorKey === 'typescript') {
+          await this.verifyTypeScriptLoaded();
+        }
+        
         return;
       } catch (error) {
         lastError = error as Error;
-        console.warn(`[VendorService] CDN 加载失败，尝试下一个: ${url}`, error);
+        console.warn(`[VendorService] 从 ${url} 加载 ${vendorKey} 失败:`, error);
       }
     }
 
-    throw lastError || new Error(`所有 CDN 都加载失败: ${vendorKey}`);
+    throw new Error(`所有 CDN 都加载失败，${vendorKey}: ${lastError?.message}`);
+  }
+
+  /** 验证 TypeScript 是否正确加载 */
+  private async verifyTypeScriptLoaded(): Promise<void> {
+    let retries = 50; // 最多等待 5 秒
+    while (retries > 0) {
+      if (typeof window !== 'undefined' && window.ts && typeof window.ts.transpile === 'function') {
+        console.info('[VendorService] TypeScript 验证通过');
+        return;
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+      retries--;
+    }
+    throw new Error('TypeScript 加载验证失败');
   }
 
   /** 加载脚本 */
   private loadScript(url: string, isModule: boolean = false): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (typeof document === 'undefined') {
-        reject(new Error('Document 不可用'));
+      // 检查是否已经存在相同的脚本
+      const existingScript = document.querySelector(`script[src="${url}"]`);
+      if (existingScript) {
+        resolve();
         return;
       }
 
       const script = document.createElement('script');
       script.src = url;
-      script.type = isModule ? 'module' : 'text/javascript';
-      
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error(`脚本加载失败: ${url}`));
-      
+      script.async = true;
+
+      if (isModule) {
+        script.type = 'module';
+      }
+
+      script.onload = () => {
+        console.debug(`[VendorService] 脚本加载成功: ${url}`);
+        resolve();
+      };
+
+      script.onerror = (error) => {
+        console.error(`[VendorService] 脚本加载失败: ${url}`, error);
+        // 清理失败的脚本元素
+        if (script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+        reject(new Error(`脚本加载失败: ${url}`));
+      };
+
       document.head.appendChild(script);
     });
   }

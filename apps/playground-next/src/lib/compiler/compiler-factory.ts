@@ -40,28 +40,53 @@ export class CompilerFactory {
   private readonly compilerClasses = new Map<Language, () => ICompiler>();
   private readonly cache = new Map<string, CompileResult>();
   private readonly vendorService: any;
-  private initialized = false;
+  private _initialized = false;
 
   constructor(vendorService?: any) {
     this.vendorService = vendorService;
     console.info('[CompilerFactory] 编译器工厂初始化完成');
   }
 
-  /** 初始化编译器工厂（仅注册默认语言） */
+  /** 获取初始化状态 */
+  get initialized(): boolean {
+    return this._initialized;
+  }
+
+  /** 初始化编译器工厂 */
   async initialize(): Promise<void> {
-    if (this.initialized) {
+    if (this._initialized) {
       return;
     }
 
+    console.info('[CompilerFactory] 开始初始化编译器工厂...');
+
     try {
-      // 只注册默认的三种语言：HTML、CSS、JavaScript
+      // 注册默认编译器
       this.registerDefaultCompilers();
 
-      this.initialized = true;
+      // 预加载常用编译器的依赖
+      if (this.vendorService) {
+        console.info('[CompilerFactory] 预加载关键依赖...');
+        await this.preloadCriticalDependencies();
+      }
+
+      this._initialized = true;
       console.info('[CompilerFactory] 编译器工厂初始化完成');
     } catch (error) {
-      console.error('[CompilerFactory] 初始化失败:', error);
+      console.error('[CompilerFactory] 编译器工厂初始化失败:', error);
       throw error;
+    }
+  }
+
+  /** 预加载关键依赖 */
+  private async preloadCriticalDependencies(): Promise<void> {
+    try {
+      // 预加载 TypeScript 依赖
+      await this.vendorService.loadVendor('typescript');
+      console.info('[CompilerFactory] TypeScript 依赖预加载完成');
+    } catch (error) {
+      console.warn('[CompilerFactory] 预加载依赖失败:', error);
+      // 不抛出错误，允许运行时按需加载
     }
   }
 
@@ -126,10 +151,25 @@ export class CompilerFactory {
 
       // 如果编译器需要外部依赖，先加载
       if (compiler.needsVendor() && this.vendorService) {
-        const vendorKey = compiler.getVendorKey();
-        if (vendorKey) {
-          await this.vendorService.loadVendor(vendorKey);
+        // 检查是否有多个 vendor 键
+        if (typeof (compiler as any).getVendorKeys === 'function') {
+          const vendorKeys = (compiler as any).getVendorKeys();
+          console.info(`[CompilerFactory] 加载编译器依赖: ${vendorKeys.join(', ')}`);
+          
+          // 按顺序加载所有依赖
+          for (const vendorKey of vendorKeys) {
+            await this.vendorService.loadVendor(vendorKey);
+          }
+        } else {
+          const vendorKey = compiler.getVendorKey();
+          if (vendorKey) {
+            console.info(`[CompilerFactory] 加载编译器依赖: ${vendorKey}`);
+            await this.vendorService.loadVendor(vendorKey);
+          }
         }
+        
+        // 等待一小段时间确保全局对象已设置
+        await new Promise(resolve => setTimeout(resolve, 200));
       }
 
       return compiler;
@@ -270,6 +310,26 @@ export class CompilerFactory {
           this.registerCompiler('less', () => new LessCompiler());
           break;
 
+        case 'python':
+          const { PythonCompiler } = require('./compilers/python');
+          this.registerCompiler('python', () => new PythonCompiler());
+          break;
+
+        case 'go':
+          const { GoCompiler } = require('./compilers/go');
+          this.registerCompiler('go', () => new GoCompiler());
+          break;
+
+        case 'php':
+          const { PhpCompiler } = require('./compilers/php');
+          this.registerCompiler('php', () => new PhpCompiler());
+          break;
+
+        case 'java':
+          const { JavaCompiler } = require('./compilers/java');
+          this.registerCompiler('java', () => new JavaCompiler());
+          break;
+
         default:
           throw new Error(`不支持的语言: ${language}`);
       }
@@ -285,7 +345,7 @@ export class CompilerFactory {
 
   /** 获取需要编译的语言 */
   getTranspileLanguages(): Language[] {
-    return ['typescript', 'markdown', 'scss', 'less'];
+    return ['typescript', 'markdown', 'scss', 'less', 'python', 'go', 'php', 'java'];
   }
 
   /** 获取直通语言 */
@@ -305,7 +365,7 @@ export class CompilerFactory {
     this.compilers.clear();
     this.compilerClasses.clear();
     this.cache.clear();
-    this.initialized = false;
+    this._initialized = false;
     console.info('[CompilerFactory] 编译器工厂已销毁');
   }
 }

@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import { useEditorStore } from '@/stores/editor-store';
+import { useCompilerStore } from '@/stores/compiler-store';
 import { usePlaygroundStore } from '@/stores/playground-store';
 
 interface SimplePreviewProps {
@@ -15,11 +16,37 @@ interface SimplePreviewProps {
 export function SimplePreview({ className = '' }: SimplePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { contents } = useEditorStore();
+  const { contents, configs } = useEditorStore();
+  const { results } = useCompilerStore();
   const { addConsoleMessage, manualRunTrigger } = usePlaygroundStore();
+
+  /** 获取编译后的内容 */
+  const getCompiledContent = (type: 'markup' | 'style' | 'script') => {
+    // 如果编译结果存在且没有错误，使用编译结果
+    if (results[type] && results[type].code && !results[type].error) {
+      console.log(`[SimplePreview] 使用 ${type} 编译结果`);
+      return results[type].code;
+    }
+    
+    // 否则使用原始内容（对于不需要编译的语言）
+    const language = configs[type].language;
+    const needsCompilation = ['typescript', 'markdown', 'scss', 'less'].includes(language);
+    
+    if (needsCompilation && (!results[type] || results[type].error)) {
+      console.warn(`[SimplePreview] ${type} 需要编译但编译失败，使用空内容`);
+      return '';
+    }
+    
+    console.log(`[SimplePreview] 使用 ${type} 原始内容`);
+    return contents[type];
+  };
 
   /** 生成预览 HTML */
   const generatePreviewHtml = () => {
+    const markupContent = getCompiledContent('markup');
+    const styleContent = getCompiledContent('style');
+    const scriptContent = getCompiledContent('script');
+
     return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -42,11 +69,11 @@ export function SimplePreview({ className = '' }: SimplePreviewProps) {
         }
         
         /* 用户样式 */
-        ${contents.style}
+        ${styleContent}
     </style>
 </head>
 <body>
-    ${contents.markup}
+    ${markupContent}
     
     <script>
         // 控制台重定向到父窗口
@@ -100,9 +127,9 @@ export function SimplePreview({ className = '' }: SimplePreviewProps) {
             sendToParent('info', ['预览加载完成']);
         });
         
-        // 用户脚本
+        // 用户脚本（编译后的 JavaScript）
         try {
-            ${contents.script}
+            ${scriptContent}
         } catch (error) {
             sendToParent('error', [error.message]);
         }
@@ -117,8 +144,22 @@ export function SimplePreview({ className = '' }: SimplePreviewProps) {
 
     try {
       setIsLoading(true);
+      
+      // 检查是否有编译错误
+      const errors = Object.entries(results).filter(([_, result]) => result.error);
+      if (errors.length > 0) {
+        errors.forEach(([type, result]) => {
+          addConsoleMessage({
+            type: 'error',
+            message: `${type} 编译错误: ${result.error}`
+          });
+        });
+      }
+      
       const html = generatePreviewHtml();
       const iframe = iframeRef.current;
+      
+      console.log('[SimplePreview] 预览 HTML 生成完成');
       
       // 设置 iframe 内容
       iframe.srcdoc = html;
@@ -149,14 +190,14 @@ export function SimplePreview({ className = '' }: SimplePreviewProps) {
     return () => window.removeEventListener('message', handleMessage);
   }, [addConsoleMessage]);
 
-  /** 自动刷新预览 */
+  /** 监听编译结果变化，自动刷新预览 */
   useEffect(() => {
     const timer = setTimeout(() => {
       refreshPreview();
-    }, 500);
+    }, 300);
 
     return () => clearTimeout(timer);
-  }, [contents]);
+  }, [results, contents]);
 
   /** 监听手动运行触发器 */
   useEffect(() => {

@@ -135,6 +135,12 @@ export class LanguageLoader {
     if (config.runtime?.vendorKey) {
       console.log(`[LanguageLoader] 加载 ${language} 运行时依赖: ${config.runtime.vendorKey}`);
       promises.push(this.vendorService.loadVendor(config.runtime.vendorKey));
+      
+      // 特殊处理：Python 需要额外加载标准库
+      if (language === 'python') {
+        console.log(`[LanguageLoader] 加载 ${language} 标准库依赖: brythonStdlib`);
+        promises.push(this.vendorService.loadVendor('brythonStdlib'));
+      }
     }
 
     // 如果没有额外资源需要加载，直接返回
@@ -282,6 +288,12 @@ export function useLanguageLoader() {
       if (languageConfig.runtime?.vendorKey) {
         console.log(`[LanguageLoader] 加载 ${language} 运行时依赖: ${languageConfig.runtime.vendorKey}`);
         promises.push(vendorService.loadVendor(languageConfig.runtime.vendorKey));
+        
+        // 特殊处理：Python 需要额外加载标准库
+        if (language === 'python' || normalizedLang === 'python') {
+          console.log(`[LanguageLoader] 加载 ${language} 标准库依赖: brythonStdlib`);
+          promises.push(vendorService.loadVendor('brythonStdlib'));
+        }
       }
 
       // 如果没有额外资源需要加载，直接返回

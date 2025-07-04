@@ -24,11 +24,8 @@ export class TypeScriptCompiler extends BaseCompiler {
     try {
       console.log('[TypeScriptCompiler] 开始编译 TypeScript 代码:', code.substring(0, 100));
 
-      // 检查 TypeScript 是否已加载
-      if (typeof window === 'undefined' || !window.ts) {
-        console.error('[TypeScriptCompiler] TypeScript 编译器未加载');
-        throw new Error('TypeScript 编译器未加载');
-      }
+      // 更严格的 TypeScript 检查
+      await this.ensureTypeScriptLoaded();
 
       const ts = window.ts;
       console.log('[TypeScriptCompiler] TypeScript 版本:', ts.version);
@@ -43,6 +40,8 @@ export class TypeScriptCompiler extends BaseCompiler {
         allowSyntheticDefaultImports: true,
         strict: false,
         skipLibCheck: true,
+        isolatedModules: true,
+        noEmit: false,
         ...options
       };
 
@@ -58,6 +57,31 @@ export class TypeScriptCompiler extends BaseCompiler {
       console.error('[TypeScriptCompiler] 编译失败:', error);
       return this.handleCompileError(error);
     }
+  }
+
+  /** 确保 TypeScript 已加载 */
+  private async ensureTypeScriptLoaded(): Promise<void> {
+    // 检查 TypeScript 是否已加载
+    if (typeof window !== 'undefined' && window.ts && typeof window.ts.transpile === 'function') {
+      return;
+    }
+
+    console.warn('[TypeScriptCompiler] TypeScript 编译器未加载，尝试等待加载...');
+    
+    // 等待一段时间后重试
+    let retries = 30; // 最多等待 3 秒
+    while (retries > 0) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      if (typeof window !== 'undefined' && window.ts && typeof window.ts.transpile === 'function') {
+        console.log('[TypeScriptCompiler] TypeScript 编译器加载成功');
+        return;
+      }
+      
+      retries--;
+    }
+
+    throw new Error('TypeScript 编译器加载超时，请确保 TypeScript 库已正确加载');
   }
 }
 

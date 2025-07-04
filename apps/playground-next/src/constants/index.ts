@@ -7,8 +7,15 @@ export const SUPPORTED_LANGUAGES: Record<string, Language[]> = {
   script: ['javascript', 'typescript']
 };
 
+/** 编辑器类型对应的语言选项 */
+export const EDITOR_LANGUAGE_OPTIONS = {
+  markup: ['html', 'markdown'],
+  style: ['css', 'scss', 'less'],
+  script: ['javascript', 'typescript', 'python', 'go', 'php', 'java']
+} as const;
+
 /** 语言显示名称 */
-export const LANGUAGE_NAMES: Record<Language, string> = {
+export const LANGUAGE_DISPLAY_NAMES = {
   html: 'HTML',
   markdown: 'Markdown',
   css: 'CSS',
@@ -16,13 +23,17 @@ export const LANGUAGE_NAMES: Record<Language, string> = {
   less: 'Less',
   javascript: 'JavaScript',
   typescript: 'TypeScript',
+  python: 'Python',
+  go: 'Go',
+  php: 'PHP',
+  java: 'Java',
   json: 'JSON',
   xml: 'XML',
   yaml: 'YAML'
-};
+} as const;
 
 /** 语言文件扩展名 */
-export const LANGUAGE_EXTENSIONS: Record<Language, string> = {
+export const LANGUAGE_EXTENSIONS = {
   html: '.html',
   markdown: '.md',
   css: '.css',
@@ -30,10 +41,50 @@ export const LANGUAGE_EXTENSIONS: Record<Language, string> = {
   less: '.less',
   javascript: '.js',
   typescript: '.ts',
+  python: '.py',
+  go: '.go',
+  php: '.php',
+  java: '.java',
   json: '.json',
   xml: '.xml',
-  yaml: '.yaml'
-};
+  yaml: '.yml'
+} as const;
+
+/** 语言描述 */
+export const LANGUAGE_DESCRIPTIONS = {
+  html: 'HyperText Markup Language - 网页结构标记语言',
+  markdown: 'Markdown - 轻量级标记语言',
+  css: 'Cascading Style Sheets - 层叠样式表',
+  scss: 'Sass (SCSS) - CSS 预处理器',
+  less: 'Less - CSS 预处理器',
+  javascript: 'JavaScript - 原生浏览器脚本语言',
+  typescript: 'TypeScript - 带类型的 JavaScript 超集',
+  python: 'Python - 使用 Brython 在浏览器中运行',
+  go: 'Go - 使用 GopherJS 编译为 JavaScript',
+  php: 'PHP - 使用 Uniter 在浏览器中运行',
+  java: 'Java - 使用 DoppioJVM 在浏览器中运行 (开发中)',
+  json: 'JSON - JavaScript Object Notation',
+  xml: 'XML - Extensible Markup Language',
+  yaml: 'YAML - YAML Ain\'t Markup Language'
+} as const;
+
+/** 语言运行时类型 */
+export const LANGUAGE_RUNTIME_TYPES = {
+  html: 'native',
+  markdown: 'transpiler',
+  css: 'native',
+  scss: 'transpiler',
+  less: 'transpiler',
+  javascript: 'native',
+  typescript: 'transpiler',
+  python: 'interpreter',
+  go: 'transpiler',
+  php: 'interpreter',
+  java: 'vm',
+  json: 'native',
+  xml: 'native',
+  yaml: 'transpiler'
+} as const;
 
 /** 默认编辑器配置 */
 export const DEFAULT_EDITOR_CONFIG: EditorConfig = {

@@ -4,7 +4,7 @@ import type { Language, EditorConfig, LayoutConfig, Settings } from '@/types';
 export const SUPPORTED_LANGUAGES: Record<string, Language[]> = {
   markup: ['html', 'markdown'],
   style: ['css', 'scss', 'less'],
-  script: ['javascript', 'typescript', 'python']
+  script: ['javascript', 'typescript']
 };
 
 /** 语言显示名称 */
@@ -16,7 +16,6 @@ export const LANGUAGE_NAMES: Record<Language, string> = {
   less: 'Less',
   javascript: 'JavaScript',
   typescript: 'TypeScript',
-  python: 'Python',
   json: 'JSON',
   xml: 'XML',
   yaml: 'YAML'
@@ -31,7 +30,6 @@ export const LANGUAGE_EXTENSIONS: Record<Language, string> = {
   less: '.less',
   javascript: '.js',
   typescript: '.ts',
-  python: '.py',
   json: '.json',
   xml: '.xml',
   yaml: '.yaml'

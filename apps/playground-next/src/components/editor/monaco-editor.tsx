@@ -125,8 +125,9 @@ export function MonacoEditor({
       const editor = monaco.editor.create(containerRef.current, {
         value: defaultValue, // 使用 defaultValue 而不是 currentValue
         language: getMonacoLanguage(editorConfig.language),
-        theme: editorConfig.theme === 'vs-light' ? 'vs' : 'vs-dark',
-        fontSize: editorConfig.fontSize,
+        theme: 'vs-dark', // 强制使用深色主题
+        fontSize: editorConfig.fontSize || 14,
+        fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace",
         wordWrap: editorConfig.wordWrap ? 'on' : 'off',
         minimap: { enabled: showMinimap },
         lineNumbers: showLineNumbers ? 'on' : 'off',
@@ -154,7 +155,21 @@ export function MonacoEditor({
         quickSuggestions: true,
         suggestOnTriggerCharacters: true,
         acceptSuggestionOnEnter: 'on',
-        snippetSuggestions: 'top'
+        snippetSuggestions: 'top',
+        // 高级样式配置
+        padding: { top: 16, bottom: 16 },
+        lineHeight: 1.6,
+        letterSpacing: 0.5,
+        roundedSelection: false,
+        scrollbar: {
+          vertical: 'visible',
+          horizontal: 'visible',
+          useShadows: false,
+          verticalHasArrows: false,
+          horizontalHasArrows: false,
+          verticalScrollbarSize: 10,
+          horizontalScrollbarSize: 10
+        }
       });
 
       editorRef.current = editor;
@@ -218,7 +233,6 @@ export function MonacoEditor({
     const languageMap: Record<Language, string> = {
       javascript: 'javascript',
       typescript: 'typescript',
-      python: 'python',
       html: 'html',
       css: 'css',
       scss: 'scss',
@@ -306,44 +320,40 @@ export function MonacoEditor({
   // 只在客户端渲染
   if (typeof window === 'undefined' || !isMounted) {
     return (
-      <Card className={className}>
-        <CardBody className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <Spinner size="lg" />
-            <p className="mt-2 text-default-500">编辑器加载中...</p>
-          </div>
-        </CardBody>
-      </Card>
+      <div className={`${className} bg-gray-900 flex items-center justify-center`}>
+        <div className="text-center">
+          <Spinner size="lg" color="primary" />
+          <p className="mt-2 text-gray-400">编辑器加载中...</p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card className={className}>
-      <CardBody className="p-0">
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
-            <div className="text-center">
-              <Spinner size="lg" />
-              <p className="mt-2 text-default-500">Monaco Editor 加载中...</p>
-            </div>
+    <div className={`${className} bg-gray-900 relative h-full`}>
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-900/90 z-10">
+          <div className="text-center">
+            <Spinner size="lg" color="primary" />
+            <p className="mt-2 text-gray-400">Monaco Editor 加载中...</p>
           </div>
-        )}
-        
-        {loadError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
-            <div className="text-center text-danger">
-              <p className="font-semibold">编辑器加载失败</p>
-              <p className="text-sm mt-1">{loadError}</p>
-            </div>
+        </div>
+      )}
+
+      {loadError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-900/90 z-10">
+          <div className="text-center text-red-400">
+            <p className="font-semibold">编辑器加载失败</p>
+            <p className="text-sm mt-1">{loadError}</p>
           </div>
-        )}
-        
-        <div
-          ref={containerRef}
-          className="w-full h-full min-h-[400px]"
-          style={{ height: '100%' }}
-        />
-      </CardBody>
-    </Card>
+        </div>
+      )}
+
+      <div
+        ref={containerRef}
+        className="w-full h-full bg-gray-900"
+        style={{ height: '100%', minHeight: '400px' }}
+      />
+    </div>
   );
 }

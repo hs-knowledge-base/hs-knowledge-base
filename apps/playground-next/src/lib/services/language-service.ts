@@ -50,19 +50,7 @@ const languageRegistry: Record<Language, LanguageSpecs> = {
     },
     aliases: ['ts']
   },
-  python: {
-    name: 'python',
-    title: 'PY',
-    longTitle: 'Python',
-    extensions: ['py'],
-    editorType: 'script',
-    monacoLanguage: 'python',
-    runtime: {
-      vendorKey: 'brython',
-      url: 'https://cdn.jsdelivr.net/npm/brython@3/brython.min.js'
-    },
-    aliases: ['py']
-  },
+
 
   // 标记语言
   html: {

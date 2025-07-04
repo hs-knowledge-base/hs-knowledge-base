@@ -1,11 +1,11 @@
 // 基础类型定义
 
 /** 支持的编程语言 */
-export type Language = 
+export type Language =
   | 'html' | 'markdown'
   | 'css' | 'scss' | 'less'
   | 'javascript' | 'typescript'
-  | 'python' | 'json' | 'xml' | 'yaml';
+  | 'json' | 'xml' | 'yaml';
 
 /** 编辑器类型 */
 export type EditorType = 'markup' | 'style' | 'script';

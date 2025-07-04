@@ -104,16 +104,7 @@ const compilerVendors: VendorRegistry = {
     priority: 3,
     external: 'https://cdn.jsdelivr.net/npm/less@4.2.0/dist/less.min.js'
   },
-  brython: {
-    name: 'brython',
-    version: '3.11.0',
-    path: 'brython.min.js',
-    cdn: 'jsdelivr',
-    fallbackCdns: ['unpkg'],
-    isModule: false,
-    priority: 4,
-    external: 'https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js'
-  }
+
 };
 
 /** 样式处理器相关配置 */

@@ -1,13 +1,18 @@
 import { useEffect } from 'react';
 import type { Language } from '@/types';
 import { CompilerFactory, getGlobalCompilerFactory } from './compiler-factory';
-import { 
-  PassthroughCompiler, 
-  TypeScriptCompiler, 
-  MarkdownCompiler, 
-  ScssCompiler, 
-  LessCompiler 
-} from './base-compiler';
+import {
+  HtmlCompiler,
+  CssCompiler,
+  JavaScriptCompiler,
+  JsonCompiler,
+  XmlCompiler,
+  YamlCompiler
+} from './compilers/passthrough-compiler';
+import { TypeScriptCompiler } from './compilers/typescript-compiler';
+import { MarkdownCompiler } from './compilers/markdown-compiler';
+import { ScssCompiler } from './compilers/scss-compiler';
+import { LessCompiler } from './compilers/less-compiler';
 
 /**
  * 编译器注册表
@@ -44,20 +49,15 @@ export class CompilerRegistry {
 
   /** 注册直通编译器 */
   private registerPassthroughCompilers(): void {
-    const passthroughLanguages: Language[] = [
-      'html',
-      'css', 
-      'javascript',
-      'json',
-      'xml',
-      'yaml'
-    ];
+    // 注册具体的编译器类
+    this.factory.registerCompiler('html', () => new HtmlCompiler());
+    this.factory.registerCompiler('css', () => new CssCompiler());
+    this.factory.registerCompiler('javascript', () => new JavaScriptCompiler());
+    this.factory.registerCompiler('json', () => new JsonCompiler());
+    this.factory.registerCompiler('xml', () => new XmlCompiler());
+    this.factory.registerCompiler('yaml', () => new YamlCompiler());
 
-    passthroughLanguages.forEach(language => {
-      this.factory.registerCompiler(language, () => new PassthroughCompiler(language));
-    });
-
-    console.info(`[CompilerRegistry] 注册了 ${passthroughLanguages.length} 个直通编译器`);
+    console.info('[CompilerRegistry] 注册了 6 个直通编译器');
   }
 
   /** 注册转译编译器 */

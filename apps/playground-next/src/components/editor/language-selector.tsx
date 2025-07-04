@@ -8,6 +8,7 @@ import {
   Avatar
 } from '@nextui-org/react';
 import { useGlobalLanguageService } from '@/lib/services/language-service';
+import { useGlobalVendorService } from '@/lib/services/vendors';
 import type { EditorType, Language } from '@/types';
 
 interface LanguageSelectorProps {
@@ -47,6 +48,7 @@ export function LanguageSelector({
   showIcon = true
 }: LanguageSelectorProps) {
   const languageService = useGlobalLanguageService();
+  const vendorService = useGlobalVendorService();
 
   /** 获取语言选项 */
   const getLanguageOptions = () => {
@@ -74,7 +76,6 @@ export function LanguageSelector({
       less: 'Less CSS 预处理器',
       javascript: 'JavaScript 脚本语言',
       typescript: 'TypeScript 类型化 JavaScript',
-      python: 'Python 编程语言',
       json: 'JSON 数据格式',
       xml: 'XML 标记语言',
       yaml: 'YAML 数据序列化格式'
@@ -92,7 +93,6 @@ export function LanguageSelector({
       less: '📐',
       javascript: '⚡',
       typescript: '🔷',
-      python: '🐍',
       json: '📋',
       xml: '📄',
       yaml: '⚙️'
@@ -101,10 +101,22 @@ export function LanguageSelector({
   };
 
   /** 处理选择变化 */
-  const handleSelectionChange = (keys: any) => {
+  const handleSelectionChange = async (keys: any) => {
     const selectedKey = Array.from(keys)[0] as Language;
     if (selectedKey && selectedKey !== value) {
-      onChange(selectedKey);
+      try {
+        // 检查是否需要加载 vendor
+        const languageConfig = languageService.getLanguageConfig(selectedKey);
+        if (languageConfig?.compiler?.vendorKey) {
+          console.log(`[LanguageSelector] 加载 ${selectedKey} 编译器依赖: ${languageConfig.compiler.vendorKey}`);
+          await vendorService.loadVendor(languageConfig.compiler.vendorKey);
+        }
+
+        onChange(selectedKey);
+        console.log(`[LanguageSelector] 语言已切换到: ${selectedKey}`);
+      } catch (error) {
+        console.error(`[LanguageSelector] 语言切换失败:`, error);
+      }
     }
   };
 

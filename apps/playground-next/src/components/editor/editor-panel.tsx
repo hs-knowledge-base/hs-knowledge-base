@@ -17,6 +17,7 @@ import {
 import { MonacoEditor } from './monaco-editor';
 import { useEditorStore } from '@/stores/editor-store';
 import { useGlobalLanguageService } from '@/lib/services/language-service';
+import { useGlobalVendorService } from '@/lib/services/vendors';
 import type { EditorType, Language } from '@/types';
 
 interface EditorPanelProps {
@@ -51,6 +52,7 @@ export function EditorPanel({
   } = useEditorStore();
   
   const languageService = useGlobalLanguageService();
+  const vendorService = useGlobalVendorService();
 
   /** 获取编辑器标签信息 */
   const getTabInfo = (type: EditorType) => {
@@ -95,8 +97,26 @@ export function EditorPanel({
   };
 
   /** 处理语言切换 */
-  const handleLanguageChange = (type: EditorType, language: Language) => {
-    setEditorLanguage(type, language);
+  const handleLanguageChange = async (type: EditorType, language: Language) => {
+    try {
+      console.log(`[EditorPanel] 开始切换语言: ${language}`);
+
+      // 检查是否需要加载 vendor
+      const languageConfig = languageService.getLanguageConfig(language);
+      console.log(`[EditorPanel] 语言配置:`, languageConfig);
+
+      if (languageConfig?.compiler?.vendorKey) {
+        console.log(`[EditorPanel] 需要加载编译器依赖: ${languageConfig.compiler.vendorKey}`);
+        await vendorService.loadVendor(languageConfig.compiler.vendorKey);
+        console.log(`[EditorPanel] 编译器依赖加载完成: ${languageConfig.compiler.vendorKey}`);
+      }
+
+      // 设置语言
+      setEditorLanguage(type, language);
+      console.log(`[EditorPanel] 语言已切换到: ${language}`);
+    } catch (error) {
+      console.error(`[EditorPanel] 语言切换失败:`, error);
+    }
   };
 
   /** 处理格式化代码 */
@@ -115,7 +135,7 @@ export function EditorPanel({
     const languageOptions = getLanguageOptions(type);
 
     return (
-      <div className="flex items-center justify-between p-3 border-b border-divider">
+      <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
         <div className="flex items-center gap-3">
           {/* 语言选择器 */}
           <Dropdown>
@@ -123,9 +143,10 @@ export function EditorPanel({
               <Button
                 variant="flat"
                 size="sm"
+                className="bg-gray-700 text-gray-300 hover:bg-gray-600 border-gray-600"
                 endContent={
                   languageService.needsCompiler(tabInfo.language) ? (
-                    <Chip size="sm" color="warning" variant="dot">编译</Chip>
+                    <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
                   ) : null
                 }
               >
@@ -134,14 +155,18 @@ export function EditorPanel({
             </DropdownTrigger>
             <DropdownMenu
               aria-label="选择语言"
-              onAction={(key) => handleLanguageChange(type, key as Language)}
+              className="bg-gray-800 border border-gray-700"
+              onAction={(key) => {
+                handleLanguageChange(type, key as Language);
+              }}
             >
               {languageOptions.map((option) => (
                 <DropdownItem
                   key={option.key}
+                  className="text-gray-300 hover:bg-gray-700"
                   endContent={
                     option.needsCompiler ? (
-                      <Chip size="sm" color="warning" variant="dot">编译</Chip>
+                      <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
                     ) : null
                   }
                 >
@@ -154,14 +179,16 @@ export function EditorPanel({
           {/* 状态指示器 */}
           <div className="flex items-center gap-2">
             {tabInfo.hasContent && (
-              <Chip size="sm" color="success" variant="dot">
-                有内容
-              </Chip>
+              <div className="flex items-center gap-1 text-xs text-green-400">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>已修改</span>
+              </div>
             )}
             {tabInfo.hasErrors && (
-              <Chip size="sm" color="danger" variant="dot">
-                {errors[type].length} 错误
-              </Chip>
+              <div className="flex items-center gap-1 text-xs text-red-400">
+                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                <span>{errors[type].length} 错误</span>
+              </div>
             )}
           </div>
         </div>
@@ -169,22 +196,25 @@ export function EditorPanel({
         <div className="flex items-center gap-2">
           {/* 格式化按钮 */}
           <Button
-            variant="light"
+            variant="flat"
             size="sm"
+            className="bg-gray-700 text-gray-300 hover:bg-gray-600 border-gray-600"
             onPress={handleFormatCode}
             isDisabled={!tabInfo.hasContent}
           >
+            <span className="text-xs">⚡</span>
             格式化
           </Button>
 
           {/* 重置按钮 */}
           <Button
-            variant="light"
+            variant="flat"
             size="sm"
-            color="warning"
+            className="bg-gray-700 text-gray-300 hover:bg-gray-600 border-gray-600"
             onPress={handleResetEditor}
             isDisabled={!tabInfo.hasContent}
           >
+            <span className="text-xs">🔄</span>
             重置
           </Button>
         </div>
@@ -207,11 +237,11 @@ export function EditorPanel({
     return (
       <div className="h-full">
         {showToolbar && renderToolbar(type)}
-        <div className={showToolbar ? 'h-[calc(100%-60px)]' : 'h-full'}>
+        <div className={showToolbar ? 'h-[calc(100%-50px)]' : 'h-full'}>
           <MonacoEditor
             editorType={type}
             config={configs[type]}
-            className="h-full"
+            className="w-full h-full"
             showLineNumbers={configs[type].lineNumbers}
             showMinimap={configs[type].minimap}
           />
@@ -237,49 +267,78 @@ export function EditorPanel({
     );
   }
 
+  /** 获取文件扩展名 */
+  const getFileExtension = (language: Language): string => {
+    const extensions: Record<Language, string> = {
+      html: 'html',
+      markdown: 'md',
+      css: 'css',
+      scss: 'scss',
+      less: 'less',
+      javascript: 'js',
+      typescript: 'ts',
+      json: 'json',
+      xml: 'xml',
+      yaml: 'yaml'
+    };
+    return extensions[language] || 'txt';
+  };
+
   return (
-    <Card className={className}>
-      <CardBody className="p-0">
-        <Tabs
-          aria-label="编辑器标签"
-          selectedKey={activeTab}
-          onSelectionChange={handleTabChange}
-          variant="underlined"
-          classNames={{
-            tabList: "gap-6 w-full relative rounded-none p-0 border-b border-divider",
-            cursor: "w-full bg-primary",
-            tab: "max-w-fit px-4 h-12",
-            tabContent: "group-data-[selected=true]:text-primary"
-          }}
-        >
+    <div className={`${className} bg-gray-900 flex flex-col`}>
+      {/* 文件标签栏 */}
+      <div className="bg-gray-800 border-b border-gray-700">
+        <div className="flex">
           {visibleEditors.map((type) => {
             const tabInfo = getTabInfo(type);
+            const isActive = activeTab === type;
             return (
-              <Tab
+              <button
                 key={type}
-                title={
-                  <div className="flex items-center gap-2">
-                    <span>{tabInfo.title}</span>
-                    <span className="text-xs text-default-400">
-                      {languageService.getLanguageDisplayName(tabInfo.language)}
-                    </span>
-                    {tabInfo.hasErrors && (
-                      <div className="w-2 h-2 bg-danger rounded-full" />
-                    )}
-                    {tabInfo.hasContent && !tabInfo.hasErrors && (
-                      <div className="w-2 h-2 bg-success rounded-full" />
-                    )}
-                  </div>
-                }
+                onClick={() => handleTabChange(type)}
+                className={`
+                  flex items-center gap-2 px-4 py-2.5 text-sm border-r border-gray-700 transition-all duration-200
+                  ${isActive
+                    ? 'bg-gray-900 text-white border-b-2 border-blue-500'
+                    : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-750'
+                  }
+                `}
               >
-                <div className="h-[500px]">
-                  {renderEditorContent(type)}
-                </div>
-              </Tab>
+                {/* 文件图标 */}
+                <span className="text-xs">
+                  {type === 'markup' ? '🌐' : type === 'style' ? '🎨' : '⚡'}
+                </span>
+
+                {/* 文件名 */}
+                <span className="font-medium">
+                  {tabInfo.title}.{getFileExtension(tabInfo.language)}
+                </span>
+
+                {/* 语言标签 */}
+                <span className={`
+                  text-xs px-1.5 py-0.5 rounded text-gray-300
+                  ${isActive ? 'bg-gray-700' : 'bg-gray-600'}
+                `}>
+                  {languageService.getLanguageDisplayName(tabInfo.language)}
+                </span>
+
+                {/* 状态指示器 */}
+                {tabInfo.hasErrors && (
+                  <div className="w-2 h-2 bg-red-500 rounded-full" />
+                )}
+                {tabInfo.hasContent && !tabInfo.hasErrors && (
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                )}
+              </button>
             );
           })}
-        </Tabs>
-      </CardBody>
-    </Card>
+        </div>
+      </div>
+
+      {/* 编辑器内容区域 */}
+      <div className="flex-1 bg-gray-900">
+        {renderEditorContent(activeTab)}
+      </div>
+    </div>
   );
 }

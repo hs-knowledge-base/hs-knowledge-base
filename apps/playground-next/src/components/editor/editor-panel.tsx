@@ -11,8 +11,6 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  Chip,
-  Spinner
 } from '@nextui-org/react';
 import { MonacoEditor } from './monaco-editor';
 import { useEditorStore } from '@/stores/editor-store';

@@ -11,6 +11,7 @@ import { useGlobalVendorService } from '@/lib/services/vendors';
 import { useGlobalResourceLoader } from '@/lib/services/resource-loader';
 import { useEditorStore } from '@/stores/editor-store';
 import { useCompilerStore } from '@/stores/compiler-store';
+import { EditorPanel } from '@/components/editor/editor-panel';
 
 export default function Home() {
   const { runStatus, consoleMessages, runCode, addConsoleMessage } = usePlaygroundStore();
@@ -221,6 +222,20 @@ export default function Home() {
           </CardBody>
         </Card>
 
+        {/* 编辑器演示 */}
+        <Card>
+          <CardHeader>
+            <h3 className="text-lg font-semibold">🖥️ Monaco Editor 演示</h3>
+          </CardHeader>
+          <CardBody>
+            <EditorPanel
+              className="h-[600px]"
+              showToolbar={true}
+              defaultActiveEditor="script"
+            />
+          </CardBody>
+        </Card>
+
         {/* 测试按钮 */}
         <div className="flex justify-center gap-4">
           <Button
@@ -306,14 +321,23 @@ export default function Home() {
                 <div>✅ CompilerStore - 编译器状态管理</div>
               </div>
               <div className="flex items-center gap-3">
+                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs">✓</span>
+                </div>
+                <span>阶段三：编辑器系统重构</span>
+              </div>
+              <div className="ml-7 text-sm text-default-500 space-y-1">
+                <div>✅ MonacoEditor - React 编辑器组件</div>
+                <div>✅ EditorPanel - 编辑器面板</div>
+                <div>✅ LanguageSelector - 语言选择器</div>
+                <div>✅ EditorToolbar - 编辑器工具栏</div>
+                <div>✅ SSR 兼容性处理</div>
+              </div>
+              <div className="flex items-center gap-3">
                 <div className="w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
                   <span className="text-white text-xs">⚡</span>
                 </div>
-                <span>阶段三：编辑器系统重构 (下一步)</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-gray-400 rounded-full"></div>
-                <span className="text-default-400">阶段四：编译器系统适配</span>
+                <span>阶段四：编译器系统适配 (下一步)</span>
               </div>
             </div>
           </CardBody>

@@ -132,20 +132,32 @@ export function EditorPanel({
             <DropdownTrigger>
               <Button
                 variant="flat"
-                size="sm"
-                className="bg-gray-700 text-gray-300 hover:bg-gray-600 border-gray-600"
+                size="md"
+                className="bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600 min-w-32 justify-between px-3 py-2"
                 endContent={
-                  languageService.needsCompiler(tabInfo.language) ? (
-                    <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
-                  ) : null
+                  <div className="flex  items-center gap-2 ml-2">
+                    {languageService.needsCompiler(tabInfo.language) && (
+                      <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                    )}
+                  </div>
                 }
               >
-                {languageService.getLanguageDisplayName(tabInfo.language)}
+                <span className="font-medium">
+                  {languageService.getLanguageDisplayName(tabInfo.language)}
+                </span>
               </Button>
             </DropdownTrigger>
             <DropdownMenu
               aria-label="选择语言"
-              className="bg-gray-800 border border-gray-700"
+              className="min-w-40"
+              classNames={{
+                base: "bg-gray-800 border border-gray-600 shadow-xl rounded-lg",
+                list: "bg-gray-800 p-1"
+              }}
+              itemClasses={{
+                base: "text-gray-300 data-[hover=true]:bg-gray-700 data-[hover=true]:text-white mx-1 px-3 py-2",
+                title: "font-medium"
+              }}
               onAction={(key) => {
                 handleLanguageChange(type, key as Language);
               }}
@@ -153,14 +165,17 @@ export function EditorPanel({
               {languageOptions.map((option) => (
                 <DropdownItem
                   key={option.key}
-                  className="text-gray-300 hover:bg-gray-700"
+                  className="flex items-center justify-between"
                   endContent={
                     option.needsCompiler ? (
-                      <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                      <div className="flex items-center gap-1">
+                        <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
+                        <span className="text-xs text-gray-500">需编译</span>
+                      </div>
                     ) : null
                   }
                 >
-                  {option.label}
+                  <span className="font-medium">{option.label}</span>
                 </DropdownItem>
               ))}
             </DropdownMenu>
@@ -231,28 +246,13 @@ export function EditorPanel({
     );
   }
 
-  /** 获取文件扩展名 */
-  const getFileExtension = (language: Language): string => {
-    const extensions: Record<Language, string> = {
-      html: 'html',
-      markdown: 'md',
-      css: 'css',
-      scss: 'scss',
-      less: 'less',
-      javascript: 'js',
-      typescript: 'ts',
-      json: 'json',
-      xml: 'xml',
-      yaml: 'yaml'
-    };
-    return extensions[language] || 'txt';
-  };
+
 
   return (
     <div className={`${className} bg-gray-900 flex flex-col`}>
       {/* 文件标签栏 */}
-      <div className="bg-gray-800 border-b border-gray-700">
-        <div className="flex">
+      <div className="bg-gray-850 px-1 pt-1">
+        <div className="flex items-end gap-1">
           {visibleEditors.map((type) => {
             const tabInfo = getTabInfo(type);
             const isActive = activeTab === type;
@@ -261,42 +261,29 @@ export function EditorPanel({
                 key={type}
                 onClick={() => handleTabChange(type)}
                 className={`
-                  flex items-center gap-2 px-4 py-2.5 text-sm border-r border-gray-700 transition-all duration-200
+                  relative flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all duration-200
+                  rounded-t-lg border-t-2 border-l border-r
                   ${isActive
-                    ? 'bg-gray-900 text-white border-b-2 border-blue-500'
-                    : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-750'
+                    ? 'bg-gray-900 text-white border-blue-400 border-l-gray-600 border-r-gray-600 shadow-lg z-10'
+                    : 'bg-gray-800/70 text-gray-400 border-transparent border-l-gray-700 border-r-gray-700 hover:text-gray-200 hover:bg-gray-800 hover:border-gray-600'
                   }
                 `}
               >
-                {/* 文件图标 */}
-                <span className="text-xs">
-                  {type === 'markup' ? '🌐' : type === 'style' ? '🎨' : '⚡'}
-                </span>
-
-                {/* 文件名 */}
-                <span className="font-medium">
-                  {tabInfo.title}.{getFileExtension(tabInfo.language)}
-                </span>
-
-                {/* 语言标签 */}
-                <span className={`
-                  text-xs px-1.5 py-0.5 rounded text-gray-300
-                  ${isActive ? 'bg-gray-700' : 'bg-gray-600'}
-                `}>
+                {/* 语言名称 */}
+                <span className="font-medium whitespace-nowrap">
                   {languageService.getLanguageDisplayName(tabInfo.language)}
                 </span>
 
                 {/* 状态指示器 */}
                 {tabInfo.hasErrors && (
-                  <div className="w-2 h-2 bg-red-500 rounded-full" />
-                )}
-                {tabInfo.hasContent && !tabInfo.hasErrors && (
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  <div className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse" />
                 )}
               </button>
             );
           })}
         </div>
+        {/* 底部边框线 */}
+        <div className="h-px bg-gray-700"></div>
       </div>
 
       {/* 编辑器内容区域 */}

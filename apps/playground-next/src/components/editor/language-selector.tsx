@@ -2,10 +2,9 @@
 
 import React from 'react';
 import {
-  Select,
-  SelectItem,
   Chip,
-  Avatar
+  Select,
+  SelectItem
 } from '@nextui-org/react';
 import { useGlobalLanguageService } from '@/lib/services/language-service';
 import { useGlobalVendorService } from '@/lib/services/vendors';
@@ -83,22 +82,7 @@ export function LanguageSelector({
     return descriptions[language] || language;
   };
 
-  /** 获取语言图标 */
-  const getLanguageIcon = (language: Language): string => {
-    const icons: Record<Language, string> = {
-      html: '🌐',
-      markdown: '📝',
-      css: '🎨',
-      scss: '💅',
-      less: '📐',
-      javascript: '⚡',
-      typescript: '🔷',
-      json: '📋',
-      xml: '📄',
-      yaml: '⚙️'
-    };
-    return icons[language] || '📄';
-  };
+
 
   /** 处理选择变化 */
   const handleSelectionChange = async (keys: any) => {
@@ -134,8 +118,10 @@ export function LanguageSelector({
       variant={variant}
       className={className}
       classNames={{
-        trigger: "min-h-unit-12",
-        value: "text-small"
+        trigger: "min-h-unit-8 bg-gray-700 border-gray-600 hover:bg-gray-600 data-[hover=true]:bg-gray-600",
+        value: "text-small text-gray-200",
+        listbox: "bg-gray-800",
+        popoverContent: "bg-gray-800 border-gray-700"
       }}
       renderValue={(items) => {
         return items.map((item) => {
@@ -144,33 +130,10 @@ export function LanguageSelector({
 
           return (
             <div key={item.key} className="flex items-center gap-2">
-              {showIcon && (
-                <Avatar
-                  size="sm"
-                  name={getLanguageIcon(option.key)}
-                  className="w-6 h-6 text-tiny bg-transparent"
-                />
+              <span className="text-small font-medium text-gray-200">{option.shortLabel}</span>
+              {option.needsCompiler && (
+                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
               )}
-              <div className="flex flex-col">
-                <span className="text-small">{option.label}</span>
-                {showDescription && (
-                  <span className="text-tiny text-default-400">
-                    {option.description}
-                  </span>
-                )}
-              </div>
-              <div className="flex gap-1 ml-auto">
-                {option.needsCompiler && (
-                  <Chip size="sm" color="warning" variant="dot">
-                    编译
-                  </Chip>
-                )}
-                {option.needsRuntime && (
-                  <Chip size="sm" color="secondary" variant="dot">
-                    运行时
-                  </Chip>
-                )}
-              </div>
             </div>
           );
         });
@@ -181,26 +144,11 @@ export function LanguageSelector({
           key={option.key}
           value={option.key}
           textValue={option.label}
-          startContent={
-            showIcon ? (
-              <Avatar
-                size="sm"
-                name={getLanguageIcon(option.key)}
-                className="w-6 h-6 text-tiny bg-transparent"
-              />
-            ) : null
-          }
+          className="text-gray-200 hover:bg-gray-700"
           endContent={
             <div className="flex gap-1">
               {option.needsCompiler && (
-                <Chip size="sm" color="warning" variant="dot">
-                  编译
-                </Chip>
-              )}
-              {option.needsRuntime && (
-                <Chip size="sm" color="secondary" variant="dot">
-                  运行时
-                </Chip>
+                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
               )}
             </div>
           }

@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Code Playground",
-  description: "A modern code playground built with Next.js and NextUI",
+  description: "用Next.js和NextUI构建的现代代码演练场",
 };
 
 export default function RootLayout({

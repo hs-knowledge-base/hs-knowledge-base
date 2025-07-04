@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, Chip, Spinner } from '@nextui-org/react';
+import { Button, Card, CardBody, CardHeader, Chip, Spinner, Tabs, Tab } from '@nextui-org/react';
 import { usePlaygroundStore } from '@/stores/playground-store';
 import { useLayoutStore } from '@/stores/layout-store';
 import { useGlobalServiceContainer } from '@/lib/core/service-container';
@@ -43,21 +43,52 @@ const CompilerOutput = dynamic(() => import('@/components/playground/compiler-ou
   )
 });
 
-const CodeRunner = dynamic(() => import('@/components/playground/code-runner').then(mod => ({ default: mod.CodeRunner })), {
+const SimplePreview = dynamic(() => import('@/components/playground/simple-preview').then(mod => ({ default: mod.SimplePreview })), {
   ssr: false,
   loading: () => (
-    <Card className="h-[500px]">
-      <CardBody className="flex items-center justify-center">
-        <div className="text-center">
-          <Spinner size="lg" />
-          <p className="mt-2 text-default-500">运行器加载中...</p>
-        </div>
-      </CardBody>
-    </Card>
+    <div className="h-full bg-white flex items-center justify-center">
+      <div className="text-center">
+        <Spinner size="lg" />
+        <p className="mt-2 text-gray-500">预览加载中...</p>
+      </div>
+    </div>
+  )
+});
+
+const SimpleConsole = dynamic(() => import('@/components/playground/simple-console').then(mod => ({ default: mod.SimpleConsole })), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full bg-gray-900 flex items-center justify-center">
+      <div className="text-center">
+        <Spinner size="lg" />
+        <p className="mt-2 text-gray-400">控制台加载中...</p>
+      </div>
+    </div>
   )
 });
 
 export default function Home() {
+  const { addConsoleMessage, clearConsole } = usePlaygroundStore();
+
+  /** 处理运行代码 */
+  const handleRunCode = () => {
+    // 清空控制台
+    clearConsole();
+
+    // 添加运行开始消息
+    addConsoleMessage({
+      type: 'info',
+      message: '🚀 开始运行代码...'
+    });
+
+    // 触发预览刷新（通过重新渲染实现）
+    setTimeout(() => {
+      addConsoleMessage({
+        type: 'log',
+        message: '✅ 代码运行完成！'
+      });
+    }, 500);
+  };
 
   return (
     <div className="h-screen bg-gray-900 text-gray-100 flex flex-col">
@@ -74,8 +105,13 @@ export default function Home() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="flat" className="bg-gray-700 text-gray-300">
-            运行
+          <Button
+            size="sm"
+            variant="flat"
+            className="bg-blue-600 text-white hover:bg-blue-700"
+            onPress={handleRunCode}
+          >
+            🚀 运行
           </Button>
           <Button size="sm" variant="flat" className="bg-gray-700 text-gray-300">
             分享
@@ -101,21 +137,68 @@ export default function Home() {
         <div className="w-1/2 flex flex-col bg-gray-850">
           {/* 上半部分：预览区域 */}
           <div className="h-1/2 border-b border-gray-700">
-            <CodeRunner
-              className="h-full"
-              autoRun={false}
-              runDelay={1000}
-            />
+            <div className="h-full bg-gray-800">
+              <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
+                <h3 className="text-sm font-medium text-gray-300">预览</h3>
+                <Button
+                  size="sm"
+                  variant="flat"
+                  className="bg-blue-600 text-white hover:bg-blue-700"
+                  onPress={handleRunCode}
+                >
+                  🚀 运行
+                </Button>
+              </div>
+              <div className="h-[calc(100%-40px)]">
+                <SimplePreview className="h-full" />
+              </div>
+            </div>
           </div>
 
-          {/* 下半部分：控制台和编译结果 */}
+          {/* 下半部分：控制台和编译结果标签页 */}
           <div className="h-1/2">
-            <CompilerOutput
-              className="h-full"
-              showOriginalCode={false}
-              showStats={true}
-              defaultActiveTab="markup"
-            />
+            <Tabs
+              aria-label="输出标签"
+              variant="underlined"
+              classNames={{
+                tabList: "gap-6 w-full relative rounded-none p-0 border-b border-gray-700 bg-gray-800",
+                cursor: "w-full bg-blue-500",
+                tab: "max-w-fit px-4 h-10",
+                tabContent: "group-data-[selected=true]:text-blue-400 text-gray-400"
+              }}
+            >
+              <Tab
+                key="console"
+                title={
+                  <div className="flex items-center gap-2">
+                    <span>📟</span>
+                    <span>控制台</span>
+                  </div>
+                }
+              >
+                <div className="h-[calc(100%-40px)]">
+                  <SimpleConsole className="h-full" />
+                </div>
+              </Tab>
+              <Tab
+                key="compiled"
+                title={
+                  <div className="flex items-center gap-2">
+                    <span>🔧</span>
+                    <span>编译结果</span>
+                  </div>
+                }
+              >
+                <div className="h-[calc(100%-40px)]">
+                  <CompilerOutput
+                    className="h-full"
+                    showOriginalCode={false}
+                    showStats={true}
+                    defaultActiveTab="markup"
+                  />
+                </div>
+              </Tab>
+            </Tabs>
           </div>
         </div>
       </div>

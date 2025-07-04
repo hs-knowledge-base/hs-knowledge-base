@@ -52,8 +52,10 @@ export function MonacoEditor({
 }: MonacoEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<any>(null);
+  const isUpdatingRef = useRef(false); // 防止循环更新的标志
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
   
   const vendorService = useGlobalVendorService();
   const { 
@@ -121,7 +123,7 @@ export function MonacoEditor({
     try {
       // 创建编辑器实例
       const editor = monaco.editor.create(containerRef.current, {
-        value: currentValue,
+        value: defaultValue, // 使用 defaultValue 而不是 currentValue
         language: getMonacoLanguage(editorConfig.language),
         theme: editorConfig.theme === 'vs-light' ? 'vs' : 'vs-dark',
         fontSize: editorConfig.fontSize,
@@ -159,6 +161,11 @@ export function MonacoEditor({
 
       // 监听内容变化
       editor.onDidChangeModelContent(() => {
+        // 如果正在更新中，跳过事件处理
+        if (isUpdatingRef.current) {
+          return;
+        }
+
         const value = editor.getValue();
         setEditorContent(editorType, value);
         onChange?.(value);
@@ -189,8 +196,11 @@ export function MonacoEditor({
       setIsLoading(false);
     }
   }, [
-    currentValue,
-    editorConfig,
+    defaultValue,
+    editorConfig.language,
+    editorConfig.theme,
+    editorConfig.fontSize,
+    editorConfig.wordWrap,
     editorType,
     showMinimap,
     showLineNumbers,
@@ -238,7 +248,10 @@ export function MonacoEditor({
       }
     };
 
-    initEditor();
+    // 只在编辑器还没有创建时才初始化
+    if (!editorRef.current) {
+      initEditor();
+    }
 
     return () => {
       mounted = false;
@@ -247,7 +260,7 @@ export function MonacoEditor({
         editorRef.current = null;
       }
     };
-  }, [loadMonaco, createEditor]);
+  }, []); // 移除依赖，只在组件挂载时执行一次
 
   /** 更新编辑器配置 */
   useEffect(() => {
@@ -275,12 +288,23 @@ export function MonacoEditor({
   /** 更新编辑器内容 */
   useEffect(() => {
     if (editorRef.current && currentValue !== editorRef.current.getValue()) {
+      // 设置更新标志，防止触发 onDidChangeModelContent 事件
+      isUpdatingRef.current = true;
       editorRef.current.setValue(currentValue);
+      // 延迟重置标志，确保事件处理完成
+      setTimeout(() => {
+        isUpdatingRef.current = false;
+      }, 0);
     }
   }, [currentValue]);
 
-  // SSR 兼容性检查
-  if (typeof window === 'undefined') {
+  // 客户端挂载检查
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // 只在客户端渲染
+  if (typeof window === 'undefined' || !isMounted) {
     return (
       <Card className={className}>
         <CardBody className="flex items-center justify-center h-64">

@@ -2,6 +2,8 @@
 
 import { Button, Card, CardBody, Spinner, Tabs, Tab } from '@nextui-org/react';
 import { usePlaygroundStore } from '@/stores/playground-store';
+import { useEditorStore } from '@/stores/editor-store';
+import { useCompile } from '@/lib/compiler/compiler-factory';
 import dynamic from 'next/dynamic';
 
 // 动态导入编辑器相关组件，避免 SSR 问题
@@ -58,26 +60,69 @@ const SimpleConsole = dynamic(() => import('@/components/playground/simple-conso
 });
 
 export default function Home() {
-  const { addConsoleMessage, clearConsole } = usePlaygroundStore();
+  const { addConsoleMessage, clearConsole, setRunStatus, triggerManualRun } = usePlaygroundStore();
+  const { contents, configs } = useEditorStore();
+  const { compile } = useCompile();
 
   /** 处理运行代码 */
-  const handleRunCode = () => {
-    // 清空控制台
-    clearConsole();
+  const handleRunCode = async () => {
+    try {
+      // 清空控制台
+      clearConsole();
+      setRunStatus('compiling');
 
-    // 添加运行开始消息
-    addConsoleMessage({
-      type: 'info',
-      message: '🚀 开始运行代码...'
-    });
+      // 添加运行开始消息
+      addConsoleMessage({
+        type: 'info',
+        message: '🔄 开始编译代码...'
+      });
 
-    // 触发预览刷新（通过重新渲染实现）
-    setTimeout(() => {
+      // 编译所有代码
+      const compilePromises = [
+        compile(contents.markup, configs.markup.language, 'markup'),
+        compile(contents.style, configs.style.language, 'style'),
+        compile(contents.script, configs.script.language, 'script')
+      ];
+
+      const compileResults = await Promise.all(compilePromises);
+
+      // 检查编译错误
+      const errors = compileResults.filter(result => result.error);
+      if (errors.length > 0) {
+        const errorMessages = errors.map(result => result.error).join('\n');
+        throw new Error(`编译失败:\n${errorMessages}`);
+      }
+
       addConsoleMessage({
         type: 'log',
-        message: '✅ 代码运行完成！'
+        message: '✅ 代码编译成功'
       });
-    }, 500);
+
+      setRunStatus('running');
+      addConsoleMessage({
+        type: 'info',
+        message: '🚀 开始运行代码...'
+      });
+
+      // 触发手动运行 - 通过状态管理
+      triggerManualRun();
+
+      setTimeout(() => {
+        setRunStatus('success');
+        addConsoleMessage({
+          type: 'log',
+          message: '✅ 代码运行成功'
+        });
+      }, 500);
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '运行失败';
+      setRunStatus('error');
+      addConsoleMessage({
+        type: 'error',
+        message: `❌ ${errorMessage}`
+      });
+    }
   };
 
   return (

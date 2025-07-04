@@ -16,7 +16,7 @@ export function SimplePreview({ className = '' }: SimplePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { contents } = useEditorStore();
-  const { addConsoleMessage } = usePlaygroundStore();
+  const { addConsoleMessage, manualRunTrigger } = usePlaygroundStore();
 
   /** 生成预览 HTML */
   const generatePreviewHtml = () => {
@@ -157,6 +157,14 @@ export function SimplePreview({ className = '' }: SimplePreviewProps) {
 
     return () => clearTimeout(timer);
   }, [contents]);
+
+  /** 监听手动运行触发器 */
+  useEffect(() => {
+    if (manualRunTrigger > 0) {
+      console.log('[SimplePreview] 收到手动运行触发，刷新预览');
+      refreshPreview();
+    }
+  }, [manualRunTrigger]);
 
   const hasContent = contents.markup.trim() || contents.style.trim() || contents.script.trim();
 

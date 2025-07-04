@@ -38,6 +38,9 @@ interface PlaygroundState {
   
   // 运行延迟（毫秒）
   runDelay: number;
+
+  // 手动运行触发器（时间戳）
+  manualRunTrigger: number;
 }
 
 interface PlaygroundActions {
@@ -68,6 +71,9 @@ interface PlaygroundActions {
   // 设置操作
   setAutoRun: (autoRun: boolean) => void;
   setRunDelay: (delay: number) => void;
+
+  // 手动运行操作
+  triggerManualRun: () => void;
   
   // 项目操作
   loadProject: (project: { code: CodeContent; config: CompilerConfig }) => void;
@@ -93,7 +99,8 @@ const initialState: PlaygroundState = {
   showCompiledOutput: false,
   activeEditor: 'script',
   autoRun: false,
-  runDelay: 1000
+  runDelay: 1000,
+  manualRunTrigger: 0
 };
 
 // 防抖定时器
@@ -238,6 +245,11 @@ export const usePlaygroundStore = create<PlaygroundStore>()(
         
         setRunDelay: (runDelay) => {
           set({ runDelay }, false, `setRunDelay/${runDelay}`);
+        },
+
+        // 手动运行操作
+        triggerManualRun: () => {
+          set({ manualRunTrigger: Date.now() }, false, 'triggerManualRun');
         },
         
         // 项目操作

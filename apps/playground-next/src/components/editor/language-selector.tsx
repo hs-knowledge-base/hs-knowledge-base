@@ -78,7 +78,11 @@ export function LanguageSelector({
       typescript: 'TypeScript 类型化 JavaScript',
       json: 'JSON 数据格式',
       xml: 'XML 标记语言',
-      yaml: 'YAML 数据序列化格式'
+      yaml: 'YAML 数据序列化格式',
+      python: 'Python 编程语言',
+      go: 'Go 编程语言',
+      php: 'PHP 编程语言',
+      java: 'Java 编程语言'
     };
     return descriptions[language] || language;
   };

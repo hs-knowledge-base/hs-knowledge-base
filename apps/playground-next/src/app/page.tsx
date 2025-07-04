@@ -36,18 +36,6 @@ const CompilerOutput = dynamic(() => import('@/components/playground/compiler-ou
   )
 });
 
-const SimplePreview = dynamic(() => import('@/components/playground/simple-preview').then(mod => ({ default: mod.SimplePreview })), {
-  ssr: false,
-  loading: () => (
-    <div className="h-full bg-white flex items-center justify-center">
-      <div className="text-center">
-        <Spinner size="lg" />
-        <p className="mt-2 text-gray-500">预览加载中...</p>
-      </div>
-    </div>
-  )
-});
-
 const SimpleConsole = dynamic(() => import('@/components/playground/simple-console').then(mod => ({ default: mod.SimpleConsole })), {
   ssr: false,
   loading: () => (

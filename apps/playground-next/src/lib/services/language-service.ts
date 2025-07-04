@@ -95,8 +95,8 @@ const languageRegistry: Record<Language, LanguageSpecs> = {
     editorType: 'script',
     monacoLanguage: 'java',
     runtime: {
-      vendorKey: 'doppio',
-      url: 'https://cdn.jsdelivr.net/npm/doppio-jvm@latest/dist/doppio.min.js'
+      vendorKey: 'cheerpj',
+      url: 'https://cjrtnc.leaningtech.com/3.0/cj3loader.js'
     }
   },
 

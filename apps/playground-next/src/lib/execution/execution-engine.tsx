@@ -194,14 +194,18 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
 
   /** 默认脚本内容处理（向后兼容） */
   const getDefaultScriptContent = (result: RuntimeResult, language: Language): string => {
-    switch (language) {
-      case 'javascript':
-        return contents.script;
-      case 'typescript':
-        return result.output || '';
-      default:
-        return result.output || `// ${language} 代码已执行\nconsole.log('✅ ${language} 代码执行完成');`;
+    // 遵循SOLID原则：移除语言特定逻辑，使用通用处理
+    if (result.output) {
+      return result.output;
     }
+    
+    // 对于JavaScript，直接返回原始代码
+    if (language === 'javascript') {
+      return contents.script;
+    }
+    
+    // 其他语言返回通用的执行完成消息
+    return `// ${language} 代码已执行\nconsole.log('✅ ${language} 代码执行完成');`;
   };
 
   /** 生成预览 HTML */
@@ -211,19 +215,13 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
     scriptContent: string,
     scriptLanguage: Language
   ): string => {
-    // 需要运行时依赖的语言
+    // 遵循SOLID原则：移除语言特定的依赖处理
+    // 运行时依赖应该由各自的编译器处理
     const runtimeDeps: string[] = [];
     
-    if (scriptLanguage === 'python') {
-      runtimeDeps.push(
-        'https://cdn.jsdelivr.net/npm/brython@3.13.1/brython.min.js',
-        'https://cdn.jsdelivr.net/npm/brython@3.13.1/brython_stdlib.js'
-      );
-    } else if (scriptLanguage === 'php') {
-      runtimeDeps.push('https://cdn.jsdelivr.net/npm/uniter@latest/dist/uniter.min.js');
-    } else if (scriptLanguage === 'go') {
-      runtimeDeps.push('https://cdn.jsdelivr.net/npm/gopherjs@latest/dist/gopherjs.min.js');
-    }
+    // 注意：这里暂时保持空的依赖数组
+    // 运行时依赖的加载已经由language-loader和vendor-service处理
+    // 编译器应该在执行时确保必要的依赖已经加载
 
     return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -303,19 +301,11 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
         });
         
         // 运行时初始化
+        // 遵循SOLID原则：移除语言特定的初始化逻辑
+        // 各语言的运行时应该由其编译器负责初始化
         async function initializeRuntimes() {
-            ${scriptLanguage === 'python' ? `
-                if (window.brython) {
-                    window.brython();
-                    sendToParent('info', ['Brython Python 运行时已初始化']);
-                }
-            ` : ''}
-            
-            ${scriptLanguage === 'php' ? `
-                if (window.phpUniter) {
-                    sendToParent('info', ['PHP Uniter 运行时已初始化']);
-                }
-            ` : ''}
+            // 发送通用的初始化完成消息
+            sendToParent('info', ['运行时环境已准备就绪']);
         }
         
         // 页面加载完成后执行

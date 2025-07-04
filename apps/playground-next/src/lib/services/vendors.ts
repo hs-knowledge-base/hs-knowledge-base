@@ -148,15 +148,25 @@ const runtimeVendors: VendorRegistry = {
     priority: 3,
     external: 'https://cdn.jsdelivr.net/npm/uniter@2.18.0/dist/uniter.min.js'
   },
-  doppio: {
-    name: 'doppio-jvm',
-    version: '0.5.1',
-    path: 'dist/doppio.min.js',
+  browserfs: {
+    name: 'browserfs',
+    version: '2.0.0',
+    path: 'dist/browserfs.min.js',
+    cdn: 'jsdelivr',
+    fallbackCdns: ['unpkg'],
+    isModule: false,
+    priority: 4,
+    external: 'https://cdn.jsdelivr.net/npm/browserfs@2.0.0/dist/browserfs.min.js'
+  },
+  cheerpj: {
+    name: 'cheerpj',
+    version: '3.0',
+    path: 'cj3loader.js',
     cdn: 'jsdelivr',
     fallbackCdns: ['unpkg'],
     isModule: false,
     priority: 3,
-    external: 'https://cdn.jsdelivr.net/npm/doppio-jvm@0.5.1/dist/doppio.min.js'
+    external: 'https://cjrtnc.leaningtech.com/3.0/cj3loader.js'
   }
 };
 

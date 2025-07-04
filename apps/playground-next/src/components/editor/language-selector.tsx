@@ -7,7 +7,8 @@ import {
   SelectItem
 } from '@nextui-org/react';
 import { useGlobalLanguageService } from '@/lib/services/language-service';
-import { useGlobalVendorService } from '@/lib/services/vendors';
+import { useLanguageLoader } from '@/lib/utils/language-loader';
+import { LanguageLoadingBadge } from '@/components/ui/language-loading-indicator';
 import type { EditorType, Language } from '@/types';
 
 interface LanguageSelectorProps {
@@ -47,7 +48,7 @@ export function LanguageSelector({
   showIcon = true
 }: LanguageSelectorProps) {
   const languageService = useGlobalLanguageService();
-  const vendorService = useGlobalVendorService();
+  const { loadLanguage, isLanguageLoading } = useLanguageLoader();
 
   /** 获取语言选项 */
   const getLanguageOptions = () => {
@@ -89,17 +90,17 @@ export function LanguageSelector({
     const selectedKey = Array.from(keys)[0] as Language;
     if (selectedKey && selectedKey !== value) {
       try {
-        // 检查是否需要加载 vendor
-        const languageConfig = languageService.getLanguageConfig(selectedKey);
-        if (languageConfig?.compiler?.vendorKey) {
-          console.log(`[LanguageSelector] 加载 ${selectedKey} 编译器依赖: ${languageConfig.compiler.vendorKey}`);
-          await vendorService.loadVendor(languageConfig.compiler.vendorKey);
-        }
+        console.log(`[LanguageSelector] 开始切换语言: ${selectedKey}`);
 
+        // 按需加载语言资源
+        await loadLanguage(selectedKey);
+
+        // 切换语言
         onChange(selectedKey);
         console.log(`[LanguageSelector] 语言已切换到: ${selectedKey}`);
       } catch (error) {
         console.error(`[LanguageSelector] 语言切换失败:`, error);
+        // 可以在这里显示错误提示
       }
     }
   };
@@ -148,8 +149,9 @@ export function LanguageSelector({
           endContent={
             <div className="flex gap-1">
               {option.needsCompiler && (
-                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                <span className="w-2 h-2 bg-orange-500 rounded-full" title="需要编译器"></span>
               )}
+              <LanguageLoadingBadge language={option.key} />
             </div>
           }
         >

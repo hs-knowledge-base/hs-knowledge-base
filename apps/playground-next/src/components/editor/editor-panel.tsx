@@ -14,8 +14,8 @@ import {
 } from '@nextui-org/react';
 import { MonacoEditor } from './monaco-editor';
 import { useEditorStore } from '@/stores/editor-store';
+import { useLanguageLoader } from '@/lib/utils/language-loader';
 import { useGlobalLanguageService } from '@/lib/services/language-service';
-import { useGlobalVendorService } from '@/lib/services/vendors';
 import type { EditorType, Language } from '@/types';
 
 interface EditorPanelProps {
@@ -48,9 +48,9 @@ export function EditorPanel({
     formatCode,
     resetEditor
   } = useEditorStore();
-  
+
+  const { loadLanguage } = useLanguageLoader();
   const languageService = useGlobalLanguageService();
-  const vendorService = useGlobalVendorService();
 
   /** 获取编辑器标签信息 */
   const getTabInfo = (type: EditorType) => {
@@ -99,15 +99,8 @@ export function EditorPanel({
     try {
       console.log(`[EditorPanel] 开始切换语言: ${language}`);
 
-      // 检查是否需要加载 vendor
-      const languageConfig = languageService.getLanguageConfig(language);
-      console.log(`[EditorPanel] 语言配置:`, languageConfig);
-
-      if (languageConfig?.compiler?.vendorKey) {
-        console.log(`[EditorPanel] 需要加载编译器依赖: ${languageConfig.compiler.vendorKey}`);
-        await vendorService.loadVendor(languageConfig.compiler.vendorKey);
-        console.log(`[EditorPanel] 编译器依赖加载完成: ${languageConfig.compiler.vendorKey}`);
-      }
+      // 按需加载语言资源
+      await loadLanguage(language);
 
       // 设置语言
       setEditorLanguage(type, language);

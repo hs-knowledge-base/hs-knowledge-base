@@ -47,18 +47,15 @@ export class CompilerFactory {
     console.info('[CompilerFactory] 编译器工厂初始化完成');
   }
 
-  /** 初始化所有编译器 */
+  /** 初始化编译器工厂（仅注册默认语言） */
   async initialize(): Promise<void> {
     if (this.initialized) {
       return;
     }
 
     try {
-      // 注册直通编译器（原生支持的语言）
-      this.registerPassthroughCompilers();
-
-      // 注册需要编译的语言
-      this.registerTranspileCompilers();
+      // 只注册默认的三种语言：HTML、CSS、JavaScript
+      this.registerDefaultCompilers();
 
       this.initialized = true;
       console.info('[CompilerFactory] 编译器工厂初始化完成');
@@ -66,6 +63,20 @@ export class CompilerFactory {
       console.error('[CompilerFactory] 初始化失败:', error);
       throw error;
     }
+  }
+
+  /** 按需加载并注册编译器 */
+  async loadCompiler(language: Language): Promise<ICompiler> {
+    // 先检查是否已经注册
+    if (this.supports(language)) {
+      return this.getCompiler(language);
+    }
+
+    // 动态注册编译器
+    await this.registerCompilerOnDemand(language);
+
+    // 返回编译器实例
+    return this.getCompiler(language);
   }
 
   /** 注册编译器类 */
@@ -82,6 +93,11 @@ export class CompilerFactory {
     let compiler = this.compilers.get(language);
 
     if (!compiler) {
+      // 如果编译器未注册，先按需加载
+      if (!this.supports(language)) {
+        await this.loadCompiler(language);
+      }
+
       // 创建新的编译器实例
       compiler = await this.createCompiler(language);
       if (compiler) {
@@ -213,8 +229,8 @@ export class CompilerFactory {
     };
   }
 
-  /** 注册直通编译器 */
-  private registerPassthroughCompilers(): void {
+  /** 注册默认编译器（HTML、CSS、JavaScript） */
+  private registerDefaultCompilers(): void {
     // 动态导入编译器类
     const { HtmlCompiler } = require('./compilers/html');
     const { CssCompiler } = require('./compilers/css');
@@ -225,31 +241,47 @@ export class CompilerFactory {
     this.registerCompiler('css', () => new CssCompiler());
     this.registerCompiler('javascript', () => new JavaScriptCompiler());
 
-    console.info('[CompilerFactory] 注册了 3 个直通编译器');
+    console.info('[CompilerFactory] 注册了 3 个默认编译器');
   }
 
-  /** 注册转译编译器 */
-  private registerTranspileCompilers(): void {
-    // 动态导入编译器类
-    const { TypeScriptCompiler } = require('./compilers/typescript');
-    const { MarkdownCompiler } = require('./compilers/markdown');
-    const { ScssCompiler } = require('./compilers/scss');
-    const { LessCompiler } = require('./compilers/less');
+  /** 按需注册编译器 */
+  private async registerCompilerOnDemand(language: Language): Promise<void> {
+    console.info(`[CompilerFactory] 按需注册编译器: ${language}`);
 
-    // TypeScript 编译器
-    this.registerCompiler('typescript', () => new TypeScriptCompiler());
+    try {
+      switch (language) {
+        case 'typescript':
+          const { TypeScriptCompiler } = require('./compilers/typescript');
+          this.registerCompiler('typescript', () => new TypeScriptCompiler());
+          break;
 
-    // Markdown 编译器
-    this.registerCompiler('markdown', () => new MarkdownCompiler());
+        case 'markdown':
+          const { MarkdownCompiler } = require('./compilers/markdown');
+          this.registerCompiler('markdown', () => new MarkdownCompiler());
+          break;
 
-    // SCSS 编译器
-    this.registerCompiler('scss', () => new ScssCompiler());
+        case 'scss':
+          const { ScssCompiler } = require('./compilers/scss');
+          this.registerCompiler('scss', () => new ScssCompiler());
+          break;
 
-    // Less 编译器
-    this.registerCompiler('less', () => new LessCompiler());
+        case 'less':
+          const { LessCompiler } = require('./compilers/less');
+          this.registerCompiler('less', () => new LessCompiler());
+          break;
 
-    console.info('[CompilerFactory] 注册了转译编译器');
+        default:
+          throw new Error(`不支持的语言: ${language}`);
+      }
+
+      console.info(`[CompilerFactory] 编译器 ${language} 注册成功`);
+    } catch (error) {
+      console.error(`[CompilerFactory] 编译器 ${language} 注册失败:`, error);
+      throw error;
+    }
   }
+
+
 
   /** 获取需要编译的语言 */
   getTranspileLanguages(): Language[] {
@@ -348,14 +380,17 @@ export function useCompile() {
   const { setCompileResult, startCompile, finishCompile } = useCompilerStore();
 
   const compile = async (
-    code: string, 
-    language: Language, 
+    code: string,
+    language: Language,
     editorType: 'markup' | 'style' | 'script',
     options: CompileOptions = {}
   ): Promise<CompileResult> => {
     startCompile(editorType);
-    
+
     try {
+      // 确保编译器已加载
+      await factory.getCompiler(language);
+
       const result = await factory.compileWithCache(code, language, options);
       setCompileResult(editorType, result);
       finishCompile(editorType, result);

@@ -1,17 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  Card, 
-  CardBody, 
-  Tabs, 
-  Tab, 
-  Button, 
+import React, { useState, useEffect } from 'react';
+import {
+  Card,
+  CardBody,
+  Tabs,
+  Tab,
+  Button,
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  Chip
+  Chip,
+  Spinner
 } from '@nextui-org/react';
 import { MonacoEditor } from './monaco-editor';
 import { useEditorStore } from '@/stores/editor-store';
@@ -170,7 +171,7 @@ export function EditorPanel({
           <Button
             variant="light"
             size="sm"
-            onClick={handleFormatCode}
+            onPress={handleFormatCode}
             isDisabled={!tabInfo.hasContent}
           >
             格式化
@@ -181,7 +182,7 @@ export function EditorPanel({
             variant="light"
             size="sm"
             color="warning"
-            onClick={handleResetEditor}
+            onPress={handleResetEditor}
             isDisabled={!tabInfo.hasContent}
           >
             重置

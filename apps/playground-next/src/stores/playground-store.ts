@@ -96,23 +96,32 @@ const initialState: PlaygroundState = {
   runDelay: 1000
 };
 
+// 防抖定时器
+let autoRunTimer: NodeJS.Timeout | null = null;
+
 export const usePlaygroundStore = create<PlaygroundStore>()(
   devtools(
     persist(
       (set, get) => ({
         ...initialState,
-        
+
         // 代码操作
         setCode: (type, code) => {
           set((state) => ({
             code: { ...state.code, [type]: code }
           }), false, `setCode/${type}`);
-          
-          // 如果启用自动运行，延迟执行
+
+          // 如果启用自动运行，使用防抖延迟执行
           const { autoRun, runDelay } = get();
           if (autoRun) {
-            setTimeout(() => {
+            // 清除之前的定时器
+            if (autoRunTimer) {
+              clearTimeout(autoRunTimer);
+            }
+            // 设置新的定时器
+            autoRunTimer = setTimeout(() => {
               get().runCode();
+              autoRunTimer = null;
             }, runDelay);
           }
         },

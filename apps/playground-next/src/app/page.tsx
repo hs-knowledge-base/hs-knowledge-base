@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, Chip } from '@nextui-org/react';
+import { Button, Card, CardBody, CardHeader, Chip, Spinner } from '@nextui-org/react';
 import { usePlaygroundStore } from '@/stores/playground-store';
 import { useLayoutStore } from '@/stores/layout-store';
 import { useGlobalServiceContainer } from '@/lib/core/service-container';
@@ -9,17 +9,60 @@ import { useGlobalLanguageService } from '@/lib/services/language-service';
 import { useGlobalEventEmitter } from '@/lib/core/events';
 import { useGlobalVendorService } from '@/lib/services/vendors';
 import { useGlobalResourceLoader } from '@/lib/services/resource-loader';
+import dynamic from 'next/dynamic';
 import { useEditorStore } from '@/stores/editor-store';
 import { useCompilerStore } from '@/stores/compiler-store';
-import { EditorPanel } from '@/components/editor/editor-panel';
+import { useCompilerInitialization } from '@/lib/compiler/compiler-registry';
+
+// 动态导入编辑器相关组件，避免 SSR 问题
+const EditorPanel = dynamic(() => import('@/components/editor/editor-panel').then(mod => ({ default: mod.EditorPanel })), {
+  ssr: false,
+  loading: () => (
+    <Card className="h-[500px]">
+      <CardBody className="flex items-center justify-center">
+        <div className="text-center">
+          <Spinner size="lg" />
+          <p className="mt-2 text-default-500">编辑器加载中...</p>
+        </div>
+      </CardBody>
+    </Card>
+  )
+});
+
+const CompilerOutput = dynamic(() => import('@/components/playground/compiler-output').then(mod => ({ default: mod.CompilerOutput })), {
+  ssr: false,
+  loading: () => (
+    <Card className="h-[600px]">
+      <CardBody className="flex items-center justify-center">
+        <div className="text-center">
+          <Spinner size="lg" />
+          <p className="mt-2 text-default-500">编译器加载中...</p>
+        </div>
+      </CardBody>
+    </Card>
+  )
+});
+
+const CodeRunner = dynamic(() => import('@/components/playground/code-runner').then(mod => ({ default: mod.CodeRunner })), {
+  ssr: false,
+  loading: () => (
+    <Card className="h-[500px]">
+      <CardBody className="flex items-center justify-center">
+        <div className="text-center">
+          <Spinner size="lg" />
+          <p className="mt-2 text-default-500">运行器加载中...</p>
+        </div>
+      </CardBody>
+    </Card>
+  )
+});
 
 export default function Home() {
   const { runStatus, consoleMessages, runCode, addConsoleMessage } = usePlaygroundStore();
   const { config, setDirection, togglePreview } = useLayoutStore();
 
-  // 测试核心服务
+  // 测试核心服务 - 使用全局实例避免重复创建
   const serviceContainer = useGlobalServiceContainer();
-  const configManager = useConfigManager();
   const languageService = useGlobalLanguageService();
   const eventEmitter = useGlobalEventEmitter();
   const vendorService = useGlobalVendorService();
@@ -28,6 +71,9 @@ export default function Home() {
   // 测试状态管理
   const { configs: editorConfigs, isLoaded: editorLoaded } = useEditorStore();
   const { isCompiling, results: compileResults } = useCompilerStore();
+
+  // 测试编译器系统
+  const compilerInit = useCompilerInitialization();
 
   const handleTestRun = () => {
     addConsoleMessage({
@@ -45,11 +91,10 @@ export default function Home() {
       message: `📦 服务容器统计: ${JSON.stringify(containerStats)}`
     });
 
-    // 测试配置管理器
-    const configStats = configManager.getStats();
+    // 测试配置管理器 - 暂时跳过，避免重复创建
     addConsoleMessage({
       type: 'info',
-      message: `⚙️ 配置管理器统计: ${JSON.stringify(configStats)}`
+      message: `⚙️ 配置管理器: 已集成到状态管理中`
     });
 
     // 测试语言服务
@@ -78,6 +123,12 @@ export default function Home() {
     addConsoleMessage({
       type: 'info',
       message: `🔗 资源加载器统计: ${JSON.stringify(resourceStats)}`
+    });
+
+    // 测试编译器系统
+    addConsoleMessage({
+      type: 'info',
+      message: `🔧 编译器系统: 已注册 ${compilerInit.totalLanguages} 种语言，其中 ${compilerInit.transpileLanguages} 种需要编译`
     });
 
     // 触发测试事件
@@ -126,14 +177,14 @@ export default function Home() {
                 <Button
                   size="sm"
                   variant={config.direction === 'horizontal' ? 'solid' : 'bordered'}
-                  onClick={() => setDirection('horizontal')}
+                  onPress={() => setDirection('horizontal')}
                 >
                   水平
                 </Button>
                 <Button
                   size="sm"
                   variant={config.direction === 'vertical' ? 'solid' : 'bordered'}
-                  onClick={() => setDirection('vertical')}
+                  onPress={() => setDirection('vertical')}
                 >
                   垂直
                 </Button>
@@ -180,7 +231,7 @@ export default function Home() {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-500">
-                  {configManager.getStats().listenersCount}
+                  0
                 </div>
                 <div className="text-sm text-default-500">配置监听器</div>
               </div>
@@ -195,6 +246,31 @@ export default function Home() {
                   {resourceLoader.getStats().totalResources}
                 </div>
                 <div className="text-sm text-default-500">加载资源</div>
+              </div>
+            </div>
+
+            {/* 编译器系统状态 */}
+            <div className="mt-4 p-4 bg-content2 rounded-lg">
+              <h4 className="font-semibold mb-2">🔧 编译器系统</h4>
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-lg font-bold text-blue-500">
+                    {compilerInit.totalLanguages}
+                  </div>
+                  <div className="text-xs text-default-500">总语言数</div>
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-warning">
+                    {compilerInit.transpileLanguages}
+                  </div>
+                  <div className="text-xs text-default-500">需编译</div>
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-success">
+                    {compilerInit.passthroughLanguages}
+                  </div>
+                  <div className="text-xs text-default-500">原生支持</div>
+                </div>
               </div>
             </div>
           </CardBody>
@@ -222,26 +298,51 @@ export default function Home() {
           </CardBody>
         </Card>
 
-        {/* 编辑器演示 */}
-        <Card>
-          <CardHeader>
-            <h3 className="text-lg font-semibold">🖥️ Monaco Editor 演示</h3>
-          </CardHeader>
-          <CardBody>
-            <EditorPanel
-              className="h-[600px]"
-              showToolbar={true}
-              defaultActiveEditor="script"
-            />
-          </CardBody>
-        </Card>
+        {/* 完整的 Playground 演示 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* 编辑器面板 */}
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-semibold">🖥️ 代码编辑器</h3>
+            </CardHeader>
+            <CardBody>
+              <EditorPanel
+                className="h-[500px]"
+                showToolbar={true}
+                defaultActiveEditor="script"
+              />
+            </CardBody>
+          </Card>
+
+          {/* 运行结果 */}
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-semibold">🚀 运行结果</h3>
+            </CardHeader>
+            <CardBody>
+              <CodeRunner
+                className="h-[500px]"
+                autoRun={false}
+                runDelay={1000}
+              />
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* 编译结果 */}
+        <CompilerOutput
+          className="h-[600px]"
+          showOriginalCode={true}
+          showStats={true}
+          defaultActiveTab="script"
+        />
 
         {/* 测试按钮 */}
         <div className="flex justify-center gap-4">
           <Button
             color="primary"
             size="lg"
-            onClick={handleTestRun}
+            onPress={handleTestRun}
             isLoading={runStatus === 'compiling' || runStatus === 'running'}
           >
             测试运行
@@ -249,14 +350,14 @@ export default function Home() {
           <Button
             color="secondary"
             size="lg"
-            onClick={handleTestServices}
+            onPress={handleTestServices}
           >
             测试核心服务
           </Button>
           <Button
             variant="bordered"
             size="lg"
-            onClick={togglePreview}
+            onPress={togglePreview}
           >
             切换预览: {config.showPreview ? '开启' : '关闭'}
           </Button>
@@ -334,10 +435,24 @@ export default function Home() {
                 <div>✅ SSR 兼容性处理</div>
               </div>
               <div className="flex items-center gap-3">
+                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs">✓</span>
+                </div>
+                <span>阶段四：编译器系统适配</span>
+              </div>
+              <div className="ml-7 text-sm text-default-500 space-y-1">
+                <div>✅ CompilerFactory - 编译器工厂</div>
+                <div>✅ BaseCompiler - 基础编译器类</div>
+                <div>✅ CompilerRegistry - 编译器注册表</div>
+                <div>✅ CompilerOutput - 编译结果组件</div>
+                <div>✅ CodeRunner - 代码运行器</div>
+                <div>✅ 支持 TypeScript、Markdown、SCSS、Less 编译</div>
+              </div>
+              <div className="flex items-center gap-3 mt-3">
                 <div className="w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
                   <span className="text-white text-xs">⚡</span>
                 </div>
-                <span>阶段四：编译器系统适配 (下一步)</span>
+                <span>阶段五：UI 组件开发 (下一步)</span>
               </div>
             </div>
           </CardBody>

@@ -132,7 +132,7 @@ export function EditorToolbar({
       <ButtonGroup size={compact ? 'sm' : 'md'} variant="flat">
         <Tooltip content="格式化代码">
           <Button
-            onClick={handleFormatCode}
+            onPress={handleFormatCode}
             isDisabled={!hasContent}
           >
             格式化
@@ -142,7 +142,7 @@ export function EditorToolbar({
         <Tooltip content="重置编辑器">
           <Button
             color="warning"
-            onClick={handleResetEditor}
+            onPress={handleResetEditor}
             isDisabled={!hasContent}
           >
             重置
@@ -244,7 +244,7 @@ export function EditorToolbar({
           <Divider orientation="vertical" className="h-6" />
           <Button
             color="primary"
-            onClick={handleRunCode}
+            onPress={handleRunCode}
             isLoading={isRunning}
             size={compact ? 'sm' : 'md'}
           >

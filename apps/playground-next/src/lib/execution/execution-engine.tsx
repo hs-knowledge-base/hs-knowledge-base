@@ -6,6 +6,7 @@ import { getGlobalRuntimeManager, type RuntimeResult } from '@/lib/services/lang
 import { useEditorStore } from '@/stores/editor-store';
 import { usePlaygroundStore } from '@/stores/playground-store';
 import { getGlobalCompilerFactory, type ConsoleMessage } from '@/lib/compiler/compiler-factory';
+import { shouldOutputToConsole, canExecuteInBrowser, getLanguagesByCategory, getLanguageDisplayName } from '@/utils/language-utils';
 
 interface ExecutionEngineProps {
   className?: string;
@@ -141,32 +142,20 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
       return '';
     }
 
-    // 对于不同类型的语言，处理输出
-    switch (type) {
-      case 'markup':
-        // HTML 和 Markdown 直接返回输出
-        if (['html', 'markdown'].includes(language)) {
-          return result.output || contents[type];
-        }
-        break;
-        
-      case 'style':
-        // CSS、SCSS、Less 返回编译后的 CSS
-        if (['css', 'scss', 'less'].includes(language)) {
-          return result.output || contents[type];
-        }
-        break;
-        
-      case 'script':
-        // 对于脚本语言，需要特殊处理
-        return await handleScriptContent(result, language);
-    }
-
-    return result.output || '';
+    // 统一通过编译器处理所有类型的内容
+    // 每个编译器负责：
+    // 1. 编译源代码到目标格式
+    // 2. 处理执行结果
+    // 3. 生成预览代码（如果需要）
+    return await handleContentWithCompiler(result, language, type);
   };
 
-  /** 处理脚本内容 */
-  const handleScriptContent = async (result: RuntimeResult, language: Language): Promise<string> => {
+  /** 通过编译器处理内容 */
+  const handleContentWithCompiler = async (
+    result: RuntimeResult, 
+    language: Language, 
+    type: 'markup' | 'style' | 'script'
+  ): Promise<string> => {
     try {
       // 尝试获取对应的编译器
       const compiler = await compilerFactory.getCompiler(language);
@@ -175,38 +164,37 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
       if (compiler && typeof compiler.processExecutionResult === 'function') {
         const executionResult = compiler.processExecutionResult(result);
         
-        // 将控制台消息添加到我们的控制台
-        executionResult.consoleMessages.forEach((msg: ConsoleMessage) => {
-          addConsoleMessage(msg);
-        });
+        // 只有脚本语言才将控制台消息添加到控制台
+        if (shouldOutputToConsole(language) && type === 'script') {
+          executionResult.consoleMessages.forEach((msg: ConsoleMessage) => {
+            addConsoleMessage(msg);
+          });
+        }
         
-        return executionResult.previewCode;
+        // 根据类型返回相应的内容
+        switch (type) {
+          case 'script':
+            // 脚本类型需要返回可执行的预览代码
+            return executionResult.previewCode;
+          case 'style':
+          case 'markup':
+            // 样式和标记类型返回编译后的代码，不输出到控制台
+            return result.output || '';
+          default:
+            return result.output || '';
+        }
       }
       
-      // 降级到默认处理（为了向后兼容）
-      return getDefaultScriptContent(result, language);
+      // 如果编译器不支持processExecutionResult，返回原始输出
+      return result.output || '';
       
     } catch (error) {
-      console.warn('[ExecutionEngine] 无法获取编译器，使用默认处理:', error);
-      return getDefaultScriptContent(result, language);
+      console.warn(`[ExecutionEngine] ${language} 编译器处理失败:`, error);
+      return result.output || '';
     }
   };
 
-  /** 默认脚本内容处理（向后兼容） */
-  const getDefaultScriptContent = (result: RuntimeResult, language: Language): string => {
-    // 遵循SOLID原则：移除语言特定逻辑，使用通用处理
-    if (result.output) {
-      return result.output;
-    }
-    
-    // 对于JavaScript，直接返回原始代码
-    if (language === 'javascript') {
-      return contents.script;
-    }
-    
-    // 其他语言返回通用的执行完成消息
-    return `// ${language} 代码已执行\nconsole.log('✅ ${language} 代码执行完成');`;
-  };
+
 
   /** 生成预览 HTML */
   const generatePreviewHtml = (
@@ -215,14 +203,6 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
     scriptContent: string,
     scriptLanguage: Language
   ): string => {
-    // 遵循SOLID原则：移除语言特定的依赖处理
-    // 运行时依赖应该由各自的编译器处理
-    const runtimeDeps: string[] = [];
-    
-    // 注意：这里暂时保持空的依赖数组
-    // 运行时依赖的加载已经由language-loader和vendor-service处理
-    // 编译器应该在执行时确保必要的依赖已经加载
-
     return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -247,8 +227,6 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
         /* 用户样式 */
         ${styleContent}
     </style>
-    
-    ${runtimeDeps.map(dep => `<script src="${dep}"></script>`).join('\n    ')}
 </head>
 <body>
     ${markupContent}
@@ -300,25 +278,28 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
             sendToParent('error', ['Unhandled Promise Rejection: ' + event.reason]);
         });
         
-        // 运行时初始化
-        // 遵循SOLID原则：移除语言特定的初始化逻辑
-        // 各语言的运行时应该由其编译器负责初始化
-        async function initializeRuntimes() {
-            // 发送通用的初始化完成消息
-            sendToParent('info', ['运行时环境已准备就绪']);
-        }
-        
         // 页面加载完成后执行
-        window.addEventListener('load', async function() {
-            sendToParent('info', ['预览加载完成']);
-            await initializeRuntimes();
+        window.addEventListener('load', function() {
+            // 只对脚本语言输出系统消息到控制台
+            const shouldOutput = ${shouldOutputToConsole(scriptLanguage)};
             
+            if (shouldOutput) {
+                sendToParent('info', ['预览加载完成']);
+                sendToParent('info', ['运行时环境已准备就绪']);
+            }
+            
+            // 只有JavaScript和TypeScript可以在浏览器中直接执行
+            ${canExecuteInBrowser(scriptLanguage) ? `
             // 执行用户脚本
             try {
                 ${scriptContent}
             } catch (error) {
                 sendToParent('error', [error.message]);
-            }
+            }` : `
+            // ${scriptLanguage} 代码已通过编译器处理，不在浏览器中直接执行
+            if (shouldOutput) {
+                sendToParent('info', ['${scriptLanguage} 代码已处理完成']);
+            }`}
         });
     </script>
 </body>
@@ -377,7 +358,7 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
             <p className="text-lg font-semibold">暂无预览内容</p>
             <p className="text-sm mt-1">请在编辑器中输入代码</p>
             <p className="text-xs mt-2 text-gray-400">
-              支持: JavaScript, TypeScript, Python, Go, PHP, Java 等
+              支持: {getLanguagesByCategory('script').map(lang => getLanguageDisplayName(lang)).join(', ')} 等
             </p>
           </div>
         </div>

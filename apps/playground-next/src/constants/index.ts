@@ -1,17 +1,18 @@
-import type { Language, EditorConfig, LayoutConfig, Settings } from '@/types';
+import type { Language, EditorConfig, LayoutConfig, Settings, EditorType } from '@/types';
+import { getLanguagesByCategory } from '@/utils/language-utils';
 
 /** 支持的语言列表 */
-export const SUPPORTED_LANGUAGES: Record<string, Language[]> = {
-  markup: ['html', 'markdown'],
-  style: ['css', 'scss', 'less'],
-  script: ['javascript', 'typescript']
+export const SUPPORTED_LANGUAGES: Record<EditorType, Language[]> = {
+  markup: getLanguagesByCategory('markup'),
+  style: getLanguagesByCategory('style'),
+  script: getLanguagesByCategory('script')
 };
 
 /** 编辑器类型对应的语言选项 */
 export const EDITOR_LANGUAGE_OPTIONS = {
-  markup: ['html', 'markdown'],
-  style: ['css', 'scss', 'less'],
-  script: ['javascript', 'typescript', 'python', 'go', 'php', 'java']
+  markup: getLanguagesByCategory('markup'),
+  style: getLanguagesByCategory('style'),
+  script: getLanguagesByCategory('script')
 } as const;
 
 /** 语言显示名称 */

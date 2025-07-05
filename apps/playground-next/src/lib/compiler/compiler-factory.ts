@@ -2,6 +2,7 @@ import { useRef, useEffect } from 'react';
 import type { Language, CompileResult } from '@/types';
 import { useGlobalVendorService } from '@/lib/services/vendors';
 import { useCompilerStore } from '@/stores/compiler-store';
+import { getLanguagesByCategory } from '@/utils/language-utils';
 
 /** 控制台消息类型 */
 export interface ConsoleMessage {
@@ -291,7 +292,7 @@ export class CompilerFactory {
     };
   }
 
-  /** 注册默认编译器（HTML、CSS、JavaScript） */
+  /** 注册默认编译器（基础的直通语言） */
   private registerDefaultCompilers(): void {
     // 动态导入编译器类
     const { HtmlCompiler } = require('./compilers/html');
@@ -367,20 +368,15 @@ export class CompilerFactory {
 
   /** 获取需要编译的语言 */
   getTranspileLanguages(): Language[] {
-    return ['typescript', 'markdown', 'scss', 'less', 'python', 'go', 'php', 'java'];
+    // 脚本语言中除了JavaScript需要编译
+    const scriptLanguages = getLanguagesByCategory('script').filter(lang => lang !== 'javascript');
+    // 样式语言中除了CSS需要编译
+    const styleLanguages = getLanguagesByCategory('style').filter(lang => lang !== 'css');
+    // 标记语言中除了HTML需要编译
+    const markupLanguages = getLanguagesByCategory('markup').filter(lang => lang !== 'html');
+    
+    return [...scriptLanguages, ...styleLanguages, ...markupLanguages];
   }
-
-  /** 获取直通语言 */
-  getPassthroughLanguages(): Language[] {
-    return ['html', 'css', 'javascript'];
-  }
-
-  /** 检查语言是否需要编译 */
-  needsCompilation(language: Language): boolean {
-    return this.getTranspileLanguages().includes(language);
-  }
-
-
 
   /** 销毁工厂 */
   destroy(): void {

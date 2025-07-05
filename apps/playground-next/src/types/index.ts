@@ -1,12 +1,17 @@
-// 基础类型定义
+/** 标记语言 */
+export type MarkupLanguage = 'html' | 'markdown';
+
+/** 样式语言 */
+export type StyleLanguage = 'css' | 'scss' | 'less';
+
+/** 脚本语言 */
+export type ScriptLanguage = 'javascript' | 'typescript' | 'python' | 'go' | 'php' | 'java';
 
 /** 支持的编程语言 */
-export type Language =
-  | 'html' | 'markdown'
-  | 'css' | 'scss' | 'less'
-  | 'javascript' | 'typescript'
-  | 'python' | 'go' | 'php' | 'java'
-  | 'json' | 'xml' | 'yaml';
+export type Language = MarkupLanguage | StyleLanguage | ScriptLanguage;
+
+/** 语言类型分类 */
+export type LanguageCategory = 'markup' | 'style' | 'script';
 
 /** 编辑器类型 */
 export type EditorType = 'markup' | 'style' | 'script';

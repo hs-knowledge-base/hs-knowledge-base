@@ -69,25 +69,33 @@ export function canExecuteInBrowser(language: Language): boolean {
   return language === 'javascript' || language === 'typescript';
 }
 
+/** 语言配置映射 - 统一管理语言标识符和显示名称 */
+const LANGUAGE_CONFIG: Record<Language, { displayName: string; monacoId: string }> = {
+  html: { displayName: 'HTML', monacoId: 'html' },
+  markdown: { displayName: 'Markdown', monacoId: 'markdown' },
+  css: { displayName: 'CSS', monacoId: 'css' },
+  scss: { displayName: 'SCSS', monacoId: 'scss' },
+  less: { displayName: 'Less', monacoId: 'less' },
+  javascript: { displayName: 'JavaScript', monacoId: 'javascript' },
+  typescript: { displayName: 'TypeScript', monacoId: 'typescript' },
+  python: { displayName: 'Python', monacoId: 'python' },
+  go: { displayName: 'Go', monacoId: 'go' },
+  php: { displayName: 'PHP', monacoId: 'php' },
+  java: { displayName: 'Java', monacoId: 'java' }
+};
+
 /**
  * 获取语言的显示名称
  */
 export function getLanguageDisplayName(language: Language): string {
-  const displayNames: Record<Language, string> = {
-    html: 'HTML',
-    markdown: 'Markdown',
-    css: 'CSS',
-    scss: 'SCSS',
-    less: 'Less',
-    javascript: 'JavaScript',
-    typescript: 'TypeScript',
-    python: 'Python',
-    go: 'Go',
-    php: 'PHP',
-    java: 'Java'
-  };
-  
-  return displayNames[language] || language;
+  return LANGUAGE_CONFIG[language]?.displayName || language;
+}
+
+/**
+ * 获取 Monaco 编辑器的语言标识符
+ */
+export function getMonacoLanguageId(language: Language): string {
+  return LANGUAGE_CONFIG[language]?.monacoId || 'plaintext';
 }
 
 /**

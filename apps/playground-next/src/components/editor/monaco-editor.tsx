@@ -5,6 +5,7 @@ import { Card, CardBody, Spinner } from '@nextui-org/react';
 import type { EditorConfig, Language } from '@/types';
 import { useGlobalVendorService } from '@/lib/services/vendors';
 import { useEditorStore } from '@/stores/editor-store';
+import { getMonacoLanguageId } from '@/utils/language-utils';
 
 // Monaco Editor 类型定义
 declare global {
@@ -124,8 +125,8 @@ export function MonacoEditor({
       // 创建编辑器实例
       const editor = monaco.editor.create(containerRef.current, {
         value: currentValue, // 使用 store 中的内容
-        language: getMonacoLanguage(editorConfig.language),
-        theme: 'vs-dark', // 强制使用深色主题
+        language: getMonacoLanguageId(editorConfig.language),
+        theme: 'vs-dark',
         fontSize: editorConfig.fontSize || 14,
         fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace",
         wordWrap: editorConfig.wordWrap ? 'on' : 'off',
@@ -228,26 +229,7 @@ export function MonacoEditor({
     onReady
   ]);
 
-  /** 获取 Monaco 语言标识符 */
-  const getMonacoLanguage = (language: Language): string => {
-    const languageMap: Record<Language, string> = {
-      javascript: 'javascript',
-      typescript: 'typescript',
-      html: 'html',
-      css: 'css',
-      scss: 'scss',
-      less: 'less',
-      markdown: 'markdown',
-      json: 'json',
-      xml: 'xml',
-      yaml: 'yaml',
-      python: 'python',
-      java: 'java',
-      go: 'go',
-      php: 'php'
-    };
-    return languageMap[language] || 'plaintext';
-  };
+  // 移除重复的函数，使用统一的工具函数
 
   /** 初始化编辑器 */
   useEffect(() => {
@@ -297,7 +279,7 @@ export function MonacoEditor({
       // 更新语言
       const model = editor.getModel();
       if (model) {
-        window.monaco.editor.setModelLanguage(model, getMonacoLanguage(editorConfig.language));
+        window.monaco.editor.setModelLanguage(model, getMonacoLanguageId(editorConfig.language));
       }
 
       // 更新其他配置

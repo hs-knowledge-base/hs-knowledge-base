@@ -8,31 +8,6 @@ export const SUPPORTED_LANGUAGES: Record<EditorType, Language[]> = {
   script: getLanguagesByCategory('script')
 };
 
-/** 编辑器类型对应的语言选项 */
-export const EDITOR_LANGUAGE_OPTIONS = {
-  markup: getLanguagesByCategory('markup'),
-  style: getLanguagesByCategory('style'),
-  script: getLanguagesByCategory('script')
-} as const;
-
-/** 语言显示名称 */
-export const LANGUAGE_DISPLAY_NAMES = {
-  html: 'HTML',
-  markdown: 'Markdown',
-  css: 'CSS',
-  scss: 'SCSS',
-  less: 'Less',
-  javascript: 'JavaScript',
-  typescript: 'TypeScript',
-  python: 'Python',
-  go: 'Go',
-  php: 'PHP',
-  java: 'Java',
-  json: 'JSON',
-  xml: 'XML',
-  yaml: 'YAML'
-} as const;
-
 /** 语言文件扩展名 */
 export const LANGUAGE_EXTENSIONS = {
   html: '.html',
@@ -45,10 +20,7 @@ export const LANGUAGE_EXTENSIONS = {
   python: '.py',
   go: '.go',
   php: '.php',
-  java: '.java',
-  json: '.json',
-  xml: '.xml',
-  yaml: '.yml'
+  java: '.java'
 } as const;
 
 /** 语言描述 */
@@ -63,29 +35,9 @@ export const LANGUAGE_DESCRIPTIONS = {
   python: 'Python - 使用 Brython 在浏览器中运行',
   go: 'Go - 使用 GopherJS 编译为 JavaScript',
   php: 'PHP - 使用 Uniter 在浏览器中运行',
-  java: 'Java - 使用 DoppioJVM 在浏览器中运行 (开发中)',
-  json: 'JSON - JavaScript Object Notation',
-  xml: 'XML - Extensible Markup Language',
-  yaml: 'YAML - YAML Ain\'t Markup Language'
+  java: 'Java - 使用 CheerpJ 在浏览器中运行'
 } as const;
 
-/** 语言运行时类型 */
-export const LANGUAGE_RUNTIME_TYPES = {
-  html: 'native',
-  markdown: 'transpiler',
-  css: 'native',
-  scss: 'transpiler',
-  less: 'transpiler',
-  javascript: 'native',
-  typescript: 'transpiler',
-  python: 'interpreter',
-  go: 'transpiler',
-  php: 'interpreter',
-  java: 'vm',
-  json: 'native',
-  xml: 'native',
-  yaml: 'transpiler'
-} as const;
 
 /** 默认编辑器配置 */
 export const DEFAULT_EDITOR_CONFIG: EditorConfig = {

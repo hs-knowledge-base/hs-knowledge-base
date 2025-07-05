@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react';
 import type { Language, EditorType } from '@/types';
-import { LANGUAGE_DISPLAY_NAMES, LANGUAGE_EXTENSIONS } from '@/constants';
+import { LANGUAGE_EXTENSIONS } from '@/constants';
+import { getLanguageDisplayName } from '@/utils/language-utils';
 
 /**
  * 语言规格配置
@@ -158,32 +159,7 @@ const languageRegistry: Record<Language, LanguageSpecs> = {
     }
   },
 
-  // 其他语言
-  json: {
-    name: 'json',
-    title: 'JSON',
-    longTitle: 'JSON',
-    extensions: ['json'],
-    editorType: 'script',
-    monacoLanguage: 'json'
-  },
-  xml: {
-    name: 'xml',
-    title: 'XML',
-    longTitle: 'XML',
-    extensions: ['xml'],
-    editorType: 'markup',
-    monacoLanguage: 'xml'
-  },
-  yaml: {
-    name: 'yaml',
-    title: 'YAML',
-    longTitle: 'YAML',
-    extensions: ['yml', 'yaml'],
-    editorType: 'script',
-    monacoLanguage: 'yaml',
-    aliases: ['yml']
-  }
+  // 数据语言已移除，只保留 markup | style | script 三类语言
 };
 
 /**
@@ -272,7 +248,7 @@ export class LanguageService {
   /** 获取语言显示名称 */
   getLanguageDisplayName(language: Language): string {
     const config = this.getLanguageConfig(language);
-    return config?.longTitle || config?.title || LANGUAGE_DISPLAY_NAMES[language] || language;
+    return config?.longTitle || config?.title || getLanguageDisplayName(language) || language;
   }
 
   /** 标准化语言名称（处理别名） */

@@ -1,9 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Button, Chip, Code, Tooltip } from '@nextui-org/react';
+import { Button, Chip, Tooltip } from '@nextui-org/react';
+import { MonacoEditor } from '@/components/editor/monaco-editor';
 import { useGlobalLanguageService } from '@/lib/services/language-service';
 import { SUCCESS_MESSAGES, ERROR_MESSAGES } from '@/constants';
+import type { EditorConfig } from '@/types';
 
 interface CodeBlockProps {
   /** 代码内容 */
@@ -31,6 +33,23 @@ export function CodeBlock({
 }: CodeBlockProps) {
   const languageService = useGlobalLanguageService();
   const isEmpty = !code.trim();
+
+  /** 获取编辑器类型 */
+  const getEditorType = (lang: string): 'markup' | 'style' | 'script' => {
+    if (['html', 'markdown'].includes(lang)) return 'markup';
+    if (['css', 'scss', 'less'].includes(lang)) return 'style';
+    return 'script';
+  };
+
+  /** 创建只读编辑器配置 */
+  const createReadOnlyConfig = (): Partial<EditorConfig> => ({
+    language: language as any,
+    theme: 'vs-dark',
+    fontSize: 14,
+    wordWrap: true,
+    minimap: false,
+    lineNumbers: true
+  });
 
   /** 复制代码到剪贴板 */
   const copyToClipboard = async () => {
@@ -67,18 +86,24 @@ export function CodeBlock({
           </Tooltip>
         </div>
       </div>
-      <div className="p-4 bg-content1 max-h-96 overflow-auto">
+      <div className="bg-content1 h-80">
         {isEmpty ? (
-          <div className="text-center text-default-400 py-8">
-            <p>暂无内容</p>
+          <div className="flex items-center justify-center h-full text-default-400">
+            <div className="text-center">
+              <p className="text-lg">📄</p>
+              <p className="text-sm mt-1">暂无内容</p>
+            </div>
           </div>
         ) : (
-          <Code
-            className="w-full text-xs whitespace-pre-wrap"
-            color={type === 'compiled' ? 'primary' : 'default'}
-          >
-            {code}
-          </Code>
+          <MonacoEditor
+            editorType={getEditorType(language)}
+            config={createReadOnlyConfig()}
+            defaultValue={code}
+            readOnly={true}
+            showMinimap={false}
+            showLineNumbers={true}
+            className="h-full"
+          />
         )}
       </div>
     </div>

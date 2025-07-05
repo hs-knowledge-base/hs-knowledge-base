@@ -48,25 +48,73 @@ export function CompilerOutput({
   const { contents, configs } = useEditorStore();
   const languageService = useGlobalLanguageService();
 
+  /** 获取编译后的语言类型 */
+  const getCompiledLanguage = (originalLanguage: string): string => {
+    const languageMap: Record<string, string> = {
+      'typescript': 'javascript',
+      'markdown': 'html',
+      'scss': 'css',
+      'less': 'css',
+      'html': 'html',
+      'css': 'css',
+      'javascript': 'javascript',
+      'python': 'python',
+      'go': 'javascript',
+      'php': 'javascript',
+      'java': 'javascript'
+    };
+    return languageMap[originalLanguage] || originalLanguage;
+  };
+
+  /** 获取编译结果内容 */
+  const getCompiledContent = (type: EditorType): string => {
+    const content = contents[type];
+    const result = results[type];
+    const config = configs[type];
+
+    // 如果没有原始内容，返回空
+    if (!content?.trim()) {
+      return '';
+    }
+
+    // 如果有编译结果，使用编译结果
+    if (result?.code?.trim()) {
+      return result.code;
+    }
+
+    // 如果是原生语言（不需要编译），直接返回原始内容
+    if (!languageService.needsCompiler(config.language)) {
+      return content;
+    }
+
+    // 需要编译但没有结果，返回空（可能正在编译或编译失败）
+    return '';
+  };
+
   /** 获取标签信息 */
   const getTabInfo = (type: EditorType) => {
     const result = results[type];
     const content = contents[type];
     const config = configs[type];
+    const compiledContent = getCompiledContent(type);
+
     const hasContent = content.trim().length > 0;
-    const hasResult = result.code.trim().length > 0;
+    const hasCompiledContent = compiledContent.trim().length > 0;
     const hasError = !!result.error;
     const needsCompilation = languageService.needsCompiler(config.language);
 
     return {
       title: getTabTitle(type),
       language: config.language,
+      compiledLanguage: getCompiledLanguage(config.language),
       hasContent,
-      hasResult,
+      hasCompiledContent,
       hasError,
       needsCompilation,
+      originalContent: content || '',
+      compiledContent,
       originalSize: content.length,
-      compiledSize: result.code.length
+      compiledSize: compiledContent.length
     };
   };
 
@@ -90,9 +138,6 @@ export function CompilerOutput({
   /** 渲染编译结果 */
   const renderCompileResult = (type: EditorType) => {
     const tabInfo = getTabInfo(type);
-    const result = results[type];
-    const content = contents[type];
-    const config = configs[type];
 
     // 如果没有内容，显示空状态
     if (!tabInfo.hasContent) {
@@ -106,61 +151,76 @@ export function CompilerOutput({
       );
     }
 
-    // 如果有编译错误，显示错误信息
+    // 如果有编译错误，显示错误信息和原始代码
     if (tabInfo.hasError) {
       return (
-        <div className="p-4">
-          <div className="bg-danger-50 border border-danger-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-danger font-semibold">编译错误</span>
-              <Chip size="sm" color="danger" variant="flat">
-                {config.language}
-              </Chip>
+        <div className="space-y-4">
+          {/* 错误信息 */}
+          <div className="p-4">
+            <div className="bg-danger-50 border border-danger-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-danger font-semibold">编译错误</span>
+                <Chip size="sm" color="danger" variant="flat">
+                  {tabInfo.language}
+                </Chip>
+              </div>
+              <Code color="danger" className="w-full">
+                {results[type].error}
+              </Code>
             </div>
-            <Code color="danger" className="w-full">
-              {result.error}
-            </Code>
+          </div>
+
+          {/* 显示原始代码 */}
+          {showOriginalCode && (
+            <div className="flex gap-4">
+              {renderCodeBlock(
+                tabInfo.originalContent,
+                tabInfo.language,
+                `原始代码 (${tabInfo.language.toUpperCase()})`,
+                'original'
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // 正常情况：显示原始代码和编译结果
+    if (showComparison) {
+      return (
+        <div className="flex gap-4 h-full">
+          {/* 原始代码 */}
+          {showOriginalCode && (
+            <div className="flex-1">
+              {renderCodeBlock(
+                tabInfo.originalContent,
+                tabInfo.language,
+                `原始代码 (${tabInfo.language.toUpperCase()})`,
+                'original'
+              )}
+            </div>
+          )}
+
+          {/* 编译结果 */}
+          <div className="flex-1">
+            {renderCodeBlock(
+              tabInfo.compiledContent,
+              tabInfo.compiledLanguage,
+              `${tabInfo.needsCompilation ? '编译结果' : '代码内容'} (${tabInfo.compiledLanguage.toUpperCase()})`,
+              'compiled'
+            )}
           </div>
         </div>
       );
-    }
-
-    // 如果不需要编译，显示提示
-    if (!tabInfo.needsCompilation) {
-      return (
-        <div className="p-4">
-          <div className="bg-success-50 border border-success-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-success font-semibold">无需编译</span>
-              <Chip size="sm" color="success" variant="flat">
-                {config.language}
-              </Chip>
-            </div>
-            <p className="text-sm text-success-600">
-              {config.language.toUpperCase()} 是原生支持的语言，无需编译转换。
-            </p>
-          </div>
-        </div>
+    } else {
+      // 只显示编译结果
+      return renderCodeBlock(
+        tabInfo.compiledContent,
+        tabInfo.compiledLanguage,
+        `${tabInfo.needsCompilation ? '编译结果' : '代码内容'} (${tabInfo.compiledLanguage.toUpperCase()})`,
+        'compiled'
       );
     }
-
-    // 显示编译结果对比
-    if (showComparison && showOriginalCode) {
-      return (
-        <div className="flex gap-1 h-full">
-          {renderCodeBlock(content, config.language, '原代码', 'original')}
-          <Divider orientation="vertical" />
-          {renderCodeBlock(result.code, 'javascript', '编译结果', 'compiled')}
-        </div>
-      );
-    }
-
-    // 只显示编译结果
-    return (
-      <div className="h-full">
-        {renderCodeBlock(result.code, 'javascript', '编译结果', 'compiled')}
-      </div>
-    );
   };
 
   /** 渲染统计信息 */
@@ -177,7 +237,7 @@ export function CompilerOutput({
   const availableTypes = (Object.keys(EDITOR_TYPE_LABELS) as EditorType[])
     .filter(type => {
       const tabInfo = getTabInfo(type);
-      return tabInfo.hasContent || tabInfo.hasResult;
+      return tabInfo.hasContent; // 只要有内容就显示
     });
 
   if (availableTypes.length === 0) {

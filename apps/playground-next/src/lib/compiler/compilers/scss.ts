@@ -1,5 +1,6 @@
 import type { Language, CompileResult } from '@/types';
-import { BaseCompiler, type CompileOptions } from '../base-compiler';
+import { BaseCompiler } from '../base-compiler';
+import {CompileOptions} from "@/lib/compiler/compiler-factory";
 
 /**
  * SCSS 编译器
@@ -37,7 +38,7 @@ export class ScssCompiler extends BaseCompiler {
           if (result.status === 0) {
             resolve(this.createSuccessResult(result.text));
           } else {
-            resolve(this.createErrorResult(result.formatted || result.message || 'SCSS 编译失败'));
+            resolve(this.createSuccessResult(result.formatted || result.message || 'SCSS 编译失败'));
           }
         });
       });

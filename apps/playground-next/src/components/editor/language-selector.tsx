@@ -8,7 +8,7 @@ import {
 } from '@nextui-org/react';
 import { useGlobalLanguageService } from '@/lib/services/language-service';
 import { useLanguageLoader } from '@/lib/utils/language-loader';
-import { LanguageLoadingBadge } from '@/components/ui/language-loading-indicator';
+import { LanguageLoadingBadge } from '@/components/editor/language-loading-indicator';
 import type { EditorType, Language } from '@/types';
 
 interface LanguageSelectorProps {

@@ -9,7 +9,8 @@ import type {
   EditorType,
   Language
 } from '@/types';
-import { DEFAULT_CODE, DEFAULT_EDITOR_CONFIG, STORAGE_KEYS } from '@/constants';
+import { DEFAULT_LANGUAGES, createEditorConfig, STORAGE_KEYS } from '@/constants';
+import { DEFAULT_CODE } from '@/templates/code-templates';
 
 interface PlaygroundState {
   // 代码内容
@@ -85,9 +86,9 @@ type PlaygroundStore = PlaygroundState & PlaygroundActions;
 const initialState: PlaygroundState = {
   code: DEFAULT_CODE,
   config: {
-    markup: { ...DEFAULT_EDITOR_CONFIG, language: 'html' },
-    style: { ...DEFAULT_EDITOR_CONFIG, language: 'css' },
-    script: { ...DEFAULT_EDITOR_CONFIG, language: 'javascript' }
+    markup: createEditorConfig(DEFAULT_LANGUAGES.markup),
+    style: createEditorConfig(DEFAULT_LANGUAGES.style),
+    script: createEditorConfig(DEFAULT_LANGUAGES.script)
   },
   runStatus: 'idle',
   consoleMessages: [],
@@ -266,7 +267,7 @@ export const usePlaygroundStore = create<PlaygroundStore>()(
         }
       }),
       {
-        name: STORAGE_KEYS.PROJECT,
+        name: STORAGE_KEYS.PROJECT_DATA,
         partialize: (state) => ({
           code: state.code,
           config: state.config,

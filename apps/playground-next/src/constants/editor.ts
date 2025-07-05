@@ -1,4 +1,11 @@
-import type { EditorConfig } from '@/types';
+import type {EditorConfig, MarkupLanguage, StyleLanguage, ScriptLanguage, Language} from '@/types';
+
+/** 默认语言配置 */
+export const DEFAULT_LANGUAGES = {
+  markup: 'html' as MarkupLanguage,
+  style: 'css' as StyleLanguage,
+  script: 'javascript' as ScriptLanguage
+} as const;
 
 /** 默认编辑器配置 */
 export const DEFAULT_EDITOR_CONFIG: EditorConfig = {
@@ -9,6 +16,18 @@ export const DEFAULT_EDITOR_CONFIG: EditorConfig = {
   minimap: false,
   lineNumbers: true
 };
+
+/** 创建类型安全的编辑器配置 */
+export function createEditorConfig<T extends Language>(
+  language: T,
+  overrides?: Partial<Omit<EditorConfig, 'language'>>
+): EditorConfig & { language: T } {
+  return {
+    ...DEFAULT_EDITOR_CONFIG,
+    ...overrides,
+    language
+  };
+}
 
 /** Monaco Editor 主题映射 */
 export const MONACO_THEMES = {

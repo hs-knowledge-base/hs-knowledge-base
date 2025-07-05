@@ -40,11 +40,26 @@ export interface CompileResult {
   sourceMap?: string;
 }
 
+/** 标记语言编辑器配置 */
+export interface MarkupEditorConfig extends Omit<EditorConfig, 'language'> {
+  language: MarkupLanguage;
+}
+
+/** 样式语言编辑器配置 */
+export interface StyleEditorConfig extends Omit<EditorConfig, 'language'> {
+  language: StyleLanguage;
+}
+
+/** 脚本语言编辑器配置 */
+export interface ScriptEditorConfig extends Omit<EditorConfig, 'language'> {
+  language: ScriptLanguage;
+}
+
 /** 编译器配置 */
 export interface CompilerConfig {
-  markup: EditorConfig;
-  style: EditorConfig;
-  script: EditorConfig;
+  markup: MarkupEditorConfig;
+  style: StyleEditorConfig;
+  script: ScriptEditorConfig;
 }
 
 /** 布局配置 */

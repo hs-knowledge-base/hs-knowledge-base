@@ -102,9 +102,10 @@ const initialState: CompilerState = {
     less: '',
     javascript: '',
     typescript: '',
-    json: '',
-    xml: '',
-    yaml: ''
+    python: '',
+    go: '',
+    php: '',
+    java: ''
   },
   compileHistory: [],
   autoCompile: false,

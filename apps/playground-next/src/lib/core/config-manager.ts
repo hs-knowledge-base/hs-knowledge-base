@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
 import type { CompilerConfig, CodeContent } from '@/types';
-import { DEFAULT_CODE, DEFAULT_EDITOR_CONFIG } from '@/constants';
+import { DEFAULT_LANGUAGES, createEditorConfig } from '@/constants';
+import { DEFAULT_CODE } from '@/templates/code-templates';
 import { Logger } from './logger';
 import { ConfigValidator } from './config-validator';
 import { createErrorHandler } from './error-handler';
@@ -37,9 +38,9 @@ export class ConfigManager {
     return {
       code: DEFAULT_CODE,
       compiler: {
-        markup: { ...DEFAULT_EDITOR_CONFIG, language: 'html' },
-        style: { ...DEFAULT_EDITOR_CONFIG, language: 'css' },
-        script: { ...DEFAULT_EDITOR_CONFIG, language: 'javascript' }
+        markup: createEditorConfig(DEFAULT_LANGUAGES.markup),
+        style: createEditorConfig(DEFAULT_LANGUAGES.style),
+        script: createEditorConfig(DEFAULT_LANGUAGES.script)
       },
       autoRun: false,
       delay: 1000

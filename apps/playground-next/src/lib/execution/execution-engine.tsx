@@ -6,7 +6,7 @@ import { getGlobalRuntimeManager, type RuntimeResult } from '@/lib/services/lang
 import { useEditorStore } from '@/stores/editor-store';
 import { usePlaygroundStore } from '@/stores/playground-store';
 import { getGlobalCompilerFactory, type ConsoleMessage } from '@/lib/compiler/compiler-factory';
-import { shouldOutputToConsole, canExecuteInBrowser, getLanguagesByCategory, getLanguageDisplayName } from '@/utils/language-utils';
+import { shouldOutputToConsole, canExecuteInBrowser } from '@/utils/language-utils';
 
 interface ExecutionEngineProps {
   className?: string;

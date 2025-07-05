@@ -223,8 +223,7 @@ export default function Home() {
               <Tab
                 key="console"
                 title={
-                  <div className="flex items-center gap-2">
-                    <span>📟</span>
+                  <div className="flex items-center">
                     <span>控制台</span>
                   </div>
                 }
@@ -236,8 +235,7 @@ export default function Home() {
               <Tab
                 key="compiled"
                 title={
-                  <div className="flex items-center gap-2">
-                    <span>🔧</span>
+                  <div className="flex items-center">
                     <span>编译结果</span>
                   </div>
                 }

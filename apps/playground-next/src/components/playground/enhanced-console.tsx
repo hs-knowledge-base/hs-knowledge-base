@@ -175,8 +175,7 @@ export function EnhancedConsole({ className = '' }: EnhancedConsoleProps) {
             {isCollapsed ? <FiChevronRight size={16} /> : <FiChevronDown size={16} />}
           </Button>
           
-          <div className="flex items-center gap-1 text-sm text-gray-300">
-            <FiTerminal size={16} />
+          <div className="flex items-center text-sm text-gray-300">
             <span className="font-medium">控制台</span>
           </div>
 

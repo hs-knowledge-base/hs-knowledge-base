@@ -16,7 +16,6 @@ interface ExecutionEngineProps {
 export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isExecuting, setIsExecuting] = useState(false);
-  const [lastExecutionTime, setLastExecutionTime] = useState(0);
   const { contents, configs } = useEditorStore();
   const { addConsoleMessage, manualRunTrigger } = usePlaygroundStore();
   const runtimeManager = getGlobalRuntimeManager();
@@ -44,8 +43,6 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
 
       // 生成最终的 HTML 预览
       await generatePreview(results);
-      
-      setLastExecutionTime(Date.now() - startTime);
       
       addConsoleMessage({
         type: 'log',

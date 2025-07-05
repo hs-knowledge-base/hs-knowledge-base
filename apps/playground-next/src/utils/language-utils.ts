@@ -192,6 +192,17 @@ export function getLanguagesByCategory(category: LanguageCategory): Language[] {
   }
 }
 
+/**
+ * 获取支持的语言列表（按编辑器类型分组）
+ */
+export function getSupportedLanguages(): Record<EditorType, Language[]> {
+  return {
+    markup: getLanguagesByCategory('markup'),
+    style: getLanguagesByCategory('style'),
+    script: getLanguagesByCategory('script')
+  };
+}
+
 /** 支持的语言列表 */
 export const SUPPORTED_LANGUAGES: Record<EditorType, Language[]> = {
   markup: getLanguagesByCategory('markup'),

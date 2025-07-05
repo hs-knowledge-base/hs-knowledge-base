@@ -240,7 +240,11 @@ export function MonacoEditor({
       markdown: 'markdown',
       json: 'json',
       xml: 'xml',
-      yaml: 'yaml'
+      yaml: 'yaml',
+      python: 'python',
+      java: 'java',
+      go: 'go',
+      php: 'php'
     };
     return languageMap[language] || 'plaintext';
   };

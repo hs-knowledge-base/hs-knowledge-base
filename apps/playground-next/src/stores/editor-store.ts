@@ -673,145 +673,13 @@ body {
   }
 }`,
 
-  json: `{
-  "name": "火山知识库",
-  "version": "1.0.0",
-  "description": "多语言代码演练场",
-  "languages": [
-    "JavaScript",
-    "TypeScript",
-    "Python",
-    "Go",
-    "PHP",
-    "Java"
-  ],
-  "features": {
-    "realtime_preview": true,
-    "multi_language": true,
-    "console_output": true,
-    "error_handling": true,
-    "code_highlighting": true
-  },
-  "supported_runtimes": {
-    "python": "Brython",
-    "go": "GopherJS",
-    "php": "Uniter",
-    "java": "DoppioJVM"
-  },
-  "user": {
-    "name": "开发者",
-    "preferences": {
-      "theme": "dark",
-      "language": "typescript",
-      "auto_run": true
-    }
-  }
-}`,
-
-  xml: `<?xml version="1.0" encoding="UTF-8"?>
-<playground>
-  <info>
-    <name>火山知识库</name>
-    <version>1.0.0</version>
-    <description>多语言代码演练场</description>
-  </info>
-  
-  <languages>
-    <language id="javascript" type="native">JavaScript</language>
-    <language id="typescript" type="transpiler">TypeScript</language>
-    <language id="python" type="interpreter">Python (Brython)</language>
-    <language id="go" type="transpiler">Go (GopherJS)</language>
-    <language id="php" type="interpreter">PHP (Uniter)</language>
-    <language id="java" type="vm">Java (DoppioJVM)</language>
-  </languages>
-  
-  <features>
-    <feature name="realtime_preview" enabled="true" />
-    <feature name="multi_language" enabled="true" />
-    <feature name="console_output" enabled="true" />
-    <feature name="error_handling" enabled="true" />
-    <feature name="code_highlighting" enabled="true" />
-  </features>
-  
-  <user>
-    <name>开发者</name>
-    <preferences>
-      <theme>dark</theme>
-      <language>typescript</language>
-      <auto_run>true</auto_run>
-    </preferences>
-  </user>
-</playground>`,
-
-  yaml: `# 火山知识库配置文件
-name: 火山知识库
-version: 1.0.0
-description: 多语言代码演练场
-
-languages:
-  - name: JavaScript
-    type: native
-    runtime: browser
-  - name: TypeScript
-    type: transpiler
-    runtime: browser
-  - name: Python
-    type: interpreter
-    runtime: Brython
-  - name: Go
-    type: transpiler
-    runtime: GopherJS
-  - name: PHP
-    type: interpreter
-    runtime: Uniter
-  - name: Java
-    type: vm
-    runtime: DoppioJVM
-
-features:
-  realtime_preview: true
-  multi_language: true
-  console_output: true
-  error_handling: true
-  code_highlighting: true
-
-supported_runtimes:
-  python: Brython
-  go: GopherJS
-  php: Uniter
-  java: DoppioJVM
-
-user:
-  name: 开发者
-  preferences:
-    theme: dark
-    language: typescript
-    auto_run: true
-
-# 语言运行时配置
-runtimes:
-  brython:
-    version: "3.11.0"
-    cdn: "https://cdn.jsdelivr.net/npm/brython@3.11.0"
-  
-  gopherjs:
-    version: "latest"
-    cdn: "https://cdn.jsdelivr.net/npm/gopherjs@latest"
-  
-  uniter:
-    version: "latest"
-    cdn: "https://cdn.jsdelivr.net/npm/uniter@latest"
-  
-  doppio:
-    version: "latest"
-    cdn: "https://cdn.jsdelivr.net/npm/doppio-jvm@latest"`
 };
 
 const initialState: EditorState = {
   configs: {
     markup: { ...DEFAULT_EDITOR_CONFIG, language: 'html' },
     style: { ...DEFAULT_EDITOR_CONFIG, language: 'css' },
-    script: { ...DEFAULT_EDITOR_CONFIG, language: 'python' }
+    script: { ...DEFAULT_EDITOR_CONFIG, language: 'javascript' }
   },
   isLoaded: false,
   isLoading: false,
@@ -820,7 +688,7 @@ const initialState: EditorState = {
   contents: {
     markup: EXAMPLE_CODES.html,
     style: EXAMPLE_CODES.css,
-    script: EXAMPLE_CODES.python
+    script: EXAMPLE_CODES.javascript
   },
   exampleCodes: EXAMPLE_CODES,
   selections: {
@@ -1063,12 +931,12 @@ export const useEditorStore = create<EditorStore>()(
             configs: {
               markup: { ...DEFAULT_EDITOR_CONFIG, language: 'html' },
               style: { ...DEFAULT_EDITOR_CONFIG, language: 'css' },
-              script: { ...DEFAULT_EDITOR_CONFIG, language: 'python' }
+              script: { ...DEFAULT_EDITOR_CONFIG, language: 'javascript' }
             },
             contents: {
               markup: EXAMPLE_CODES.html,
               style: EXAMPLE_CODES.css,
-              script: EXAMPLE_CODES.python
+              script: EXAMPLE_CODES.javascript
             },
             selections: {
               markup: null,

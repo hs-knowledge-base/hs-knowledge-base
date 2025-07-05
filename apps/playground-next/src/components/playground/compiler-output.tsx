@@ -11,11 +11,13 @@ import {
   Chip,
   Code,
   Divider,
-  Tooltip
 } from '@nextui-org/react';
 import { useCompilerStore } from '@/stores/compiler-store';
 import { useEditorStore } from '@/stores/editor-store';
 import { useGlobalLanguageService } from '@/lib/services/language-service';
+import { EDITOR_TYPE_LABELS } from '@/constants/editor';
+import { CodeBlock } from './code-block';
+import { CompilerStats } from './compiler-stats';
 import type { EditorType } from '@/types';
 
 interface CompilerOutputProps {
@@ -70,68 +72,18 @@ export function CompilerOutput({
 
   /** 获取标签标题 */
   const getTabTitle = (type: EditorType): string => {
-    const titles = {
-      markup: 'Markup',
-      style: 'Style',
-      script: 'Script'
-    };
-    return titles[type];
-  };
-
-  /** 复制代码到剪贴板 */
-  const copyToClipboard = async (text: string, type: 'original' | 'compiled') => {
-    try {
-      await navigator.clipboard.writeText(text);
-      // 这里可以添加成功提示
-    } catch (error) {
-      console.error('复制失败:', error);
-    }
+    return EDITOR_TYPE_LABELS[type];
   };
 
   /** 渲染代码块 */
   const renderCodeBlock = (code: string, language: string, title: string, type: 'original' | 'compiled') => {
-    const isEmpty = !code.trim();
-    
     return (
-      <div className="flex-1">
-        <div className="flex items-center justify-between p-3 bg-content2 border-b border-divider">
-          <div className="flex items-center gap-2">
-            <span className="font-medium text-sm">{title}</span>
-            <Chip size="sm" variant="flat">
-              {languageService.getLanguageDisplayName(language as any)}
-            </Chip>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-default-500">
-              {code.length} 字符
-            </span>
-            <Tooltip content={`复制${title}`}>
-              <Button
-                size="sm"
-                variant="light"
-                onPress={() => copyToClipboard(code, type)}
-                isDisabled={isEmpty}
-              >
-                📋
-              </Button>
-            </Tooltip>
-          </div>
-        </div>
-        <div className="p-4 bg-content1 max-h-96 overflow-auto">
-          {isEmpty ? (
-            <div className="text-center text-default-400 py-8">
-              <p>暂无内容</p>
-            </div>
-          ) : (
-            <Code
-              className="w-full text-xs whitespace-pre-wrap"
-              color={type === 'compiled' ? 'primary' : 'default'}
-            >
-              {code}
-            </Code>
-          )}
-        </div>
-      </div>
+      <CodeBlock
+        code={code}
+        language={language}
+        title={title}
+        type={type}
+      />
     );
   };
 
@@ -213,42 +165,16 @@ export function CompilerOutput({
 
   /** 渲染统计信息 */
   const renderStats = () => {
-    if (!showStats) return null;
-
     return (
-      <div className="p-4 border-t border-divider bg-content2">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div>
-            <div className="text-lg font-bold text-primary">
-              {performance.totalCompiles}
-            </div>
-            <div className="text-xs text-default-500">总编译次数</div>
-          </div>
-          <div>
-            <div className="text-lg font-bold text-success">
-              {performance.successfulCompiles}
-            </div>
-            <div className="text-xs text-default-500">成功次数</div>
-          </div>
-          <div>
-            <div className="text-lg font-bold text-danger">
-              {performance.failedCompiles}
-            </div>
-            <div className="text-xs text-default-500">失败次数</div>
-          </div>
-          <div>
-            <div className="text-lg font-bold text-warning">
-              {performance.averageCompileTime.toFixed(0)}ms
-            </div>
-            <div className="text-xs text-default-500">平均耗时</div>
-          </div>
-        </div>
-      </div>
+      <CompilerStats
+        performance={performance}
+        show={showStats}
+      />
     );
   };
 
   /** 获取可用的编辑器类型 */
-  const availableTypes = (['markup', 'style', 'script'] as EditorType[])
+  const availableTypes = (Object.keys(EDITOR_TYPE_LABELS) as EditorType[])
     .filter(type => {
       const tabInfo = getTabInfo(type);
       return tabInfo.hasContent || tabInfo.hasResult;

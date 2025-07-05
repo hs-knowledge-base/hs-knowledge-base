@@ -13,9 +13,6 @@ export * from './cdn';
 // UI 相关
 export * from './ui';
 
-// 主题相关
-export * from './theme';
-
 // 事件相关
 export * from './events';
 

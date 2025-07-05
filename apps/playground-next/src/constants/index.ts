@@ -1,43 +1,4 @@
-import type { Language, EditorConfig, LayoutConfig, Settings, EditorType } from '@/types';
-import { getLanguagesByCategory } from '@/utils/language-utils';
-
-/** 支持的语言列表 */
-export const SUPPORTED_LANGUAGES: Record<EditorType, Language[]> = {
-  markup: getLanguagesByCategory('markup'),
-  style: getLanguagesByCategory('style'),
-  script: getLanguagesByCategory('script')
-};
-
-/** 语言文件扩展名 */
-export const LANGUAGE_EXTENSIONS = {
-  html: '.html',
-  markdown: '.md',
-  css: '.css',
-  scss: '.scss',
-  less: '.less',
-  javascript: '.js',
-  typescript: '.ts',
-  python: '.py',
-  go: '.go',
-  php: '.php',
-  java: '.java'
-} as const;
-
-/** 语言描述 */
-export const LANGUAGE_DESCRIPTIONS = {
-  html: 'HyperText Markup Language - 网页结构标记语言',
-  markdown: 'Markdown - 轻量级标记语言',
-  css: 'Cascading Style Sheets - 层叠样式表',
-  scss: 'Sass (SCSS) - CSS 预处理器',
-  less: 'Less - CSS 预处理器',
-  javascript: 'JavaScript - 原生浏览器脚本语言',
-  typescript: 'TypeScript - 带类型的 JavaScript 超集',
-  python: 'Python - 使用 Brython 在浏览器中运行',
-  go: 'Go - 使用 GopherJS 编译为 JavaScript',
-  php: 'PHP - 使用 Uniter 在浏览器中运行',
-  java: 'Java - 使用 CheerpJ 在浏览器中运行'
-} as const;
-
+import type { EditorConfig, LayoutConfig, Settings } from '@/types';
 
 /** 默认编辑器配置 */
 export const DEFAULT_EDITOR_CONFIG: EditorConfig = {

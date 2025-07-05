@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Card, CardBody, Spinner } from '@nextui-org/react';
-import type { EditorConfig, Language } from '@/types';
+import { Spinner } from '@nextui-org/react';
+import type { EditorConfig } from '@/types';
 import { useGlobalVendorService } from '@/lib/services/vendors';
 import { useEditorStore } from '@/stores/editor-store';
 import { getMonacoLanguageId } from '@/utils/language-utils';
@@ -228,8 +228,6 @@ export function MonacoEditor({
     onChange,
     onReady
   ]);
-
-  // 移除重复的函数，使用统一的工具函数
 
   /** 初始化编辑器 */
   useEffect(() => {

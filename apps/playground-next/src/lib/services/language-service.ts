@@ -1,7 +1,6 @@
 import { useRef, useEffect } from 'react';
 import type { Language, EditorType } from '@/types';
-import { LANGUAGE_EXTENSIONS } from '@/constants';
-import { getLanguageDisplayName } from '@/utils/language-utils';
+import {getLanguageDisplayName, getLanguageExtension} from '@/utils/language-utils';
 
 /**
  * 语言规格配置
@@ -292,7 +291,7 @@ export class LanguageService {
   /** 获取语言文件扩展名 */
   getLanguageExtension(language: Language): string {
     const config = this.getLanguageConfig(language);
-    return config?.extensions[0] || LANGUAGE_EXTENSIONS[language] || `.${language}`;
+    return config?.extensions[0] || getLanguageExtension(language);
   }
 
   /** 根据文件扩展名推断语言 */

@@ -8,6 +8,7 @@ import {
 } from '@nextui-org/react';
 import { useGlobalLanguageService } from '@/lib/services/language-service';
 import { useLanguageLoader } from '@/lib/utils/language-loader';
+import { getLanguageDisplayName, getLanguageDescription } from '@/utils/language-utils';
 import { LanguageLoadingBadge } from '@/components/editor/language-loading-indicator';
 import type { EditorType, Language } from '@/types';
 
@@ -56,7 +57,7 @@ export function LanguageSelector({
       const config = languageService.getLanguageConfig(lang);
       return {
         key: lang,
-        label: languageService.getLanguageDisplayName(lang),
+        label: getLanguageDisplayName(lang),
         shortLabel: config?.title || lang.toUpperCase(),
         needsCompiler: languageService.needsCompiler(lang),
         needsRuntime: languageService.needsRuntime(lang),
@@ -65,29 +66,6 @@ export function LanguageSelector({
       };
     });
   };
-
-  /** 获取语言描述 */
-  const getLanguageDescription = (language: Language): string => {
-    const descriptions: Record<Language, string> = {
-      html: '超文本标记语言',
-      markdown: 'Markdown 标记语言',
-      css: '层叠样式表',
-      scss: 'Sass CSS 预处理器',
-      less: 'Less CSS 预处理器',
-      javascript: 'JavaScript 脚本语言',
-      typescript: 'TypeScript 类型化 JavaScript',
-      json: 'JSON 数据格式',
-      xml: 'XML 标记语言',
-      yaml: 'YAML 数据序列化格式',
-      python: 'Python 编程语言',
-      go: 'Go 编程语言',
-      php: 'PHP 编程语言',
-      java: 'Java 编程语言'
-    };
-    return descriptions[language] || language;
-  };
-
-
 
   /** 处理选择变化 */
   const handleSelectionChange = async (keys: any) => {

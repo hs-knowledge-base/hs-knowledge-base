@@ -9,6 +9,7 @@ import { CompileOptions } from "@/lib/compiler/compiler-factory";
 export class LessCompiler extends BaseCompiler {
   readonly name = 'Less Compiler';
   readonly language: Language = 'less';
+  readonly targetLanguage: Language = 'css';
 
   needsVendor(): boolean {
     return true;

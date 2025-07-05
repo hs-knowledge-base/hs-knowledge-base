@@ -9,6 +9,7 @@ import { CompileOptions, ExecutionResult, ConsoleMessage } from "@/lib/compiler/
 export class PythonCompiler extends BaseCompiler {
   readonly name = 'Python Runtime';
   readonly language: Language = 'python';
+  readonly targetLanguage: Language = 'python';
 
   needsVendor(): boolean {
     return true;

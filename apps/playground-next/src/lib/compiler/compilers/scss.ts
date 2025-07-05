@@ -9,6 +9,7 @@ import { CompileOptions } from "@/lib/compiler/compiler-factory";
 export class ScssCompiler extends BaseCompiler {
   readonly name = 'SCSS Compiler';
   readonly language: Language = 'scss';
+  readonly targetLanguage: Language = 'css';
 
   needsVendor(): boolean {
     return true;

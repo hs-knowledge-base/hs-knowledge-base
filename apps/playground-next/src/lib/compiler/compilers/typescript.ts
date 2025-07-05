@@ -9,6 +9,7 @@ import {CompileOptions, ExecutionResult, ConsoleMessage} from "@/lib/compiler/co
 export class TypeScriptCompiler extends BaseCompiler {
   readonly name = 'TypeScript Compiler';
   readonly language: Language = 'typescript';
+  readonly targetLanguage: Language = 'javascript';
 
   needsVendor(): boolean {
     return true;

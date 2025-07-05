@@ -30,6 +30,8 @@ export interface ICompiler {
   name: string;
   /** 支持的语言 */
   language: Language;
+  /** 编译目标语言 */
+  targetLanguage: Language;
   /** 编译代码 */
   compile(code: string, options?: any): Promise<CompileResult>;
   /** 是否需要外部依赖 */
@@ -199,6 +201,17 @@ export class CompilerFactory {
     } catch (error) {
       console.error(`[CompilerFactory] 创建编译器失败 ${language}:`, error);
       return undefined;
+    }
+  }
+
+  /** 获取语言的编译目标语言 */
+  async getTargetLanguage(language: Language): Promise<Language> {
+    try {
+      const compiler = await this.getCompiler(language);
+      return compiler.targetLanguage;
+    } catch (error) {
+      console.warn(`[CompilerFactory] 无法获取 ${language} 的目标语言，使用原语言`);
+      return language;
     }
   }
 

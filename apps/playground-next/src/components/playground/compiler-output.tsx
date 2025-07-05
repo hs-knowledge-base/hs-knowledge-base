@@ -18,7 +18,7 @@ import { useGlobalLanguageService } from '@/lib/services/language-service';
 import { EDITOR_TYPE_LABELS } from '@/constants/editor';
 import { CodeBlock } from './code-block';
 import { CompilerStats } from './compiler-stats';
-import type { EditorType } from '@/types';
+import type {EditorType, Language} from '@/types';
 
 interface CompilerOutputProps {
   /** 自定义样式类名 */
@@ -47,24 +47,6 @@ export function CompilerOutput({
   const { results, isCompiling, performance } = useCompilerStore();
   const { contents, configs } = useEditorStore();
   const languageService = useGlobalLanguageService();
-
-  /** 获取编译后的语言类型 */
-  const getCompiledLanguage = (originalLanguage: string): string => {
-    const languageMap: Record<string, string> = {
-      'typescript': 'javascript',
-      'markdown': 'html',
-      'scss': 'css',
-      'less': 'css',
-      'html': 'html',
-      'css': 'css',
-      'javascript': 'javascript',
-      'python': 'python',
-      'go': 'javascript',
-      'php': 'javascript',
-      'java': 'javascript'
-    };
-    return languageMap[originalLanguage] || originalLanguage;
-  };
 
   /** 获取编译结果内容 */
   const getCompiledContent = (type: EditorType): string => {
@@ -106,7 +88,7 @@ export function CompilerOutput({
     return {
       title: getTabTitle(type),
       language: config.language,
-      compiledLanguage: getCompiledLanguage(config.language),
+      compiledLanguage: languageService.getTargetLanguage(config.language),
       hasContent,
       hasCompiledContent,
       hasError,
@@ -124,7 +106,7 @@ export function CompilerOutput({
   };
 
   /** 渲染代码块 */
-  const renderCodeBlock = (code: string, language: string, title: string, type: 'original' | 'compiled') => {
+  const renderCodeBlock = (code: string, language: Language, title: string, type: 'original' | 'compiled') => {
     return (
       <CodeBlock
         code={code}

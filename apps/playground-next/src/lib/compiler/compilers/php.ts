@@ -9,6 +9,7 @@ import { CompileOptions } from "@/lib/compiler/compiler-factory";
 export class PhpCompiler extends BaseCompiler {
   readonly name = 'PHP Runtime (Uniter)';
   readonly language: Language = 'php';
+  readonly targetLanguage: Language = 'php';
 
   needsVendor(): boolean {
     return true;

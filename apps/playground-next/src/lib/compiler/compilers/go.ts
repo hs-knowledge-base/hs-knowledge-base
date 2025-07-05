@@ -9,6 +9,7 @@ import { CompileOptions } from "@/lib/compiler/compiler-factory";
 export class GoCompiler extends BaseCompiler {
   readonly name = 'Go Compiler (GopherJS)';
   readonly language: Language = 'go';
+  readonly targetLanguage: Language = 'go';
 
   needsVendor(): boolean {
     return true;

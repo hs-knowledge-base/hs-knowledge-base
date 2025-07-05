@@ -6,6 +6,7 @@ import { CompileOptions } from "@/lib/compiler/compiler-factory";
 export class CssCompiler extends BaseCompiler {
   readonly name = 'CSS Compiler';
   readonly language: Language = 'css';
+  readonly targetLanguage: Language = 'css';
 
   constructor() {
     super();

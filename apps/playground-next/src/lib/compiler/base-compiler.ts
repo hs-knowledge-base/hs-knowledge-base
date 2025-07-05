@@ -12,6 +12,9 @@ export abstract class BaseCompiler implements ICompiler {
   /** 支持的语言 */
   abstract readonly language: Language;
 
+  /** 编译目标语言 */
+  abstract readonly targetLanguage: Language;
+
   /** 编译代码 */
   abstract compile(code: string, options?: CompileOptions): Promise<CompileResult>;
 

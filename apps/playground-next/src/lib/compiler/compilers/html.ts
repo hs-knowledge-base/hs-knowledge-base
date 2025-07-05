@@ -6,6 +6,7 @@ import { CompileOptions } from "@/lib/compiler/compiler-factory";
 export class HtmlCompiler extends BaseCompiler {
   readonly name = 'HTML Compiler';
   readonly language: Language = 'html';
+  readonly targetLanguage: Language = 'html';
 
   constructor() {
     super();

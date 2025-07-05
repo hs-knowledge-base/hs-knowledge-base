@@ -9,6 +9,7 @@ import { CompileOptions, ExecutionResult, ConsoleMessage } from "@/lib/compiler/
 export class JavaCompiler extends BaseCompiler {
   readonly name = 'Java Runtime (CheerpJ)';
   readonly language: Language = 'java';
+  readonly targetLanguage: Language = 'java';
 
   needsVendor(): boolean {
     return true;

@@ -6,6 +6,7 @@ import { CompileOptions } from "@/lib/compiler/compiler-factory";
 export class JavaScriptCompiler extends BaseCompiler {
   readonly name = 'JavaScript Compiler';
   readonly language: Language = 'javascript';
+  readonly targetLanguage: Language = 'javascript';
 
   constructor() {
     super();

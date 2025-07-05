@@ -12,6 +12,7 @@ export interface LanguageSpecs {
   extensions: string[];
   editorType: EditorType;
   monacoLanguage: string;
+  targetLanguage?: Language;
   aliases?: string[];
   compiler?: {
     vendorKey: string;
@@ -44,6 +45,7 @@ const languageRegistry: Record<Language, LanguageSpecs> = {
     extensions: ['ts'],
     editorType: 'script',
     monacoLanguage: 'typescript',
+    targetLanguage: 'javascript',
     compiler: {
       vendorKey: 'typescript',
       url: 'https://unpkg.com/typescript@5.0.4/lib/typescript.js'
@@ -117,6 +119,7 @@ const languageRegistry: Record<Language, LanguageSpecs> = {
     extensions: ['md', 'markdown'],
     editorType: 'markup',
     monacoLanguage: 'markdown',
+    targetLanguage: 'html',
     compiler: {
       vendorKey: 'marked',
       url: 'https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js'
@@ -316,6 +319,12 @@ export class LanguageService {
   markLanguageAsLoaded(language: Language): void {
     this.loadedLanguages.add(language);
     console.debug(`[LanguageService] 语言已加载: ${language}`);
+  }
+
+  /** 获取语言的编译目标语言 */
+  getTargetLanguage(language: Language): Language {
+    const config = this.getLanguageConfig(language);
+    return (config as any).targetLanguage || language;
   }
 
   /** 获取语言统计信息 */

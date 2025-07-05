@@ -9,6 +9,7 @@ import { CompileOptions } from "@/lib/compiler/compiler-factory";
 export class MarkdownCompiler extends BaseCompiler {
   readonly name = 'Markdown Compiler';
   readonly language: Language = 'markdown';
+  readonly targetLanguage: Language = 'html';
 
   needsVendor(): boolean {
     return true;

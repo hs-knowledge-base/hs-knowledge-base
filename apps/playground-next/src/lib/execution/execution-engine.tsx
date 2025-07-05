@@ -208,29 +208,14 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>多语言代码预览</title>
+    <title>预览</title>
     <style>
-        /* 基础样式重置 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: #fff;
-        }
-        
         /* 用户样式 */
         ${styleContent}
     </style>
 </head>
 <body>
     ${markupContent}
-    
     <script>
         // 控制台重定向到父窗口
         const originalConsole = {
@@ -306,22 +291,6 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
 </html>`;
   };
 
-  /** 监听消息 */
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === 'console') {
-        const { level, args } = event.data;
-        addConsoleMessage({
-          type: level,
-          message: args.join(' ')
-        });
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [addConsoleMessage]);
-
   /** 监听内容变化，自动执行 */
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -357,9 +326,6 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
           <div className="text-center">
             <p className="text-lg font-semibold">暂无预览内容</p>
             <p className="text-sm mt-1">请在编辑器中输入代码</p>
-            <p className="text-xs mt-2 text-gray-400">
-              支持: {getLanguagesByCategory('script').map(lang => getLanguageDisplayName(lang)).join(', ')} 等
-            </p>
           </div>
         </div>
       ) : (

@@ -200,15 +200,7 @@ export default function Home() {
           <div className="h-1/2 border-b border-gray-700">
             <div className="h-full bg-gray-800">
               <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
-                <h3 className="text-sm font-medium text-gray-300">多语言预览</h3>
-                <Button
-                  size="sm"
-                  variant="flat"
-                  className="bg-blue-600 text-white hover:bg-blue-700"
-                  onPress={handleRunCode}
-                >
-                  🚀 运行
-                </Button>
+                <h3 className="text-sm font-medium text-gray-300">预览</h3>
               </div>
               <div className="h-[calc(100%-40px)]">
                 <ExecutionEngine className="h-full" />

@@ -1,6 +1,6 @@
 import type { Language, CompileResult } from '@/types';
 import { BaseCompiler } from '../base-compiler';
-import {CompileOptions} from "@/lib/compiler/compiler-factory";
+import { CompileOptions } from "@/lib/compiler/compiler-factory";
 
 /**
  * Less 编译器

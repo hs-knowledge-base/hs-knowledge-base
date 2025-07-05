@@ -1,6 +1,9 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import type { CompilerConfig, CodeContent } from '@/types';
 import { DEFAULT_CODE, DEFAULT_EDITOR_CONFIG } from '@/constants';
+import { Logger } from './logger';
+import { ConfigValidator } from './config-validator';
+import { createErrorHandler } from './error-handler';
 
 /**
  * 配置接口 - 适配新的类型系统
@@ -13,17 +16,20 @@ export interface PlaygroundConfig {
 }
 
 /**
- * 配置管理器 - React 适配版本
+ * 配置管理器
  * 统一管理 Playground 的配置，支持验证、热更新等功能
  */
 export class ConfigManager {
+  private readonly logger = new Logger(ConfigManager.name);
+  private readonly validator = new ConfigValidator();
+  private readonly errorHandler = createErrorHandler(ConfigManager.name);
   private config: PlaygroundConfig;
   private readonly changeListeners = new Set<(config: PlaygroundConfig) => void>();
 
   constructor(initialConfig?: Partial<PlaygroundConfig>) {
     this.config = this.mergeWithDefaults(initialConfig || {});
-    this.validateConfig();
-    console.info('[ConfigManager] 配置管理器初始化完成');
+    this.validator.validate(this.config);
+    this.logger.info('配置管理器初始化完成');
   }
 
   /** 获取默认配置 */
@@ -56,53 +62,6 @@ export class ConfigManager {
     };
   }
 
-  /** 验证配置 */
-  private validateConfig(): void {
-    const errors: string[] = [];
-
-    // 验证编译器配置
-    if (!this.config.compiler?.markup?.language) {
-      errors.push('compiler.markup.language 是必需的');
-    }
-    if (!this.config.compiler?.style?.language) {
-      errors.push('compiler.style.language 是必需的');
-    }
-    if (!this.config.compiler?.script?.language) {
-      errors.push('compiler.script.language 是必需的');
-    }
-
-    // 验证编辑器配置
-    const { markup, style, script } = this.config.compiler;
-    [markup, style, script].forEach((editorConfig, index) => {
-      const type = ['markup', 'style', 'script'][index];
-      
-      if (editorConfig.fontSize && (editorConfig.fontSize < 8 || editorConfig.fontSize > 72)) {
-        errors.push(`compiler.${type}.fontSize 必须在 8-72 之间`);
-      }
-      
-      if (typeof editorConfig.wordWrap !== 'boolean') {
-        errors.push(`compiler.${type}.wordWrap 必须是布尔值`);
-      }
-    });
-
-    // 验证延迟设置
-    if (this.config.delay && (this.config.delay < 0 || this.config.delay > 10000)) {
-      errors.push('delay 必须在 0-10000ms 之间');
-    }
-
-    // 验证自动运行设置
-    if (typeof this.config.autoRun !== 'boolean') {
-      errors.push('autoRun 必须是布尔值');
-    }
-
-    if (errors.length > 0) {
-      console.error('[ConfigManager] 配置验证失败:', errors);
-      throw new Error(`配置验证失败: ${errors.join(', ')}`);
-    }
-
-    console.debug('[ConfigManager] 配置验证通过');
-  }
-
   /** 获取当前配置 */
   getConfig(): PlaygroundConfig {
     return JSON.parse(JSON.stringify(this.config));
@@ -117,16 +76,16 @@ export class ConfigManager {
       this.config = this.mergeWithDefaults({ ...this.config, ...updates });
       
       // 验证新配置
-      this.validateConfig();
+      this.validator.validate(this.config);
       
       // 通知监听器
       this.notifyConfigChange();
       
-      console.info('[ConfigManager] 配置已更新');
+      this.logger.info('配置已更新');
     } catch (error) {
       // 恢复旧配置
       this.config = oldConfig;
-      console.error('[ConfigManager] 配置更新失败，已恢复旧配置', error);
+      this.logger.error('配置更新失败，已恢复旧配置', error);
       throw error;
     }
   }
@@ -149,7 +108,7 @@ export class ConfigManager {
   resetToDefault(): void {
     this.config = this.getDefaultConfig();
     this.notifyConfigChange();
-    console.info('[ConfigManager] 配置已重置为默认值');
+    this.logger.info('配置已重置为默认值');
   }
 
   /** 监听配置变化 */
@@ -171,11 +130,10 @@ export class ConfigManager {
   private notifyConfigChange(): void {
     const config = this.getConfig();
     this.changeListeners.forEach(callback => {
-      try {
-        callback(config);
-      } catch (error) {
-        console.warn('[ConfigManager] 配置变化回调执行失败', error);
-      }
+      this.errorHandler.safeExecuteSync(
+        () => callback(config),
+        '配置变化回调执行失败'
+      );
     });
   }
 
@@ -189,11 +147,11 @@ export class ConfigManager {
       
       if (configParam) {
         const decodedConfig = JSON.parse(decodeURIComponent(configParam));
-        console.debug('[ConfigManager] 从 URL 加载配置成功');
+        this.logger.debug('从 URL 加载配置成功');
         return decodedConfig;
       }
     } catch (error) {
-      console.warn('[ConfigManager] 从 URL 加载配置失败', error);
+      this.logger.warn('从 URL 加载配置失败', error);
     }
     
     return {};
@@ -209,9 +167,9 @@ export class ConfigManager {
       url.searchParams.set('config', configStr);
       
       window.history.replaceState({}, '', url.toString());
-      console.debug('[ConfigManager] 配置已保存到 URL');
+      this.logger.debug('配置已保存到 URL');
     } catch (error) {
-      console.warn('[ConfigManager] 保存配置到 URL 失败', error);
+      this.logger.warn('保存配置到 URL 失败', error);
     }
   }
 
@@ -223,11 +181,11 @@ export class ConfigManager {
       const stored = localStorage.getItem(key);
       if (stored) {
         const config = JSON.parse(stored);
-        console.debug('[ConfigManager] 从本地存储加载配置成功');
+        this.logger.debug('从本地存储加载配置成功');
         return config;
       }
     } catch (error) {
-      console.warn('[ConfigManager] 从本地存储加载配置失败', error);
+      this.logger.warn('从本地存储加载配置失败', error);
     }
     
     return {};
@@ -239,9 +197,9 @@ export class ConfigManager {
     
     try {
       localStorage.setItem(key, JSON.stringify(this.config));
-      console.debug('[ConfigManager] 配置已保存到本地存储');
+      this.logger.debug('配置已保存到本地存储');
     } catch (error) {
-      console.warn('[ConfigManager] 保存配置到本地存储失败', error);
+      this.logger.warn('保存配置到本地存储失败', error);
     }
   }
 
@@ -255,9 +213,9 @@ export class ConfigManager {
     try {
       const config = JSON.parse(configJson);
       this.updateConfig(config);
-      console.info('[ConfigManager] 配置导入成功');
+      this.logger.info('配置导入成功');
     } catch (error) {
-      console.error('[ConfigManager] 配置导入失败', error);
+      this.logger.error('配置导入失败', error);
       throw new Error('配置格式无效');
     }
   }
@@ -280,7 +238,7 @@ export class ConfigManager {
   /** 销毁配置管理器 */
   destroy(): void {
     this.changeListeners.clear();
-    console.info('[ConfigManager] 配置管理器已销毁');
+    this.logger.info('配置管理器已销毁');
   }
 }
 
@@ -322,5 +280,33 @@ export function useConfigChange(
     });
 
     return unsubscribe;
+  }, [manager]);
+}
+
+/**
+ * React Hook: 获取配置值
+ */
+export function useConfigValue<T>(
+  manager: ConfigManager,
+  selector: (config: PlaygroundConfig) => T
+): T {
+  const [value, setValue] = useState(() => selector(manager.getConfig()));
+
+  useEffect(() => {
+    const unsubscribe = manager.onConfigChange((config) => {
+      setValue(selector(config));
+    });
+    return unsubscribe;
+  }, [manager, selector]);
+
+  return value;
+}
+
+/**
+ * React Hook: 配置更新器
+ */
+export function useConfigUpdater(manager: ConfigManager) {
+  return useCallback((updates: Partial<PlaygroundConfig>) => {
+    manager.updateConfig(updates);
   }, [manager]);
 }

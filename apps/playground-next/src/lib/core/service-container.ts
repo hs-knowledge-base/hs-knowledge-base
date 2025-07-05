@@ -1,10 +1,12 @@
 import { useRef, useEffect } from 'react';
+import { Logger } from './logger';
 
 /**
- * 简单的依赖注入容器 - React 适配版本
+ * 简单的依赖注入容器
  * 管理服务的注册、解析和生命周期
  */
 export class ServiceContainer {
+  private readonly logger = new Logger(ServiceContainer.name);
   private readonly services = new Map<string, any>();
   private readonly factories = new Map<string, () => any>();
   private readonly singletons = new Map<string, any>();
@@ -13,19 +15,19 @@ export class ServiceContainer {
   /** 注册服务实例 */
   register<T>(name: string, instance: T): void {
     this.services.set(name, instance);
-    console.debug(`[ServiceContainer] 注册服务: ${name}`);
+    this.logger.debug(`注册服务: ${name}`);
   }
 
   /** 注册服务工厂 */
   registerFactory<T>(name: string, factory: () => T): void {
     this.factories.set(name, factory);
-    console.debug(`[ServiceContainer] 注册服务工厂: ${name}`);
+    this.logger.debug(`注册服务工厂: ${name}`);
   }
 
   /** 注册单例服务工厂 */
   registerSingleton<T>(name: string, factory: () => T): void {
     this.factories.set(name, factory);
-    console.debug(`[ServiceContainer] 注册单例服务: ${name}`);
+    this.logger.debug(`注册单例服务: ${name}`);
   }
 
   /** 解析服务 */
@@ -47,7 +49,7 @@ export class ServiceContainer {
       
       // 缓存单例
       this.singletons.set(name, instance);
-      console.debug(`[ServiceContainer] 创建服务实例: ${name}`);
+      this.logger.debug(`创建服务实例: ${name}`);
       
       return instance as T;
     }
@@ -77,7 +79,7 @@ export class ServiceContainer {
     this.services.clear();
     this.factories.clear();
     this.singletons.clear();
-    console.info('[ServiceContainer] 服务容器已清空');
+    this.logger.info('服务容器已清空');
   }
 
   /** 销毁容器 */
@@ -87,7 +89,7 @@ export class ServiceContainer {
       try {
         dispose();
       } catch (error) {
-        console.warn('[ServiceContainer] 清理函数执行失败:', error);
+        this.logger.warn('清理函数执行失败:', error);
       }
     });
     this.disposables.clear();
@@ -97,15 +99,15 @@ export class ServiceContainer {
       if (instance && typeof instance.destroy === 'function') {
         try {
           instance.destroy();
-          console.debug(`[ServiceContainer] 销毁服务: ${name}`);
+          this.logger.debug(`销毁服务: ${name}`);
         } catch (error) {
-          console.warn(`[ServiceContainer] 销毁服务失败: ${name}`, error);
+          this.logger.warn(`销毁服务失败: ${name}`, error);
         }
       }
     });
 
     this.clear();
-    console.info('[ServiceContainer] 服务容器已销毁');
+    this.logger.info('服务容器已销毁');
   }
 
   /** 获取容器统计信息 */
@@ -234,12 +236,14 @@ export function registerServiceProviders(
   container: ServiceContainer,
   providers: ServiceProvider[]
 ): void {
+  const logger = new Logger('ServiceProviders');
+
   providers.forEach(provider => {
     try {
       provider.register(container);
-      console.debug(`[ServiceContainer] 服务提供者注册成功: ${provider.constructor.name}`);
+      logger.debug(`服务提供者注册成功: ${provider.constructor.name}`);
     } catch (error) {
-      console.error(`[ServiceContainer] 服务提供者注册失败: ${provider.constructor.name}`, error);
+      logger.error(`服务提供者注册失败: ${provider.constructor.name}`, error);
     }
   });
 }
@@ -260,6 +264,8 @@ export function registerServices(
   container: ServiceContainer,
   configs: ServiceConfig[]
 ): void {
+  const logger = new Logger('ServiceConfigs');
+
   configs.forEach(config => {
     try {
       if (config.singleton !== false) {
@@ -267,9 +273,17 @@ export function registerServices(
       } else {
         container.registerFactory(config.name, config.factory);
       }
-      console.debug(`[ServiceContainer] 服务配置注册成功: ${config.name}`);
+      logger.debug(`服务配置注册成功: ${config.name}`);
     } catch (error) {
-      console.error(`[ServiceContainer] 服务配置注册失败: ${config.name}`, error);
+      logger.error(`服务配置注册失败: ${config.name}`, error);
     }
   });
+}
+
+/**
+ * React Hook: 获取服务容器引用
+ */
+export function useServiceRef(): React.RefObject<ServiceContainer> {
+  const containerRef = useRef<ServiceContainer>(new ServiceContainer());
+  return containerRef;
 }

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import type { PlaygroundEvents } from '@/types';
+import { Logger } from './logger';
+import { createPerformanceMonitor } from './performance-monitor';
 
 /**
  * 事件处理器类型
@@ -28,6 +30,8 @@ export interface EventMiddleware {
  * 支持事件中间件、错误处理、性能监控等功能
  */
 export class EventEmitter {
+  private readonly logger = new Logger(EventEmitter.name);
+  private readonly performanceMonitor = createPerformanceMonitor(EventEmitter.name);
   private readonly listeners = new Map<string, Set<EventHandler>>();
   private readonly middlewares: EventMiddleware[] = [];
   private readonly eventStats = new Map<string, { count: number; lastEmitted: number }>();
@@ -48,11 +52,11 @@ export class EventEmitter {
 
     // 检查监听器数量限制
     if (handlers.size >= this.maxListeners) {
-      console.warn(`[EventEmitter] 事件 ${event} 的监听器数量已达到上限 ${this.maxListeners}`);
+      this.logger.warn(`事件 ${event} 的监听器数量已达到上限 ${this.maxListeners}`);
     }
 
     handlers.add(handler);
-    console.debug(`[EventEmitter] 添加事件监听器: ${event} (总数: ${handlers.size})`);
+    this.logger.debug(`添加事件监听器: ${event} (总数: ${handlers.size})`);
 
     // 返回取消监听的函数
     return () => {
@@ -65,7 +69,7 @@ export class EventEmitter {
     const handlers = this.listeners.get(event);
     if (handlers) {
       handlers.delete(handler);
-      console.debug(`[EventEmitter] 移除事件监听器: ${event} (剩余: ${handlers.size})`);
+      this.logger.debug(`移除事件监听器: ${event} (剩余: ${handlers.size})`);
 
       if (handlers.size === 0) {
         this.listeners.delete(event);
@@ -80,37 +84,37 @@ export class EventEmitter {
   ): void;
   emit(type: string, payload?: any): void;
   emit(type: string, payload?: any): void {
-    const startTime = performance.now();
+    // 使用性能监控器测量事件处理时间
+    const { duration } = this.performanceMonitor.measureSync(`event:${type}`, () => {
+      // 更新统计信息
+      this.updateEventStats(type);
 
-    // 更新统计信息
-    this.updateEventStats(type);
+      const handlers = this.listeners.get(type);
+      if (!handlers || handlers.size === 0) {
+        this.logger.debug(`没有监听器处理事件: ${type}`);
+        return;
+      }
 
-    const handlers = this.listeners.get(type);
-    if (!handlers || handlers.size === 0) {
-      console.debug(`[EventEmitter] 没有监听器处理事件: ${type}`);
-      return;
-    }
+      const event: PlaygroundEvent = {
+        type,
+        payload,
+        timestamp: Date.now()
+      };
 
-    const event: PlaygroundEvent = { 
-      type, 
-      payload, 
-      timestamp: Date.now() 
-    };
-
-    // 执行中间件
-    this.executeMiddlewares(event, () => {
-      // 执行事件处理器
-      handlers.forEach(handler => {
-        try {
-          handler(payload);
-        } catch (error) {
-          console.error(`[EventEmitter] 事件处理器错误 (${type}):`, error);
-        }
+      // 执行中间件
+      this.executeMiddlewares(event, () => {
+        // 执行事件处理器
+        handlers.forEach(handler => {
+          try {
+            handler(payload);
+          } catch (error) {
+            this.logger.error(`事件处理器错误 (${type}):`, error);
+          }
+        });
       });
     });
 
-    const duration = performance.now() - startTime;
-    console.debug(`[EventEmitter] 事件处理完成: ${type} (${duration.toFixed(2)}ms, ${handlers.size} 个处理器)`);
+    this.logger.debug(`事件处理完成: ${type} (${duration.toFixed(2)}ms)`);
   }
 
   /** 一次性事件监听器 */
@@ -130,7 +134,7 @@ export class EventEmitter {
   /** 添加事件中间件 */
   use(middleware: EventMiddleware): void {
     this.middlewares.push(middleware);
-    console.debug(`[EventEmitter] 添加事件中间件: ${middleware.name || 'anonymous'}`);
+    this.logger.debug(`添加事件中间件: ${middleware.name || 'anonymous'}`);
   }
 
   /** 执行中间件链 */
@@ -147,7 +151,7 @@ export class EventEmitter {
       try {
         middleware.handle(event, executeNext);
       } catch (error) {
-        console.error(`[EventEmitter] 中间件执行错误: ${middleware.name || 'anonymous'}`, error);
+        this.logger.error(`中间件执行错误: ${middleware.name || 'anonymous'}`, error);
         executeNext();
       }
     };
@@ -167,10 +171,10 @@ export class EventEmitter {
   removeAllListeners(event?: string): void {
     if (event) {
       this.listeners.delete(event);
-      console.debug(`[EventEmitter] 移除所有 ${event} 事件监听器`);
+      this.logger.debug(`移除所有 ${event} 事件监听器`);
     } else {
       this.listeners.clear();
-      console.debug('[EventEmitter] 移除所有事件监听器');
+      this.logger.debug('移除所有事件监听器');
     }
   }
 
@@ -205,7 +209,7 @@ export class EventEmitter {
     this.removeAllListeners();
     this.middlewares.length = 0;
     this.eventStats.clear();
-    console.info('[EventEmitter] 事件发射器已销毁');
+    this.logger.info('事件发射器已销毁');
   }
 }
 
@@ -344,3 +348,11 @@ export const eventMiddlewares = {
     }
   })
 };
+
+/**
+ * React Hook: 获取事件发射器引用
+ */
+export function useEventEmitterRef(): React.RefObject<EventEmitter> {
+  const emitterRef = useRef<EventEmitter>(new EventEmitter());
+  return emitterRef;
+}

@@ -5,13 +5,14 @@ import { Button, Chip, Tooltip } from '@nextui-org/react';
 import { MonacoEditor } from '@/components/editor/monaco-editor';
 import { useGlobalLanguageService } from '@/lib/services/language-service';
 import { SUCCESS_MESSAGES, ERROR_MESSAGES } from '@/constants';
-import type { EditorConfig } from '@/types';
+import { getLanguageCategory } from '@/utils/language-utils';
+import type { EditorConfig, Language } from '@/types';
 
 interface CodeBlockProps {
   /** 代码内容 */
   code: string;
   /** 语言类型 */
-  language: string;
+  language: Language;
   /** 标题 */
   title: string;
   /** 代码块类型 */
@@ -34,16 +35,9 @@ export function CodeBlock({
   const languageService = useGlobalLanguageService();
   const isEmpty = !code.trim();
 
-  /** 获取编辑器类型 */
-  const getEditorType = (lang: string): 'markup' | 'style' | 'script' => {
-    if (['html', 'markdown'].includes(lang)) return 'markup';
-    if (['css', 'scss', 'less'].includes(lang)) return 'style';
-    return 'script';
-  };
-
   /** 创建只读编辑器配置 */
-  const createReadOnlyConfig = (): Partial<EditorConfig> => ({
-    language: language as any,
+  const createReadOnlyConfig = (): EditorConfig => ({
+    language,
     theme: 'vs-dark',
     fontSize: 14,
     wordWrap: true,
@@ -96,7 +90,7 @@ export function CodeBlock({
           </div>
         ) : (
           <MonacoEditor
-            editorType={getEditorType(language)}
+            editorType={getLanguageCategory(language)}
             config={createReadOnlyConfig()}
             defaultValue={code}
             readOnly={true}

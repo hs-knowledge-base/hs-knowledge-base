@@ -6,6 +6,7 @@ import type { EditorConfig } from '@/types';
 import { useGlobalVendorService } from '@/lib/services/vendors';
 import { useEditorStore } from '@/stores/editor-store';
 import { getMonacoLanguageId } from '@/utils/language-utils';
+import { createMonacoConfig, updateMonacoConfig } from '@/utils/monaco-config';
 
 // Monaco Editor 类型定义
 declare global {
@@ -122,56 +123,15 @@ export function MonacoEditor({
     }
 
     try {
-      // 创建编辑器实例
-      const editor = monaco.editor.create(containerRef.current, {
-        value: currentValue, // 使用 store 中的内容
-        language: getMonacoLanguageId(editorConfig.language),
-        theme: 'vs-dark',
-        fontSize: editorConfig.fontSize || 14,
-        fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace",
-        wordWrap: editorConfig.wordWrap ? 'on' : 'off',
-        minimap: { enabled: showMinimap },
-        lineNumbers: showLineNumbers ? 'on' : 'off',
+      // 使用配置工厂创建编辑器
+      const config = createMonacoConfig(editorConfig, {
+        value: currentValue,
         readOnly,
-        automaticLayout: true,
-        scrollBeyondLastLine: false,
-        renderWhitespace: 'selection',
-        tabSize: 2,
-        insertSpaces: true,
-        folding: true,
-        foldingStrategy: 'indentation',
-        showFoldingControls: 'always',
-        unfoldOnClickAfterEndOfLine: false,
-        contextmenu: true,
-        mouseWheelZoom: true,
-        smoothScrolling: true,
-        cursorBlinking: 'blink',
-        cursorSmoothCaretAnimation: 'on',
-        renderLineHighlight: 'line',
-        selectionHighlight: true,
-        occurrencesHighlight: 'singleFile',
-        codeLens: true,
-        colorDecorators: true,
-        lightbulb: { enabled: 'on' },
-        quickSuggestions: true,
-        suggestOnTriggerCharacters: true,
-        acceptSuggestionOnEnter: 'on',
-        snippetSuggestions: 'top',
-        // 高级样式配置
-        padding: { top: 16, bottom: 16 },
-        lineHeight: 1.6,
-        letterSpacing: 0.5,
-        roundedSelection: false,
-        scrollbar: {
-          vertical: 'visible',
-          horizontal: 'visible',
-          useShadows: false,
-          verticalHasArrows: false,
-          horizontalHasArrows: false,
-          verticalScrollbarSize: 10,
-          horizontalScrollbarSize: 10
-        }
+        showMinimap,
+        showLineNumbers
       });
+
+      const editor = monaco.editor.create(containerRef.current, config);
 
       editorRef.current = editor;
 
@@ -280,14 +240,10 @@ export function MonacoEditor({
         window.monaco.editor.setModelLanguage(model, getMonacoLanguageId(editorConfig.language));
       }
 
-      // 更新其他配置
-      editor.updateOptions({
-        theme: editorConfig.theme === 'vs-light' ? 'vs' : 'vs-dark',
-        fontSize: editorConfig.fontSize,
-        wordWrap: editorConfig.wordWrap ? 'on' : 'off',
-        minimap: { enabled: showMinimap },
-        lineNumbers: showLineNumbers ? 'on' : 'off',
-        readOnly
+      // 使用配置工厂更新编辑器
+      updateMonacoConfig(editor, editorConfig, {
+        showMinimap,
+        showLineNumbers
       });
     }
   }, [editorConfig, showMinimap, showLineNumbers, readOnly]);

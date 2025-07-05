@@ -9,6 +9,7 @@ import {
 import { useGlobalLanguageService } from '@/lib/services/language-service';
 import { useLanguageLoader } from '@/lib/utils/language-loader';
 import { getLanguageDisplayName, getLanguageDescription } from '@/utils/language-utils';
+import { EDITOR_TYPE_LABELS } from '@/constants/editor';
 import { LanguageLoadingBadge } from '@/components/editor/language-loading-indicator';
 import type { EditorType, Language } from '@/types';
 
@@ -160,12 +161,7 @@ export function LanguageSelector({
 
 /** 获取编辑器类型标签 */
 function getEditorTypeLabel(editorType: EditorType): string {
-  const labels = {
-    markup: '标记',
-    style: '样式',
-    script: '脚本'
-  };
-  return labels[editorType];
+  return EDITOR_TYPE_LABELS[editorType];
 }
 
 /** 语言选择器的简化版本 */

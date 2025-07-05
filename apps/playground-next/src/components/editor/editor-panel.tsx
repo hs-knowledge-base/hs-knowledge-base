@@ -1,18 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardBody,
-  Tabs,
-  Tab,
-  Button,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
 } from '@nextui-org/react';
 import { MonacoEditor } from './monaco-editor';
+import { EditorToolbar } from './editor-toolbar';
 import { useEditorStore } from '@/stores/editor-store';
 import { useLanguageLoader } from '@/lib/utils/language-loader';
 import { useGlobalLanguageService } from '@/lib/services/language-service';
@@ -45,8 +39,6 @@ export function EditorPanel({
     errors,
     setActiveEditor,
     setEditorLanguage,
-    formatCode,
-    resetEditor
   } = useEditorStore();
 
   const { loadLanguage } = useLanguageLoader();
@@ -70,22 +62,12 @@ export function EditorPanel({
 
   /** 获取标签标题 */
   const getTabTitle = (type: EditorType): string => {
-    const titles = {
-      markup: 'HTML',
-      style: 'CSS', 
-      script: 'JS'
-    };
-    return titles[type];
+    // 使用统一的语言工具函数，避免硬编码
+    const config = configs[type];
+    return languageService.getLanguageDisplayName(config.language);
   };
 
-  /** 获取语言选项 */
-  const getLanguageOptions = (type: EditorType) => {
-    return languageService.getLanguagesByEditorType(type).map(lang => ({
-      key: lang,
-      label: languageService.getLanguageDisplayName(lang),
-      needsCompiler: languageService.needsCompiler(lang)
-    }));
-  };
+
 
   /** 处理标签切换 */
   const handleTabChange = (key: string | number) => {
@@ -113,82 +95,16 @@ export function EditorPanel({
   /** 渲染工具栏 */
   const renderToolbar = (type: EditorType) => {
     const tabInfo = getTabInfo(type);
-    const languageOptions = getLanguageOptions(type);
 
     return (
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
-        <div className="flex items-center gap-3">
-          {/* 语言选择器 */}
-          <Dropdown>
-            <DropdownTrigger>
-              <Button
-                variant="flat"
-                size="md"
-                className="bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600 min-w-32 justify-between px-3 py-2"
-                endContent={
-                  <div className="flex  items-center gap-2 ml-2">
-                    {languageService.needsCompiler(tabInfo.language) && (
-                      <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                    )}
-                  </div>
-                }
-              >
-                <span className="font-medium">
-                  {languageService.getLanguageDisplayName(tabInfo.language)}
-                </span>
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu
-              aria-label="选择语言"
-              className="min-w-40"
-              classNames={{
-                base: "bg-gray-800 border border-gray-600 shadow-xl rounded-lg",
-                list: "bg-gray-800 p-1"
-              }}
-              itemClasses={{
-                base: "text-gray-300 data-[hover=true]:bg-gray-700 data-[hover=true]:text-white mx-1 px-3 py-2",
-                title: "font-medium"
-              }}
-              onAction={(key) => {
-                handleLanguageChange(type, key as Language);
-              }}
-            >
-              {languageOptions.map((option) => (
-                <DropdownItem
-                  key={option.key}
-                  className="flex items-center justify-between"
-                  endContent={
-                    option.needsCompiler ? (
-                      <div className="flex items-center gap-1">
-                        <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
-                        <span className="text-xs text-gray-500">需编译</span>
-                      </div>
-                    ) : null
-                  }
-                >
-                  <span className="font-medium">{option.label}</span>
-                </DropdownItem>
-              ))}
-            </DropdownMenu>
-          </Dropdown>
-
-          {/* 状态指示器 */}
-          <div className="flex items-center gap-2">
-            {tabInfo.hasContent && (
-              <div className="flex items-center gap-1 text-xs text-green-400">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>已修改</span>
-              </div>
-            )}
-            {tabInfo.hasErrors && (
-              <div className="flex items-center gap-1 text-xs text-red-400">
-                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                <span>{errors[type].length} 错误</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <EditorToolbar
+        editorType={type}
+        config={configs[type]}
+        hasContent={tabInfo.hasContent}
+        hasErrors={tabInfo.hasErrors}
+        errorCount={errors[type].length}
+        onLanguageChange={(language) => handleLanguageChange(type, language)}
+      />
     );
   };
 
@@ -222,7 +138,7 @@ export function EditorPanel({
   };
 
   /** 获取可见的编辑器类型 */
-  const visibleEditors = (['markup', 'style', 'script'] as EditorType[])
+  const visibleEditors = (Object.keys(configs) as EditorType[])
     .filter(type => visibility[type]);
 
   if (visibleEditors.length === 0) {

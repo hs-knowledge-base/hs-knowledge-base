@@ -33,3 +33,10 @@ export const EDITOR_FONTS = {
   MONO: ['Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'monospace'],
   SANS: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
 } as const;
+
+/** 编辑器类型标签 */
+export const EDITOR_TYPE_LABELS = {
+  markup: '标记',
+  style: '样式',
+  script: '脚本'
+} as const;

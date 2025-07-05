@@ -3,8 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { usePlaygroundStore } from '@/stores/playground-store';
 import { Button, Chip, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/react';
-import { 
-  FiPlay, FiTrash2, FiFilter, FiChevronDown, FiChevronRight, 
+import {
+  FiPlay, FiTrash2, FiFilter, FiChevronDown, FiChevronRight,
   FiInfo, FiAlertTriangle, FiAlertCircle, FiTerminal,
   FiCopy, FiDownload
 } from 'react-icons/fi';
@@ -20,6 +20,21 @@ interface MessageFilter {
   warn: boolean;
   error: boolean;
   info: boolean;
+}
+
+interface ExpandableValue {
+  type: 'object' | 'array' | 'function' | 'primitive';
+  value: any;
+  preview: string;
+  isExpandable: boolean;
+}
+
+interface ConsoleMessageItem {
+  id: string;
+  type: MessageType;
+  args: any[];
+  timestamp: number;
+  isExpanded?: boolean;
 }
 
 /**
@@ -94,22 +109,304 @@ export function EnhancedConsole({ className = '' }: EnhancedConsoleProps) {
     return styles[type] || 'text-gray-300';
   };
 
-  /** 格式化时间戳 */
-  const formatTimestamp = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('zh-CN', { 
-      hour12: false, 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit',
-      fractionalSecondDigits: 3
-    });
+  /** 解析值类型和预览 */
+  const parseValue = (value: any): ExpandableValue => {
+    if (value === null) {
+      return { type: 'primitive', value, preview: 'null', isExpandable: false };
+    }
+
+    if (value === undefined) {
+      return { type: 'primitive', value, preview: 'undefined', isExpandable: false };
+    }
+
+    if (typeof value === 'string') {
+      // 处理长字符串的预览
+      const displayValue = value.length > 100 ? `${value.slice(0, 100)}...` : value;
+      return { type: 'primitive', value, preview: `"${displayValue}"`, isExpandable: value.length > 100 };
+    }
+
+    if (typeof value === 'number') {
+      return { type: 'primitive', value, preview: String(value), isExpandable: false };
+    }
+
+    if (typeof value === 'boolean') {
+      return { type: 'primitive', value, preview: String(value), isExpandable: false };
+    }
+
+    if (typeof value === 'function') {
+      const funcName = value.name || 'anonymous';
+      const isArrowFunction = value.toString().includes('=>');
+      const isAsync = value.toString().startsWith('async');
+      const preview = `${isAsync ? 'async ' : ''}${isArrowFunction ? '() => {}' : `ƒ ${funcName}()`}`;
+      return { type: 'function', value, preview, isExpandable: true };
+    }
+
+    if (Array.isArray(value)) {
+      const preview = `Array(${value.length})`;
+      return { type: 'array', value, preview, isExpandable: true };
+    }
+
+    if (typeof value === 'object') {
+      const keys = Object.keys(value);
+      const objectName = value.constructor?.name || 'Object';
+      let preview = objectName;
+
+      if (keys.length > 0) {
+        const keyPreview = keys.slice(0, 3).join(', ');
+        preview = `${objectName} {${keyPreview}${keys.length > 3 ? ', ...' : ''}}`;
+      } else {
+        preview = `${objectName} {}`;
+      }
+
+      return { type: 'object', value, preview, isExpandable: true };
+    }
+
+    return { type: 'primitive', value, preview: String(value), isExpandable: false };
+  };
+
+  /** 渲染可展开的值 */
+  const renderExpandableValue = (parsedValue: ExpandableValue, depth: number = 0, isExpanded: boolean = false, messageId?: string, argIndex?: number, path: string = ''): React.ReactNode => {
+    const { type, value, preview, isExpandable } = parsedValue;
+
+    if (!isExpandable) {
+      return (
+        <span className={`${getSpecificValueColor(value)}`}>
+          {preview}
+        </span>
+      );
+    }
+
+    if (!isExpanded) {
+      return (
+        <span
+          className={`${getSpecificValueColor(value)} cursor-pointer hover:bg-gray-700/50 px-1 rounded transition-colors`}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (messageId !== undefined && argIndex !== undefined) {
+              toggleMessageExpansion(messageId, argIndex, path);
+            }
+          }}
+        >
+          <FiChevronRight size={12} className="inline mr-1 text-gray-400" />
+          {preview}
+        </span>
+      );
+    }
+
+    // 处理长字符串的展开
+    if (type === 'primitive' && typeof value === 'string' && value.length > 100) {
+      return (
+        <div className="inline-block">
+          <div className="flex items-start">
+            <span
+              className={`${getSpecificValueColor(value)} cursor-pointer hover:bg-gray-700/50 px-1 rounded transition-colors`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (messageId !== undefined && argIndex !== undefined) {
+                  toggleMessageExpansion(messageId, argIndex, path);
+                }
+              }}
+            >
+              <FiChevronDown size={12} className="inline mr-1 text-gray-400" />
+              <span className="text-red-400">"string"</span>
+              <span className="text-gray-500 text-xs ml-1">({value.length} chars)</span>
+            </span>
+          </div>
+          <div className="ml-4 mt-1 border-l-2 border-gray-600/50 pl-3">
+            <div className="text-red-400 bg-gray-800/50 p-2 rounded border border-gray-700 font-mono text-sm whitespace-pre-wrap break-words max-w-md">
+              "{value}"
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // 展开状态
+    if (type === 'array') {
+      return (
+        <div className="inline-block">
+          <div className="flex items-start">
+            <span
+              className={`${getValueColor(type)} cursor-pointer hover:bg-gray-700/50 px-1 rounded transition-colors`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (messageId !== undefined && argIndex !== undefined) {
+                  toggleMessageExpansion(messageId, argIndex, path);
+                }
+              }}
+            >
+              <FiChevronDown size={12} className="inline mr-1 text-gray-400" />
+              <span className="text-gray-300">Array({value.length})</span>
+            </span>
+          </div>
+          <div className="ml-4 mt-1 border-l-2 border-gray-600/50 pl-3 space-y-1">
+            {value.map((item: any, index: number) => (
+              <div key={index} className="flex items-start gap-2 text-sm">
+                <span className="text-blue-400 font-mono text-xs min-w-[20px] text-right">
+                  {index}:
+                </span>
+                <div className="flex-1">
+                  {renderExpandableValue(
+                    parseValue(item),
+                    depth + 1,
+                    messageId && argIndex !== undefined ? expandedMessages.has(`${messageId}-${argIndex}-${path}[${index}]`) : false,
+                    messageId,
+                    argIndex,
+                    `${path}[${index}]`
+                  )}
+                </div>
+              </div>
+            ))}
+            {value.length === 0 && (
+              <div className="text-gray-500 text-xs italic">empty array</div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    if (type === 'object') {
+      const entries = Object.entries(value);
+      const objectName = value.constructor?.name || 'Object';
+
+      return (
+        <div className="inline-block">
+          <div className="flex items-start">
+            <span
+              className={`${getValueColor(type)} cursor-pointer hover:bg-gray-700/50 px-1 rounded transition-colors`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (messageId !== undefined && argIndex !== undefined) {
+                  toggleMessageExpansion(messageId, argIndex, path);
+                }
+              }}
+            >
+              <FiChevronDown size={12} className="inline mr-1 text-gray-400" />
+              <span className="text-gray-300">{objectName}</span>
+              {entries.length > 0 && (
+                <span className="text-gray-500 text-xs ml-1">({entries.length})</span>
+              )}
+            </span>
+          </div>
+          <div className="ml-4 mt-1 border-l-2 border-gray-600/50 pl-3 space-y-1">
+            {entries.map(([key, val]) => (
+              <div key={key} className="flex items-start gap-2 text-sm">
+                <span className="text-purple-400 font-mono text-xs min-w-fit">
+                  {key}:
+                </span>
+                <div className="flex-1">
+                  {renderExpandableValue(
+                    parseValue(val),
+                    depth + 1,
+                    messageId && argIndex !== undefined ? expandedMessages.has(`${messageId}-${argIndex}-${path}.${key}`) : false,
+                    messageId,
+                    argIndex,
+                    `${path}.${key}`
+                  )}
+                </div>
+              </div>
+            ))}
+            {entries.length === 0 && (
+              <div className="text-gray-500 text-xs italic">empty object</div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    if (type === 'function') {
+      const funcStr = value.toString();
+      const funcName = value.name || 'anonymous';
+      const isArrowFunction = funcStr.includes('=>');
+      const isAsync = funcStr.startsWith('async');
+
+      return (
+        <div className="inline-block">
+          <div className="flex items-start">
+            <span
+              className={`${getValueColor(type)} cursor-pointer hover:bg-gray-700/50 px-1 rounded transition-colors`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (messageId !== undefined && argIndex !== undefined) {
+                  toggleMessageExpansion(messageId, argIndex, path);
+                }
+              }}
+            >
+              <FiChevronDown size={12} className="inline mr-1 text-gray-400" />
+              <span className="text-purple-400">
+                {isAsync && 'async '}
+                {isArrowFunction ? '() => {}' : `ƒ ${funcName}()`}
+              </span>
+            </span>
+          </div>
+          <div className="ml-4 mt-1 border-l-2 border-gray-600/50 pl-3">
+            <pre className="text-xs text-gray-300 whitespace-pre-wrap bg-gray-800/50 p-2 rounded border border-gray-700 font-mono leading-relaxed">
+              {funcStr}
+            </pre>
+          </div>
+        </div>
+      );
+    }
+
+    return <span>{preview}</span>;
+  };
+
+  /** 获取值的颜色 */
+  const getValueColor = (type: string) => {
+    const colors = {
+      primitive: 'text-gray-300',
+      string: 'text-red-400',      // 字符串用红色，像Chrome控制台
+      number: 'text-blue-400',     // 数字用蓝色
+      boolean: 'text-blue-600',    // 布尔值用深蓝色
+      object: 'text-gray-300',     // 对象用灰色
+      array: 'text-gray-300',      // 数组用灰色
+      function: 'text-purple-400'  // 函数用紫色
+    };
+    return colors[type as keyof typeof colors] || 'text-gray-300';
+  };
+
+  /** 根据值类型获取特定颜色 */
+  const getSpecificValueColor = (value: any): string => {
+    if (value === null) return 'text-gray-500';
+    if (value === undefined) return 'text-gray-500';
+    if (typeof value === 'string') return 'text-gray-300';
+    if (typeof value === 'number') return 'text-blue-400';
+    if (typeof value === 'boolean') return 'text-blue-600';
+    if (typeof value === 'function') return 'text-purple-400';
+    return 'text-gray-300';
+  };
+
+  /** 转换消息格式 */
+  const convertMessages = (): ConsoleMessageItem[] => {
+    return consoleMessages.map(msg => ({
+      id: msg.id,
+      type: msg.type as MessageType,
+      args: msg.args || [msg.message],
+      timestamp: msg.timestamp,
+      isExpanded: false
+    }));
   };
 
   /** 过滤消息 */
-  const filteredMessages = consoleMessages.filter(message => 
-    filters[message.type as MessageType]
+  const [expandedMessages, setExpandedMessages] = useState<Set<string>>(new Set());
+  const convertedMessages = convertMessages();
+  const filteredMessages = convertedMessages.filter(message =>
+    filters[message.type]
   );
+
+  /** 切换消息展开状态 */
+  const toggleMessageExpansion = (messageId: string, argIndex: number, path: string = '') => {
+    const key = path ? `${messageId}-${argIndex}-${path}` : `${messageId}-${argIndex}`;
+    setExpandedMessages(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(key)) {
+        newSet.delete(key);
+      } else {
+        newSet.add(key);
+      }
+      return newSet;
+    });
+  };
 
   /** 获取消息统计 */
   const getMessageStats = () => {
@@ -133,9 +430,9 @@ export function EnhancedConsole({ className = '' }: EnhancedConsoleProps) {
   /** 复制所有消息 */
   const copyAllMessages = () => {
     const text = filteredMessages
-      .map(msg => `[${formatTimestamp(msg.timestamp)}] ${msg.type.toUpperCase()}: ${msg.message}`)
+      .map(msg => `${msg.type.toUpperCase()}: ${msg.args.join(' ')}`)
       .join('\n');
-    
+
     navigator.clipboard.writeText(text).then(() => {
       // 可以添加一个toast通知
       console.log('已复制到剪贴板');
@@ -145,9 +442,9 @@ export function EnhancedConsole({ className = '' }: EnhancedConsoleProps) {
   /** 导出日志 */
   const exportLogs = () => {
     const text = filteredMessages
-      .map(msg => `[${formatTimestamp(msg.timestamp)}] ${msg.type.toUpperCase()}: ${msg.message}`)
+      .map(msg => `${msg.type.toUpperCase()}: ${msg.args.join(' ')}`)
       .join('\n');
-    
+
     const blob = new Blob([text], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -330,18 +627,29 @@ export function EnhancedConsole({ className = '' }: EnhancedConsoleProps) {
                   >
                     {/* 图标 */}
                     <div className="flex-shrink-0">
-                      {getMessageIcon(message.type as MessageType)}
+                      {getMessageIcon(message.type)}
                     </div>
-                    
-                    {/* 时间戳 */}
-                    <div className="flex-shrink-0 text-xs text-gray-500 min-w-[80px] font-mono">
-                      {formatTimestamp(message.timestamp)}
-                    </div>
-                    
+
                     {/* 消息内容 */}
                     <div className="flex-1 min-w-0">
-                      <div className={`break-words whitespace-pre-wrap ${getMessageStyle(message.type as MessageType)}`}>
-                        {message.message}
+                      <div className="flex flex-wrap items-start gap-2 leading-relaxed">
+                        {message.args.map((arg, index) => {
+                          const parsedValue = parseValue(arg);
+                          const expansionKey = `${message.id}-${index}`;
+                          const isExpanded = expandedMessages.has(expansionKey);
+
+                          return (
+                            <div
+                              key={index}
+                              className="inline-block"
+                            >
+                              {renderExpandableValue(parsedValue, 0, isExpanded, message.id, index)}
+                              {index < message.args.length - 1 && (
+                                <span className="text-gray-500 ml-1">,</span>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
 
@@ -350,7 +658,7 @@ export function EnhancedConsole({ className = '' }: EnhancedConsoleProps) {
                       size="sm"
                       variant="ghost"
                       className="opacity-0 group-hover:opacity-100 transition-opacity min-w-0 px-1"
-                      onClick={() => navigator.clipboard.writeText(message.message)}
+                      onClick={() => navigator.clipboard.writeText(message.args.join(' '))}
                       title="复制消息"
                     >
                       <FiCopy size={12} />

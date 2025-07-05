@@ -180,6 +180,64 @@ export default function Home() {
           >
             运行
           </Button>
+          <Button
+            size="sm"
+            variant="flat"
+            className="bg-green-600 text-white hover:bg-green-700"
+            onPress={() => {
+              // 测试基本类型
+              addConsoleMessage({
+                type: 'log',
+                message: 'Basic types test',
+                args: ['String', 123, true, null, undefined]
+              });
+
+              // 测试对象
+              addConsoleMessage({
+                type: 'log',
+                message: 'Object test',
+                args: [{ name: 'John', age: 30, hobbies: ['reading', 'coding'] }]
+              });
+
+              // 测试数组
+              addConsoleMessage({
+                type: 'log',
+                message: 'Array test',
+                args: [[1, 2, 3, { nested: 'object' }]]
+              });
+
+              // 测试函数
+              addConsoleMessage({
+                type: 'log',
+                message: 'Function test',
+                args: [function testFunction(a: any, b: any) { return a + b; }]
+              });
+
+              // 测试复杂嵌套
+              addConsoleMessage({
+                type: 'log',
+                message: 'Complex nested test',
+                args: [{
+                  user: {
+                    id: 1,
+                    profile: {
+                      name: 'Alice',
+                      settings: {
+                        theme: 'dark',
+                        notifications: true
+                      }
+                    },
+                    posts: [
+                      { id: 1, title: 'First post' },
+                      { id: 2, title: 'Second post' }
+                    ]
+                  }
+                }]
+              });
+            }}
+          >
+            测试控制台
+          </Button>
         </div>
       </div>
 

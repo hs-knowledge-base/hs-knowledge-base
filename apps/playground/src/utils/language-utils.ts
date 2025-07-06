@@ -49,10 +49,9 @@ export function shouldOutputToConsole(language: Language): boolean {
 
 /**
  * 判断语言是否可以在浏览器中直接执行
- * 目前只有JavaScript和TypeScript可以直接执行
  */
 export function canExecuteInBrowser(language: Language): boolean {
-  return language === 'javascript' || language === 'typescript';
+  return language === 'javascript';
 }
 
 /** 语言配置接口 */

@@ -161,7 +161,7 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
       if (compiler && typeof compiler.processExecutionResult === 'function') {
         const executionResult = compiler.processExecutionResult(result);
         
-        // 只有脚本语言才将控制台消息添加到控制台
+        // 只有脚本语言才将控制台消息添加到我们的自定义控制台
         if (shouldOutputToConsole(language) && type === 'script') {
           executionResult.consoleMessages.forEach((msg: ConsoleMessage) => {
             addConsoleMessage(msg);
@@ -214,16 +214,17 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
 <body>
     ${markupContent}
     <script>
-        // 控制台重定向到父窗口
+        // 控制台重定向：将浏览器控制台输出重定向到我们的自定义控制台
         const originalConsole = {
             log: console.log,
             warn: console.warn,
             error: console.error,
             info: console.info
         };
-        
+
         function sendToParent(type, args) {
             try {
+                // 发送消息到父窗口（我们的控制台组件）
                 window.parent.postMessage({
                     type: 'console',
                     level: type,
@@ -242,11 +243,13 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
                 // 忽略跨域错误
             }
         }
-        
-        // 重写控制台方法
+
+        // 重写控制台方法，同时输出到浏览器控制台和我们的控制台
         ['log', 'warn', 'error', 'info'].forEach(method => {
             console[method] = function(...args) {
+                // 保持原有的浏览器控制台输出（用于调试）
                 originalConsole[method].apply(console, args);
+                // 发送到我们的自定义控制台
                 sendToParent(method, args);
             };
         });
@@ -262,23 +265,24 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
         
         // 页面加载完成后执行
         window.addEventListener('load', function() {
-            // 只对脚本语言输出系统消息到控制台
+            // 只对脚本语言输出系统消息到我们的控制台
             const shouldOutput = ${shouldOutputToConsole(scriptLanguage)};
-            
+
             if (shouldOutput) {
                 sendToParent('info', ['预览加载完成']);
                 sendToParent('info', ['运行时环境已准备就绪']);
             }
-            
-            // 只有JavaScript和TypeScript可以在浏览器中直接执行
+
+            // 只有 JavaScript 可以在浏览器中直接执行
+            // TypeScript 和其他语言需要先编译/转换
             ${canExecuteInBrowser(scriptLanguage) ? `
-            // 执行用户脚本
+            // 执行用户的 JavaScript 代码
             try {
                 ${scriptContent}
             } catch (error) {
                 sendToParent('error', [error.message]);
             }` : `
-            // ${scriptLanguage} 代码已通过编译器处理，不在浏览器中直接执行
+            // ${scriptLanguage} 代码已通过编译器/运行时处理，不在浏览器中直接执行
             if (shouldOutput) {
                 sendToParent('info', ['${scriptLanguage} 代码已处理完成']);
             }`}

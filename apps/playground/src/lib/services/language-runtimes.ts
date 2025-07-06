@@ -36,11 +36,24 @@ const RUNTIME_CONFIGS: Record<Language, RuntimeConfig> = {
     execute: async (code: string) => {
       try {
         const start = Date.now();
-        // 创建一个沙盒环境执行 JavaScript
-        const result = new Function(code)();
+
+        // JavaScript 代码应该直接在 iframe 中执行
+        // 这里我们只是验证语法并返回原始代码
+        // 实际的执行和控制台输出会在 iframe 中处理
+
+        // 简单的语法检查
+        try {
+          new Function(code);
+        } catch (syntaxError) {
+          return {
+            success: false,
+            error: `语法错误: ${syntaxError instanceof Error ? syntaxError.message : String(syntaxError)}`
+          };
+        }
+
         return {
           success: true,
-          output: String(result || ''),
+          output: code, // 返回原始代码，让编译器处理
           duration: Date.now() - start
         };
       } catch (error) {

@@ -1,6 +1,6 @@
 import type { Language, CompileResult } from '@/types';
 import { BaseCompiler } from '../base-compiler';
-import { CompileOptions } from "@/lib/compiler/compiler-factory";
+import { CompileOptions, ExecutionResult, ConsoleMessage } from "@/lib/compiler/compiler-factory";
 
 /** JavaScript 编译器 */
 export class JavaScriptCompiler extends BaseCompiler {
@@ -31,6 +31,34 @@ export class JavaScriptCompiler extends BaseCompiler {
 
   getVendorKey(): string | null {
     return null;
+  }
+
+  /** 处理 JavaScript 执行结果 */
+  processExecutionResult(result: any): ExecutionResult {
+    if (result.success) {
+      const consoleMessages: ConsoleMessage[] = [];
+
+      // JavaScript 代码直接在浏览器中执行
+      // 控制台输出会通过 iframe 的 postMessage 机制传递
+      // 这里我们返回原始代码作为预览代码
+
+      return {
+        success: true,
+        previewCode: result.output || '', // 返回原始的 JavaScript 代码
+        consoleMessages,
+        duration: result.duration
+      };
+    } else {
+      return {
+        success: false,
+        previewCode: `// JavaScript 执行失败\nconsole.error('❌ JavaScript 执行失败: ${result.error || '未知错误'}');`,
+        consoleMessages: [{
+          type: 'error',
+          message: result.error || 'JavaScript 执行失败'
+        }],
+        error: result.error
+      };
+    }
   }
 
   /** 预处理 JavaScript 代码 */

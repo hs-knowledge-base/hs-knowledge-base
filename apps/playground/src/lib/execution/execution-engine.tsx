@@ -229,14 +229,17 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
                     type: 'console',
                     level: type,
                     args: Array.from(args).map(arg => {
-                        if (typeof arg === 'object') {
+                        // 保持原始类型，让控制台组件处理格式化
+                        if (typeof arg === 'object' && arg !== null) {
                             try {
-                                return JSON.stringify(arg, null, 2);
+                                // 对于对象，我们需要序列化以便跨窗口传递
+                                // 但保持结构化数据，让控制台组件进行智能展示
+                                return JSON.parse(JSON.stringify(arg));
                             } catch {
                                 return String(arg);
                             }
                         }
-                        return String(arg);
+                        return arg; // 保持原始类型（string, number, boolean 等）
                     })
                 }, '*');
             } catch (e) {
@@ -291,6 +294,37 @@ export function ExecutionEngine({ className = '' }: ExecutionEngineProps) {
 </body>
 </html>`;
   };
+
+  /** 监听 iframe 的 postMessage */
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // 确保消息来自我们的 iframe
+      if (event.source !== iframeRef.current?.contentWindow) {
+        return;
+      }
+
+      // 处理控制台消息
+      if (event.data?.type === 'console') {
+        const { level, args } = event.data;
+
+        // 将 iframe 的控制台消息添加到我们的控制台
+        // 使用优化的控制台输出，传递 args 数组以支持对象展开等功能
+        addConsoleMessage({
+          type: level as 'log' | 'warn' | 'error' | 'info',
+          message: args.join(' '), // 保持兼容性
+          args: args // 传递原始参数数组，支持控制台的高级功能
+        });
+      }
+    };
+
+    // 添加消息监听器
+    window.addEventListener('message', handleMessage);
+
+    // 清理函数
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [addConsoleMessage]);
 
   /** 监听内容变化，自动执行 */
   useEffect(() => {

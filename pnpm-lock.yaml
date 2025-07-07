@@ -36,16 +36,6 @@ importers:
 
   apps/playground:
     dependencies:
-      '@types/node':
-        specifier: ^24.0.10
-        version: 24.0.10
-    devDependencies:
-      vite:
-        specifier: ^5.0.0
-        version: 5.4.19(@types/node@24.0.10)(lightningcss@1.30.1)(terser@5.43.1)
-
-  apps/playground-next:
-    dependencies:
       '@nextui-org/react':
         specifier: ^2.6.11
         version: 2.6.11(@types/react@19.1.8)(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(tailwindcss@4.1.11)
@@ -4467,8 +4457,8 @@ snapshots:
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@nextui-org/use-aria-accordion': 2.2.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/button': 3.11.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-stately/tree': 3.8.6(react@19.1.0)
       '@react-types/accordion': 3.0.0-alpha.25(react@19.1.0)
@@ -4523,12 +4513,12 @@ snapshots:
       '@nextui-org/spinner': 2.2.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@nextui-org/use-aria-button': 2.2.4(react@19.1.0)
+      '@nextui-org/use-aria-button': 2.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/use-safe-layout-effect': 2.1.1(react@19.1.0)
       '@react-aria/combobox': 3.11.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/i18n': 3.12.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-aria/visually-hidden': 3.8.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/combobox': 3.10.1(react@19.1.0)
@@ -4547,8 +4537,8 @@ snapshots:
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@nextui-org/use-image': 2.1.2(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
@@ -4570,7 +4560,7 @@ snapshots:
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@react-aria/breadcrumbs': 3.5.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-types/breadcrumbs': 3.7.9(react@19.1.0)
       '@react-types/shared': 3.26.0(react@19.1.0)
@@ -4585,10 +4575,10 @@ snapshots:
       '@nextui-org/spinner': 2.2.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@nextui-org/use-aria-button': 2.2.4(react@19.1.0)
+      '@nextui-org/use-aria-button': 2.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/button': 3.11.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-types/button': 3.10.1(react@19.1.0)
       '@react-types/shared': 3.26.0(react@19.1.0)
@@ -4607,11 +4597,11 @@ snapshots:
       '@nextui-org/shared-utils': 2.1.2
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@nextui-org/use-aria-button': 2.2.4(react@19.1.0)
+      '@nextui-org/use-aria-button': 2.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/calendar': 3.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/i18n': 3.12.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-aria/visually-hidden': 3.8.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/calendar': 3.6.0(react@19.1.0)
@@ -4632,10 +4622,10 @@ snapshots:
       '@nextui-org/shared-utils': 2.1.2
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@nextui-org/use-aria-button': 2.2.4(react@19.1.0)
+      '@nextui-org/use-aria-button': 2.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/button': 3.11.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-types/shared': 3.26.0(react@19.1.0)
       framer-motion: 12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -4652,8 +4642,8 @@ snapshots:
       '@nextui-org/use-callback-ref': 2.1.1(react@19.1.0)
       '@nextui-org/use-safe-layout-effect': 2.1.1(react@19.1.0)
       '@react-aria/checkbox': 3.15.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-aria/visually-hidden': 3.8.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/checkbox': 3.6.10(react@19.1.0)
@@ -4670,8 +4660,8 @@ snapshots:
       '@nextui-org/shared-utils': 2.1.2
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-types/checkbox': 3.9.0(react@19.1.0)
       react: 19.1.0
@@ -4695,7 +4685,7 @@ snapshots:
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@react-aria/datepicker': 3.12.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
+      '@react-aria/i18n': 3.12.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-stately/datepicker': 3.11.0(react@19.1.0)
       '@react-types/datepicker': 3.9.0(react@19.1.0)
@@ -4718,7 +4708,7 @@ snapshots:
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@react-aria/datepicker': 3.12.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
+      '@react-aria/i18n': 3.12.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-stately/datepicker': 3.11.0(react@19.1.0)
       '@react-stately/overlays': 3.6.12(react@19.1.0)
@@ -4765,7 +4755,7 @@ snapshots:
       '@nextui-org/shared-utils': 2.1.2
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/menu': 3.16.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-stately/menu': 3.9.0(react@19.1.0)
@@ -4815,7 +4805,7 @@ snapshots:
       '@nextui-org/shared-utils': 2.1.2
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/form': 3.0.11(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-stately/form': 3.1.0(react@19.1.0)
@@ -4834,8 +4824,8 @@ snapshots:
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@nextui-org/use-safe-layout-effect': 2.1.1(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/textfield': 3.15.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-stately/utils': 3.10.5(react@19.1.0)
@@ -4864,8 +4854,8 @@ snapshots:
       '@nextui-org/shared-utils': 2.1.2
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@nextui-org/use-aria-link': 2.2.5(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@nextui-org/use-aria-link': 2.2.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/link': 3.7.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-types/link': 3.5.9(react@19.1.0)
@@ -4881,8 +4871,8 @@ snapshots:
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@nextui-org/use-is-mobile': 2.2.2(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/listbox': 3.13.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-stately/list': 3.11.1(react@19.1.0)
@@ -4903,8 +4893,8 @@ snapshots:
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@nextui-org/use-is-mobile': 2.2.2(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/menu': 3.16.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-stately/menu': 3.9.0(react@19.1.0)
@@ -4925,13 +4915,13 @@ snapshots:
       '@nextui-org/shared-utils': 2.1.2
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@nextui-org/use-aria-button': 2.2.4(react@19.1.0)
+      '@nextui-org/use-aria-button': 2.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/use-aria-modal-overlay': 2.2.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/use-disclosure': 2.2.2(react@19.1.0)
-      '@nextui-org/use-draggable': 2.1.2(react@19.1.0)
+      '@nextui-org/use-draggable': 2.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/dialog': 3.5.20(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/overlays': 3.24.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-stately/overlays': 3.6.12(react@19.1.0)
@@ -4950,8 +4940,8 @@ snapshots:
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@nextui-org/use-scroll-position': 2.1.1(react@19.1.0)
       '@react-aria/button': 3.11.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/overlays': 3.24.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-stately/toggle': 3.8.0(react@19.1.0)
@@ -4967,11 +4957,11 @@ snapshots:
       '@nextui-org/shared-utils': 2.1.2
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@nextui-org/use-intersection-observer': 2.2.2(react@19.1.0)
-      '@nextui-org/use-pagination': 2.2.3(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@nextui-org/use-intersection-observer': 2.2.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@nextui-org/use-pagination': 2.2.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/i18n': 3.12.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
@@ -4987,11 +4977,11 @@ snapshots:
       '@nextui-org/shared-utils': 2.1.2
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@nextui-org/use-aria-button': 2.2.4(react@19.1.0)
+      '@nextui-org/use-aria-button': 2.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/use-safe-layout-effect': 2.1.1(react@19.1.0)
       '@react-aria/dialog': 3.5.20(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/overlays': 3.24.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-stately/overlays': 3.6.12(react@19.1.0)
@@ -5008,7 +4998,7 @@ snapshots:
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@nextui-org/use-is-mounted': 2.1.1(react@19.1.0)
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
+      '@react-aria/i18n': 3.12.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/progress': 3.4.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-types/progress': 3.5.8(react@19.1.0)
@@ -5022,8 +5012,8 @@ snapshots:
       '@nextui-org/shared-utils': 2.1.2
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/radio': 3.10.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-aria/visually-hidden': 3.8.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -5134,12 +5124,12 @@ snapshots:
       '@nextui-org/spinner': 2.2.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@nextui-org/use-aria-button': 2.2.4(react@19.1.0)
+      '@nextui-org/use-aria-button': 2.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/use-aria-multiselect': 2.4.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/use-safe-layout-effect': 2.1.1(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/form': 3.0.11(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-aria/visually-hidden': 3.8.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-types/shared': 3.26.0(react@19.1.0)
@@ -5170,9 +5160,9 @@ snapshots:
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@nextui-org/tooltip': 2.2.7(@nextui-org/system@2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/i18n': 3.12.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/slider': 3.7.14(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-aria/visually-hidden': 3.8.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -5192,7 +5182,7 @@ snapshots:
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@nextui-org/tooltip': 2.2.7(@nextui-org/system@2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/use-clipboard': 2.1.2(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       framer-motion: 12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
@@ -5223,8 +5213,8 @@ snapshots:
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@nextui-org/use-safe-layout-effect': 2.1.1(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/switch': 3.6.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-aria/visually-hidden': 3.8.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -5245,7 +5235,7 @@ snapshots:
       '@internationalized/date': 3.6.0
       '@nextui-org/react-utils': 2.1.3(react@19.1.0)
       '@nextui-org/system-rsc': 2.3.5(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(react@19.1.0)
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
+      '@react-aria/i18n': 3.12.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/overlays': 3.24.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-stately/utils': 3.10.5(react@19.1.0)
@@ -5265,13 +5255,13 @@ snapshots:
       '@nextui-org/spacer': 2.2.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/table': 3.16.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-aria/visually-hidden': 3.8.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/table': 3.13.0(react@19.1.0)
-      '@react-stately/virtualizer': 4.2.0(react@19.1.0)
+      '@react-stately/virtualizer': 4.2.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-types/grid': 3.2.10(react@19.1.0)
       '@react-types/table': 3.10.3(react@19.1.0)
       react: 19.1.0
@@ -5287,8 +5277,8 @@ snapshots:
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@nextui-org/use-is-mounted': 2.1.1(react@19.1.0)
       '@nextui-org/use-update-effect': 2.1.1(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/tabs': 3.9.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-stately/tabs': 3.7.0(react@19.1.0)
@@ -5321,7 +5311,7 @@ snapshots:
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
       '@nextui-org/use-safe-layout-effect': 2.1.1(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/overlays': 3.24.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/tooltip': 3.7.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
@@ -5335,7 +5325,7 @@ snapshots:
   '@nextui-org/use-aria-accordion@2.2.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@react-aria/button': 3.11.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/selection': 3.21.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-stately/tree': 3.8.6(react@19.1.0)
@@ -5345,25 +5335,29 @@ snapshots:
     transitivePeerDependencies:
       - react-dom
 
-  '@nextui-org/use-aria-button@2.2.4(react@19.1.0)':
+  '@nextui-org/use-aria-button@2.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@nextui-org/shared-utils': 2.1.2
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-types/button': 3.10.1(react@19.1.0)
       '@react-types/shared': 3.26.0(react@19.1.0)
       react: 19.1.0
+    transitivePeerDependencies:
+      - react-dom
 
-  '@nextui-org/use-aria-link@2.2.5(react@19.1.0)':
+  '@nextui-org/use-aria-link@2.2.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@nextui-org/shared-utils': 2.1.2
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-types/link': 3.5.9(react@19.1.0)
       '@react-types/shared': 3.26.0(react@19.1.0)
       react: 19.1.0
+    transitivePeerDependencies:
+      - react-dom
 
   '@nextui-org/use-aria-modal-overlay@2.2.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
@@ -5376,9 +5370,9 @@ snapshots:
 
   '@nextui-org/use-aria-multiselect@2.4.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
-      '@react-aria/label': 3.7.13(react@19.1.0)
+      '@react-aria/i18n': 3.12.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/label': 3.7.13(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/listbox': 3.13.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/menu': 3.16.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/selection': 3.21.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -5414,10 +5408,12 @@ snapshots:
       '@react-stately/utils': 3.10.5(react@19.1.0)
       react: 19.1.0
 
-  '@nextui-org/use-draggable@2.1.2(react@19.1.0)':
+  '@nextui-org/use-draggable@2.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
+    transitivePeerDependencies:
+      - react-dom
 
   '@nextui-org/use-image@2.1.2(react@19.1.0)':
     dependencies:
@@ -5425,13 +5421,15 @@ snapshots:
       '@nextui-org/use-safe-layout-effect': 2.1.1(react@19.1.0)
       react: 19.1.0
 
-  '@nextui-org/use-intersection-observer@2.2.2(react@19.1.0)':
+  '@nextui-org/use-intersection-observer@2.2.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/interactions': 3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/ssr': 3.9.7(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       '@react-types/shared': 3.26.0(react@19.1.0)
       react: 19.1.0
+    transitivePeerDependencies:
+      - react-dom
 
   '@nextui-org/use-is-mobile@2.2.2(react@19.1.0)':
     dependencies:
@@ -5446,11 +5444,13 @@ snapshots:
     dependencies:
       react: 19.1.0
 
-  '@nextui-org/use-pagination@2.2.3(react@19.1.0)':
+  '@nextui-org/use-pagination@2.2.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@nextui-org/shared-utils': 2.1.2
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
+      '@react-aria/i18n': 3.12.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
+    transitivePeerDependencies:
+      - react-dom
 
   '@nextui-org/use-safe-layout-effect@2.1.1(react@19.1.0)':
     dependencies:
@@ -5471,7 +5471,7 @@ snapshots:
       '@nextui-org/shared-utils': 2.1.2
       '@nextui-org/system': 2.4.6(@nextui-org/theme@2.4.5(tailwindcss@4.1.11))(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@nextui-org/theme': 2.4.5(tailwindcss@4.1.11)
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/utils': 3.26.0(react@19.1.0)
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
@@ -5494,9 +5494,9 @@ snapshots:
     dependencies:
       '@react-aria/i18n': 3.12.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/link': 3.8.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-types/breadcrumbs': 3.7.9(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
     transitivePeerDependencies:
@@ -5504,13 +5504,13 @@ snapshots:
 
   '@react-aria/button@3.11.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/toolbar': 3.0.0-beta.11(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/toggle': 3.8.5(react@19.1.0)
       '@react-types/button': 3.12.2(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
     transitivePeerDependencies:
@@ -5518,15 +5518,15 @@ snapshots:
 
   '@react-aria/calendar@3.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@internationalized/date': 3.6.0
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@internationalized/date': 3.8.2
+      '@react-aria/i18n': 3.12.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/live-announcer': 3.4.3
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/calendar': 3.6.0(react@19.1.0)
-      '@react-types/button': 3.10.1(react@19.1.0)
-      '@react-types/calendar': 3.5.0(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/button': 3.12.2(react@19.1.0)
+      '@react-types/calendar': 3.7.2(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
@@ -5534,15 +5534,15 @@ snapshots:
   '@react-aria/checkbox@3.15.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@react-aria/form': 3.0.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/label': 3.7.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/toggle': 3.11.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/checkbox': 3.6.10(react@19.1.0)
       '@react-stately/form': 3.1.5(react@19.1.0)
-      '@react-stately/toggle': 3.8.0(react@19.1.0)
-      '@react-types/checkbox': 3.9.0(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-stately/toggle': 3.8.5(react@19.1.0)
+      '@react-types/checkbox': 3.9.5(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
     transitivePeerDependencies:
@@ -5550,66 +5550,68 @@ snapshots:
 
   '@react-aria/combobox@3.11.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
+      '@react-aria/i18n': 3.12.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/listbox': 3.14.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/live-announcer': 3.4.3
       '@react-aria/menu': 3.18.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/overlays': 3.27.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/selection': 3.24.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/textfield': 3.17.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/collections': 3.12.5(react@19.1.0)
       '@react-stately/combobox': 3.10.1(react@19.1.0)
       '@react-stately/form': 3.1.5(react@19.1.0)
       '@react-types/button': 3.12.2(react@19.1.0)
       '@react-types/combobox': 3.13.1(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
   '@react-aria/datepicker@3.12.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@internationalized/date': 3.6.0
+      '@internationalized/date': 3.8.2
       '@internationalized/number': 3.6.3
       '@internationalized/string': 3.2.7
       '@react-aria/focus': 3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/form': 3.0.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
+      '@react-aria/i18n': 3.12.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/label': 3.7.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/spinbutton': 3.6.16(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/datepicker': 3.11.0(react@19.1.0)
       '@react-stately/form': 3.1.5(react@19.1.0)
       '@react-types/button': 3.12.2(react@19.1.0)
       '@react-types/calendar': 3.7.2(react@19.1.0)
       '@react-types/datepicker': 3.9.0(react@19.1.0)
       '@react-types/dialog': 3.5.19(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
   '@react-aria/dialog@3.5.20(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/overlays': 3.24.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/focus': 3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/overlays': 3.27.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-types/dialog': 3.5.19(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@react-aria/focus@3.19.0(react@19.1.0)':
+  '@react-aria/focus@3.19.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       clsx: 2.1.1
       react: 19.1.0
+    transitivePeerDependencies:
+      - react-dom
 
   '@react-aria/focus@3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
@@ -5624,8 +5626,8 @@ snapshots:
   '@react-aria/form@3.0.11(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
-      '@react-stately/form': 3.1.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-stately/form': 3.1.5(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
@@ -5673,25 +5675,29 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@react-aria/i18n@3.12.4(react@19.1.0)':
+  '@react-aria/i18n@3.12.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@internationalized/date': 3.6.0
+      '@internationalized/date': 3.8.2
       '@internationalized/message': 3.1.8
       '@internationalized/number': 3.6.3
       '@internationalized/string': 3.2.7
       '@react-aria/ssr': 3.9.9(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
+    transitivePeerDependencies:
+      - react-dom
 
-  '@react-aria/interactions@3.22.5(react@19.1.0)':
+  '@react-aria/interactions@3.22.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@react-aria/ssr': 3.9.9(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
+    transitivePeerDependencies:
+      - react-dom
 
   '@react-aria/interactions@3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
@@ -5703,12 +5709,14 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@react-aria/label@3.7.13(react@19.1.0)':
+  '@react-aria/label@3.7.13(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/utils': 3.26.0(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
+    transitivePeerDependencies:
+      - react-dom
 
   '@react-aria/label@3.7.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
@@ -5720,10 +5728,10 @@ snapshots:
 
   '@react-aria/link@3.7.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
-      '@react-types/link': 3.5.9(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-types/link': 3.6.2(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
@@ -5742,14 +5750,14 @@ snapshots:
 
   '@react-aria/listbox@3.13.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/label': 3.7.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/selection': 3.24.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/collections': 3.12.5(react@19.1.0)
-      '@react-stately/list': 3.11.1(react@19.1.0)
+      '@react-stately/list': 3.12.3(react@19.1.0)
       '@react-types/listbox': 3.7.1(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
@@ -5774,18 +5782,18 @@ snapshots:
 
   '@react-aria/menu@3.16.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/i18n': 3.12.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/overlays': 3.27.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/selection': 3.24.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/collections': 3.12.5(react@19.1.0)
-      '@react-stately/menu': 3.9.0(react@19.1.0)
+      '@react-stately/menu': 3.9.5(react@19.1.0)
       '@react-stately/selection': 3.20.3(react@19.1.0)
       '@react-stately/tree': 3.9.0(react@19.1.0)
       '@react-types/button': 3.12.2(react@19.1.0)
-      '@react-types/menu': 3.9.13(react@19.1.0)
+      '@react-types/menu': 3.10.2(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
@@ -5813,11 +5821,11 @@ snapshots:
   '@react-aria/overlays@3.24.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@react-aria/focus': 3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
+      '@react-aria/i18n': 3.12.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/ssr': 3.9.9(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
-      '@react-aria/visually-hidden': 3.8.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/visually-hidden': 3.8.25(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/overlays': 3.6.17(react@19.1.0)
       '@react-types/button': 3.12.2(react@19.1.0)
       '@react-types/overlays': 3.8.16(react@19.1.0)
@@ -5844,9 +5852,9 @@ snapshots:
 
   '@react-aria/progress@3.4.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
+      '@react-aria/i18n': 3.12.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/label': 3.7.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-types/progress': 3.5.8(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
@@ -5856,15 +5864,15 @@ snapshots:
 
   '@react-aria/radio@3.10.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/form': 3.0.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/i18n': 3.12.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/label': 3.7.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/radio': 3.10.9(react@19.1.0)
       '@react-types/radio': 3.8.5(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
     transitivePeerDependencies:
@@ -5872,12 +5880,12 @@ snapshots:
 
   '@react-aria/selection@3.21.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/i18n': 3.12.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/selection': 3.20.3(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
@@ -5896,11 +5904,11 @@ snapshots:
 
   '@react-aria/slider@3.7.14(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/focus': 3.19.0(react@19.1.0)
-      '@react-aria/i18n': 3.12.4(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/focus': 3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/i18n': 3.12.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/label': 3.7.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/slider': 3.6.0(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@react-types/slider': 3.7.12(react@19.1.0)
@@ -5933,8 +5941,8 @@ snapshots:
   '@react-aria/switch@3.6.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@react-aria/toggle': 3.11.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-stately/toggle': 3.8.0(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-stately/toggle': 3.8.5(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@react-types/switch': 3.5.12(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
@@ -5943,18 +5951,18 @@ snapshots:
 
   '@react-aria/table@3.16.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/grid': 3.14.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/i18n': 3.12.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
+      '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/live-announcer': 3.4.3
-      '@react-aria/utils': 3.26.0(react@19.1.0)
-      '@react-aria/visually-hidden': 3.8.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/visually-hidden': 3.8.25(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/collections': 3.12.5(react@19.1.0)
       '@react-stately/flags': 3.1.2
       '@react-stately/table': 3.13.0(react@19.1.0)
       '@react-types/checkbox': 3.9.5(react@19.1.0)
-      '@react-types/grid': 3.2.10(react@19.1.0)
+      '@react-types/grid': 3.3.3(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@react-types/table': 3.10.3(react@19.1.0)
       '@swc/helpers': 0.5.17
@@ -5963,12 +5971,12 @@ snapshots:
 
   '@react-aria/tabs@3.9.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/i18n': 3.12.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/selection': 3.24.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/tabs': 3.7.0(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@react-types/tabs': 3.3.11(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
@@ -5976,14 +5984,14 @@ snapshots:
 
   '@react-aria/textfield@3.15.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/form': 3.0.18(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/label': 3.7.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/form': 3.1.5(react@19.1.0)
-      '@react-stately/utils': 3.10.5(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
-      '@react-types/textfield': 3.10.0(react@19.1.0)
+      '@react-stately/utils': 3.10.7(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
+      '@react-types/textfield': 3.12.3(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
     transitivePeerDependencies:
@@ -6016,10 +6024,10 @@ snapshots:
 
   '@react-aria/toolbar@3.0.0-beta.11(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/focus': 3.19.0(react@19.1.0)
+      '@react-aria/focus': 3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/i18n': 3.12.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
     transitivePeerDependencies:
@@ -6028,8 +6036,8 @@ snapshots:
   '@react-aria/tooltip@3.7.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@react-aria/focus': 3.20.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/interactions': 3.22.5(react@19.1.0)
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/interactions': 3.25.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/tooltip': 3.5.0(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@react-types/tooltip': 3.4.13(react@19.1.0)
@@ -6041,7 +6049,7 @@ snapshots:
   '@react-aria/utils@3.26.0(react@19.1.0)':
     dependencies:
       '@react-aria/ssr': 3.9.9(react@19.1.0)
-      '@react-stately/utils': 3.10.5(react@19.1.0)
+      '@react-stately/utils': 3.10.7(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       clsx: 2.1.1
@@ -6079,10 +6087,10 @@ snapshots:
 
   '@react-stately/calendar@3.6.0(react@19.1.0)':
     dependencies:
-      '@internationalized/date': 3.6.0
-      '@react-stately/utils': 3.10.5(react@19.1.0)
-      '@react-types/calendar': 3.5.0(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@internationalized/date': 3.8.2
+      '@react-stately/utils': 3.10.7(react@19.1.0)
+      '@react-types/calendar': 3.7.2(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
 
@@ -6090,14 +6098,14 @@ snapshots:
     dependencies:
       '@react-stately/form': 3.1.5(react@19.1.0)
       '@react-stately/utils': 3.10.7(react@19.1.0)
-      '@react-types/checkbox': 3.9.0(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/checkbox': 3.9.5(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
 
   '@react-stately/collections@3.12.0(react@19.1.0)':
     dependencies:
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
 
@@ -6116,19 +6124,19 @@ snapshots:
       '@react-stately/select': 3.6.14(react@19.1.0)
       '@react-stately/utils': 3.10.7(react@19.1.0)
       '@react-types/combobox': 3.13.1(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
 
   '@react-stately/datepicker@3.11.0(react@19.1.0)':
     dependencies:
-      '@internationalized/date': 3.6.0
+      '@internationalized/date': 3.8.2
       '@internationalized/string': 3.2.7
       '@react-stately/form': 3.1.5(react@19.1.0)
       '@react-stately/overlays': 3.6.17(react@19.1.0)
       '@react-stately/utils': 3.10.7(react@19.1.0)
       '@react-types/datepicker': 3.9.0(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
 
@@ -6162,7 +6170,7 @@ snapshots:
       '@react-stately/collections': 3.12.5(react@19.1.0)
       '@react-stately/selection': 3.20.3(react@19.1.0)
       '@react-stately/utils': 3.10.7(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
 
@@ -6178,7 +6186,7 @@ snapshots:
   '@react-stately/menu@3.9.0(react@19.1.0)':
     dependencies:
       '@react-stately/overlays': 3.6.17(react@19.1.0)
-      '@react-types/menu': 3.9.13(react@19.1.0)
+      '@react-types/menu': 3.10.2(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
@@ -6194,7 +6202,7 @@ snapshots:
   '@react-stately/overlays@3.6.12(react@19.1.0)':
     dependencies:
       '@react-stately/utils': 3.10.7(react@19.1.0)
-      '@react-types/overlays': 3.8.11(react@19.1.0)
+      '@react-types/overlays': 3.8.16(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
 
@@ -6210,7 +6218,7 @@ snapshots:
       '@react-stately/form': 3.1.5(react@19.1.0)
       '@react-stately/utils': 3.10.7(react@19.1.0)
       '@react-types/radio': 3.8.5(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
 
@@ -6247,7 +6255,7 @@ snapshots:
       '@react-stately/grid': 3.11.3(react@19.1.0)
       '@react-stately/selection': 3.20.3(react@19.1.0)
       '@react-stately/utils': 3.10.7(react@19.1.0)
-      '@react-types/grid': 3.2.10(react@19.1.0)
+      '@react-types/grid': 3.3.3(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@react-types/table': 3.10.3(react@19.1.0)
       '@swc/helpers': 0.5.17
@@ -6256,7 +6264,7 @@ snapshots:
   '@react-stately/tabs@3.7.0(react@19.1.0)':
     dependencies:
       '@react-stately/list': 3.12.3(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@react-types/tabs': 3.3.11(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
@@ -6264,8 +6272,8 @@ snapshots:
   '@react-stately/toggle@3.8.0(react@19.1.0)':
     dependencies:
       '@react-stately/utils': 3.10.7(react@19.1.0)
-      '@react-types/checkbox': 3.9.0(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/checkbox': 3.9.5(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
 
@@ -6289,7 +6297,7 @@ snapshots:
       '@react-stately/collections': 3.12.5(react@19.1.0)
       '@react-stately/selection': 3.20.3(react@19.1.0)
       '@react-stately/utils': 3.10.7(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
 
@@ -6312,27 +6320,29 @@ snapshots:
       '@swc/helpers': 0.5.17
       react: 19.1.0
 
-  '@react-stately/virtualizer@4.2.0(react@19.1.0)':
+  '@react-stately/virtualizer@4.2.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/utils': 3.26.0(react@19.1.0)
+      '@react-aria/utils': 3.29.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       '@swc/helpers': 0.5.17
       react: 19.1.0
+    transitivePeerDependencies:
+      - react-dom
 
   '@react-types/accordion@3.0.0-alpha.25(react@19.1.0)':
     dependencies:
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       react: 19.1.0
 
   '@react-types/breadcrumbs@3.7.9(react@19.1.0)':
     dependencies:
       '@react-types/link': 3.6.2(react@19.1.0)
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       react: 19.1.0
 
   '@react-types/button@3.10.1(react@19.1.0)':
     dependencies:
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       react: 19.1.0
 
   '@react-types/button@3.12.2(react@19.1.0)':
@@ -6342,8 +6352,8 @@ snapshots:
 
   '@react-types/calendar@3.5.0(react@19.1.0)':
     dependencies:
-      '@internationalized/date': 3.6.0
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@internationalized/date': 3.8.2
+      '@react-types/shared': 3.30.0(react@19.1.0)
       react: 19.1.0
 
   '@react-types/calendar@3.7.2(react@19.1.0)':
@@ -6364,12 +6374,12 @@ snapshots:
 
   '@react-types/combobox@3.13.1(react@19.1.0)':
     dependencies:
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       react: 19.1.0
 
   '@react-types/datepicker@3.9.0(react@19.1.0)':
     dependencies:
-      '@internationalized/date': 3.6.0
+      '@internationalized/date': 3.8.2
       '@react-types/calendar': 3.7.2(react@19.1.0)
       '@react-types/overlays': 3.8.16(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
@@ -6383,7 +6393,7 @@ snapshots:
 
   '@react-types/form@3.7.8(react@19.1.0)':
     dependencies:
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       react: 19.1.0
 
   '@react-types/grid@3.2.10(react@19.1.0)':
@@ -6440,7 +6450,7 @@ snapshots:
 
   '@react-types/radio@3.8.5(react@19.1.0)':
     dependencies:
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       react: 19.1.0
 
   '@react-types/select@3.9.13(react@19.1.0)':
@@ -6450,7 +6460,7 @@ snapshots:
 
   '@react-types/select@3.9.8(react@19.1.0)':
     dependencies:
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       react: 19.1.0
 
   '@react-types/shared@3.26.0(react@19.1.0)':
@@ -6473,13 +6483,13 @@ snapshots:
 
   '@react-types/table@3.10.3(react@19.1.0)':
     dependencies:
-      '@react-types/grid': 3.2.10(react@19.1.0)
+      '@react-types/grid': 3.3.3(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       react: 19.1.0
 
   '@react-types/tabs@3.3.11(react@19.1.0)':
     dependencies:
-      '@react-types/shared': 3.26.0(react@19.1.0)
+      '@react-types/shared': 3.30.0(react@19.1.0)
       react: 19.1.0
 
   '@react-types/textfield@3.10.0(react@19.1.0)':
@@ -6494,7 +6504,7 @@ snapshots:
 
   '@react-types/tooltip@3.4.13(react@19.1.0)':
     dependencies:
-      '@react-types/overlays': 3.8.11(react@19.1.0)
+      '@react-types/overlays': 3.8.16(react@19.1.0)
       '@react-types/shared': 3.30.0(react@19.1.0)
       react: 19.1.0
 
@@ -6714,7 +6724,7 @@ snapshots:
 
   '@types/jsonfile@6.1.4':
     dependencies:
-      '@types/node': 24.0.10
+      '@types/node': 20.19.4
 
   '@types/linkify-it@5.0.0': {}
 

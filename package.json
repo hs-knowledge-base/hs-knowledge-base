@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "description": "火山知识库",
   "private": true,
+  "packageManager": "pnpm@8.15.0",
   "scripts": {
     "docs:dev": "pnpm --filter docs dev",
     "docs:build": "pnpm --filter docs build",
-    "docs:preview": "pnpm --filter docs preview"
+    "docs:preview": "pnpm --filter docs preview",
+    "playground:dev": "pnpm --filter playground dev",
+    "playground:build": "pnpm --filter playground build",
+    "playground:start": "pnpm --filter playground start"
   },
   "devDependencies": {
     "typescript": "^5.0.2"

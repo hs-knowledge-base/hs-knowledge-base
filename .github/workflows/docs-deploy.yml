@@ -1,14 +1,14 @@
-# 构建 VitePress 站点并将其部署到 GitHub Pages 的示例工作流程
-#
 name: Deploy VitePress site to Pages
 
 on:
-  # 在针对 `main` 分支的推送上运行。如果你
-  # 使用 `master` 分支作为默认分支，请将其更改为 `master`
+  # 在针对 `main` 分支的推送上运行，但只有当 apps/docs 目录或此配置文件发生变化时
   push:
     branches: [main]
+    paths:
+      - 'apps/docs/**'
+      - '.github/workflows/docs-deploy.yml'
 
-  # 允许你从 Actions 选项卡手动运行此工作流程
+  # 允许从 Actions 选项卡手动运行此工作流程
   workflow_dispatch:
 
 # 设置 GITHUB_TOKEN 的权限，以允许部署到 GitHub Pages

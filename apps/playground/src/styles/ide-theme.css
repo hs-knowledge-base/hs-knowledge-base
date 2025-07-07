@@ -1,0 +1,224 @@
+/* IDE 深色主题样式 */
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Monaco Editor 容器样式 */
+.monaco-editor {
+  background-color: #111827 !important;
+}
+
+.monaco-editor .margin {
+  background-color: #111827 !important;
+}
+
+.monaco-editor .monaco-editor-background {
+  background-color: #111827 !important;
+}
+
+/* 行号样式 */
+.monaco-editor .line-numbers {
+  color: #6b7280 !important;
+}
+
+.monaco-editor .current-line ~ .line-numbers {
+  color: #9ca3af !important;
+}
+
+/* 选中行高亮 */
+.monaco-editor .current-line {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* 选择文本样式 */
+.monaco-editor .selected-text {
+  background-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* 代码折叠样式 */
+.monaco-editor .folding-decoration {
+  color: #6b7280 !important;
+}
+
+/* 建议框样式 */
+.monaco-editor .suggest-widget {
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row {
+  background-color: transparent !important;
+  color: #e5e7eb !important;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row.focused {
+  background-color: #374151 !important;
+}
+
+/* 右键菜单样式 */
+.monaco-menu {
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+.monaco-menu .monaco-action-bar .action-item .action-label {
+  color: #e5e7eb !important;
+}
+
+.monaco-menu .monaco-action-bar .action-item .action-label:hover {
+  background-color: #374151 !important;
+}
+
+/* 查找替换框样式 */
+.monaco-editor .find-widget {
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 错误波浪线样式 */
+.monaco-editor .squiggly-error {
+  border-bottom: 2px solid #ef4444 !important;
+}
+
+.monaco-editor .squiggly-warning {
+  border-bottom: 2px solid #f59e0b !important;
+}
+
+.monaco-editor .squiggly-info {
+  border-bottom: 2px solid #3b82f6 !important;
+}
+
+/* 高级样式增强 */
+.ide-container {
+  background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace;
+}
+
+/* 文件标签页样式增强 */
+.file-tab {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.file-tab::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+.file-tab.active::before {
+  transform: scaleX(1);
+}
+
+/* 工具栏样式增强 */
+.toolbar-button {
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.toolbar-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* 状态指示器动画 */
+.status-indicator {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* 加载动画 */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 代码高亮增强 */
+.monaco-editor .token.keyword {
+  color: #c792ea !important;
+  font-weight: 500;
+}
+
+.monaco-editor .token.string {
+  color: #c3e88d !important;
+}
+
+.monaco-editor .token.number {
+  color: #f78c6c !important;
+}
+
+.monaco-editor .token.comment {
+  color: #546e7a !important;
+  font-style: italic;
+}
+
+.monaco-editor .token.function {
+  color: #82aaff !important;
+}
+
+.monaco-editor .token.variable {
+  color: #eeffff !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .file-tab {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .toolbar-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+/* 性能优化 */
+.monaco-editor * {
+  will-change: auto;
+}
+
+.monaco-editor .view-lines {
+  will-change: transform;
+}

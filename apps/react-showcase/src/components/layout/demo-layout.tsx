@@ -109,11 +109,11 @@ export function DemoLayout({
                           </Button>
                         </div>
                       </DrawerHeader>
-                      <div className="flex-1 p-4 min-h-0 overflow-hidden">
+                      <div className="flex-1 p-4 min-h-0 flex flex-col overflow-hidden">
                         <LiveProvider code={initialCode} scope={scope}>
                           {drawerMode === 'view' ? (
                             /* 查看模式 - 只显示只读代码 */
-                            <div className={`flex flex-col ${isFullscreen ? 'h-[calc(100vh-140px)]' : 'h-[calc(80vh-140px)]'}`}>
+                            <div className="flex flex-col flex-1 min-h-0">
                               <div className="flex flex-col h-full">
                                 <h3 className="text-sm font-medium text-gray-700 mb-2 flex-shrink-0">源代码（只读）</h3>
                                 <div className="flex-1 border rounded-lg overflow-hidden min-h-0">
@@ -132,7 +132,7 @@ export function DemoLayout({
                             </div>
                           ) : (
                             /* 编辑模式 - 显示编辑器和实时预览 */
-                            <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 ${isFullscreen ? 'h-[calc(100vh-140px)]' : 'h-[calc(80vh-140px)]'}`}>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
                               {/* 编辑器 */}
                               <div className="flex flex-col min-h-0">
                                 <h3 className="text-sm font-medium text-gray-700 mb-2 flex-shrink-0">代码编辑器</h3>

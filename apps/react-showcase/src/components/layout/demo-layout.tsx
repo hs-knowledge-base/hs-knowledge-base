@@ -1,47 +1,85 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef, useReducer } from "react"
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 import { Separator } from "@/components/ui/separator"
 import { Code2, Eye, Maximize2, Minimize2 } from "lucide-react"
+import { createScope } from "@/lib/react-live/scope"
+import type { Demo } from "@/lib/demos"
 
 /**
  * Demo 布局组件的属性接口
  */
 interface DemoLayoutProps {
-  /** 案例标题*/
-  title: string
-  /** 案例描述，可选，显示在标题下方 */
-  description?: string
-  /** React Live 要执行的初始代码字符串 */
-  initialCode: string
-  /** React Live 的完整作用域对象，包含所有可用的变量、函数和组件 */
-  scope?: Record<string, any>
-  /** 是否显示控制台，当前未使用但保留用于未来扩展 */
-  showConsole?: boolean
+  /** Demo 案例对象 */
+  demo: Demo
 }
 
 export function DemoLayout({
-  title,
-  description,
-  initialCode,
-  scope = {},
+  demo
 }: DemoLayoutProps) {
   const [isCodeOpen, setIsCodeOpen] = useState(false)
   const [drawerMode, setDrawerMode] = useState<'view' | 'edit'>('view')
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [finalScope, setFinalScope] = useState<Record<string, any>>({})
+  const [isLoadingDeps, setIsLoadingDeps] = useState(true)
+
+  // 创建 scope（包含 React hooks、案例 scope 和 CDN 依赖）
+  useEffect(() => {
+    async function loadScope() {
+      setIsLoadingDeps(true)
+      try {
+        const scope = await createScope(demo)
+        setFinalScope(scope)
+      } catch (error) {
+        console.error('创建作用域失败:', error)
+        /**
+         * 降级到基础 scope
+         */
+        const fallbackScope: Record<string, any> = {
+          useState,
+          useEffect,
+          useCallback,
+          useMemo,
+          useRef,
+          useReducer
+        }
+        setFinalScope(fallbackScope)
+      } finally {
+        setIsLoadingDeps(false)
+      }
+    }
+
+    loadScope()
+  }, [demo])
+
+  if (isLoadingDeps) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">正在加载依赖库...</p>
+          {demo.cdnDependencies && (
+            <p className="text-gray-500 text-sm mt-2">
+              加载中: {demo.cdnDependencies.join(', ')}
+            </p>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">{title}</h1>
-          {description && (
-            <p className="text-slate-600 text-lg">{description}</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">{demo.title}</h1>
+          {demo.description && (
+            <p className="text-slate-600 text-lg">{demo.description}</p>
           )}
         </div>
 
@@ -110,7 +148,7 @@ export function DemoLayout({
                         </div>
                       </DrawerHeader>
                       <div className="flex-1 p-4 min-h-0 flex flex-col overflow-hidden">
-                        <LiveProvider code={initialCode} scope={scope}>
+                        <LiveProvider code={demo.code} scope={finalScope}>
                           {drawerMode === 'view' ? (
                             /* 查看模式 - 只显示只读代码 */
                             <div className="flex flex-col flex-1 min-h-0">
@@ -184,7 +222,7 @@ export function DemoLayout({
               
               {/* React Live Preview Only */}
               <div className="rounded-lg border bg-white overflow-hidden min-h-[500px] p-6">
-                <LiveProvider code={initialCode} scope={scope}>
+                <LiveProvider code={demo.code} scope={finalScope}>
                   <LivePreview />
                   <LiveError 
                     style={{
@@ -213,11 +251,11 @@ export function DemoLayout({
                 <div>
                   <span className="font-medium">特性:</span> 实时编译，快速加载
                 </div>
-                {Object.keys(scope).length > 0 && (
+                {Object.keys(finalScope).length > 0 && (
                   <div>
                     <span className="font-medium">可用组件:</span>
                     <ul className="mt-1 space-y-1">
-                      {Object.keys(scope).map((name) => (
+                      {Object.keys(finalScope).map((name) => (
                         <li key={name} className="text-xs font-mono">
                           {name}
                         </li>

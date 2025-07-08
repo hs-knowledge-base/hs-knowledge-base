@@ -6,7 +6,9 @@ import { demos, getAllCategories } from "@/lib/demos"
 
 const categories = getAllCategories()
 
-// 为每个分类添加图标
+/**
+ * 为每个分类添加图标
+ */
 const categoryIcons = {
   "Hooks": <Zap className="h-5 w-5" />,
   "Components": <Layers className="h-5 w-5" />

@@ -14,23 +14,76 @@ src/lib/demos/
 └── README.md            # 说明文档
 ```
 
-## 🔧 如何添加新案例
+## 🎯 Demo 类型定义
 
-### 1. 创建案例文件
-在 `cases/` 目录下创建新的 `.ts` 文件
+```typescript
+/**
+ * Demo 案例接口定义
+ */
+export interface Demo {
+  /** 唯一标识符，用于 URL 路径 */
+  id: string
+  /** 案例标题 */
+  title: string
+  /** 案例描述 */
+  description: string
+  /** 分类（"Hooks" 或 "Components"） */
+  category: string
+  /** React 代码 */
+  code: string
+  /** 可选的额外作用域 */
+  scope?: Record<string, any>
+  /** 需要从 CDN 加载的依赖库名称列表 */
+  cdnDependencies?: string[]
+}
+```
 
-### 2. 更新案例集合
-在 `collection.ts` 中添加导入和数组项
+## 🔧 Scope 系统
 
-### 3. 访问案例
-新案例将自动在首页和对应路由中可用
+### 基础 Scope
+系统自动提供以下 React Hooks：
+- `useState`, `useEffect`, `useCallback`, `useMemo`, `useRef`, `useReducer`
 
-## 📝 编写规范
+### 自定义 Scope
+```typescript
+scope: {
+  customFunction: () => console.log('自定义函数'),
+  React: { memo: (component) => component }
+}
+```
 
-- 函数名必须是 `App`
-- 可直接使用 React Hooks
-- 使用 Tailwind CSS 样式
-- 避免 import 语句
+### CDN 依赖
+```typescript
+cdnDependencies: ['lodash', 'moment', 'axios', 'bootstrap']
+```
+
+**支持的库：**
+- `lodash` → 全局变量 `_`
+- `moment` → 日期处理
+- `axios` → HTTP 客户端
+- `bootstrap` → UI 框架
+
+## 📝 添加新案例
+
+1. 在 `cases/` 目录下创建 `.ts` 文件
+2. 在 `collection.ts` 中添加导入
+3. 所有代码必须在 `App` 函数内部
+
+### 示例
+```typescript
+export const myDemo: Demo = {
+  id: "my-demo",
+  title: "我的演示",
+  category: "Examples",
+  cdnDependencies: ['lodash'],
+  code: `function App() {
+    const [items] = useState([1, 2, 3])
+    const shuffled = _.shuffle(items) // 使用 lodash
+
+    return <div>{shuffled.join(', ')}</div>
+  }`
+}
+```
 
 ## 📚 相关资源
 

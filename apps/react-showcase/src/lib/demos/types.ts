@@ -14,6 +14,8 @@ export interface Demo {
   code: string
   /** 可选的额外作用域 */
   scope?: Record<string, any>
+  /** 需要从 CDN 加载的依赖库名称列表 */
+  cdnDependencies?: string[]
 }
 
 /**

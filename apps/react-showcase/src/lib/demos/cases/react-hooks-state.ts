@@ -1,10 +1,11 @@
 import type { Demo } from "../types"
+import { DemoCategories } from "../types"
 
 export const reactHooksStateDemo: Demo = {
   id: "react-hooks-state",
   title: "React Hooks 状态管理",
   description: "展示 useState、useEffect、useReducer 等核心 Hooks 的使用方法和最佳实践",
-  category: "React Hooks",
+  category: DemoCategories.REACT_HOOKS,
   code: `function App() {
   // useState - 基础状态管理
   const [count, setCount] = useState(0)

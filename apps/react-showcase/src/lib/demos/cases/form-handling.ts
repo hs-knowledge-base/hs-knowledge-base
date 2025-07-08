@@ -1,10 +1,11 @@
 import type { Demo } from "../types"
+import { DemoCategories } from "../types"
 
 export const formHandlingDemo: Demo = {
   id: "form-handling",
   title: "表单处理",
   description: "学习 React 中的表单状态管理、验证和提交处理",
-  category: "Components",
+  category: DemoCategories.COMPONENTS,
   code: `function App() {
   const [formData, setFormData] = useState({
     name: '',

@@ -1,4 +1,4 @@
-import type { Demo } from "./types"
+import type { Demo, DemoCategory } from "./types"
 
 /**
  * 根据 ID 获取案例
@@ -10,22 +10,22 @@ export function getDemoById(demos: Demo[], id: string): Demo | undefined {
 /**
  * 根据分类获取案例
  */
-export function getDemosByCategory(demos: Demo[], category: string): Demo[] {
+export function getDemosByCategory(demos: Demo[], category: DemoCategory): Demo[] {
   return demos.filter(demo => demo.category === category)
 }
 
 /**
  * 获取所有分类
  */
-export function getAllCategories(demos: Demo[]): string[] {
+export function getAllCategories(demos: Demo[]): DemoCategory[] {
   return Array.from(new Set(demos.map(demo => demo.category)))
 }
 
 /**
  * 获取分类统计
  */
-export function getCategoryStats(demos: Demo[]): Record<string, number> {
-  const stats: Record<string, number> = {}
+export function getCategoryStats(demos: Demo[]): Record<DemoCategory, number> {
+  const stats = {} as Record<DemoCategory, number>
   demos.forEach(demo => {
     stats[demo.category] = (stats[demo.category] || 0) + 1
   })

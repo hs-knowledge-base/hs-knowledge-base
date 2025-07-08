@@ -1,4 +1,6 @@
-export type { Demo, DemoCategory } from "./types"
+import {DemoCategory} from "@/lib/demos/types";
+
+export type { Demo } from "./types"
 export { DemoCategories } from "./types"
 export { demos } from "./collection"
 export * from "./utils"
@@ -17,7 +19,7 @@ export function getDemoById(id: string) {
 /**
  * 根据分类获取案例
  */
-export function getDemosByCategory(category: string) {
+export function getDemosByCategory(category: DemoCategory) {
   return utils.getDemosByCategory(demos, category)
 }
 

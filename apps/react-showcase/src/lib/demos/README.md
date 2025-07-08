@@ -27,8 +27,8 @@ export interface Demo {
   title: string
   /** 案例描述 */
   description: string
-  /** 分类（"Hooks" 或 "Components"） */
-  category: string
+  /** 分类 */
+  category: DemoCategory
   /** React 代码 */
   code: string
   /** 可选的额外作用域 */
@@ -36,6 +36,18 @@ export interface Demo {
   /** 需要从 CDN 加载的依赖库名称列表 */
   cdnDependencies?: string[]
 }
+
+/**
+ * 案例分类枚举
+ */
+export const DemoCategories = {
+  REACT_HOOKS: 'React Hooks',
+  PERFORMANCE: 'Performance',
+  CUSTOM_HOOKS: 'Custom Hooks',
+  COMPONENTS: 'Components',
+  STATE_MANAGEMENT: 'State Management',
+  UI_UX: 'UI/UX'
+} as const
 ```
 
 ## 🔧 Scope 系统
@@ -71,10 +83,13 @@ cdnDependencies: ['lodash', 'moment', 'axios', 'bootstrap']
 
 ### 示例
 ```typescript
+import { DemoCategories } from "../types"
+
 export const myDemo: Demo = {
   id: "my-demo",
   title: "我的演示",
-  category: "Examples",
+  description: "演示案例",
+  category: DemoCategories.COMPONENTS,
   cdnDependencies: ['lodash'],
   code: `function App() {
     const [items] = useState([1, 2, 3])

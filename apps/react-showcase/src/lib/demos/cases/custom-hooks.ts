@@ -1,10 +1,11 @@
 import type { Demo } from "../types"
+import { DemoCategories } from "../types"
 
 export const customHooksDemo: Demo = {
   id: "custom-hooks",
   title: "自定义 Hooks 实战",
   description: "掌握自定义 Hooks 的核心概念，学会抽象和复用状态逻辑",
-  category: "Custom Hooks",
+  category: DemoCategories.CUSTOM_HOOKS,
   code: `function App() {
   // 自定义 Hook: 计数器
   function useCounter(initialValue = 0) {

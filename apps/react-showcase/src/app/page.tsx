@@ -1,17 +1,22 @@
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Code2, Layers, Zap } from "lucide-react"
+import { ArrowRight, Code2, Layers, Zap, Settings, Brain, Palette } from "lucide-react"
 import { demos, getAllCategories } from "@/lib/demos"
+import { DemoCategory } from "@/lib/demos/types";
 
 const categories = getAllCategories()
 
 /**
  * 为每个分类添加图标
  */
-const categoryIcons = {
-  "Hooks": <Zap className="h-5 w-5" />,
-  "Components": <Layers className="h-5 w-5" />
+const categoryIcons: Record<DemoCategory, React.ReactNode> = {
+  "React Hooks": <Zap className="h-5 w-5" />,
+  "Performance": <Settings className="h-5 w-5" />,
+  "Custom Hooks": <Brain className="h-5 w-5" />,
+  "Components": <Layers className="h-5 w-5" />,
+  "State Management": <Code2 className="h-5 w-5" />,
+  "UI/UX": <Palette className="h-5 w-5" />
 }
 
 export default function Home() {
@@ -33,7 +38,7 @@ export default function Home() {
         {categories.map(category => (
           <div key={category} className="mb-12">
             <h2 className="text-2xl font-semibold text-slate-900 mb-6 flex items-center gap-2">
-              {categoryIcons[category as keyof typeof categoryIcons]}
+              {categoryIcons[category]}
               {category}
             </h2>
 
@@ -45,7 +50,7 @@ export default function Home() {
                     <CardHeader>
                       <div className="flex items-center gap-3 mb-2">
                         <div className="p-2 rounded-lg bg-slate-100 group-hover:bg-blue-100 transition-colors">
-                          {categoryIcons[category as keyof typeof categoryIcons]}
+                          {categoryIcons[category]}
                         </div>
                         <CardTitle className="text-lg">{demo.title}</CardTitle>
                       </div>

@@ -1,10 +1,11 @@
 import type { Demo } from "../types"
+import { DemoCategories } from "../types"
 
 export const useStateDemo: Demo = {
   id: "useState",
   title: "useState Hook",
   description: "学习 React 中最基础的状态管理 Hook，掌握如何在函数组件中管理状态",
-  category: "Hooks",
+  category: DemoCategories.REACT_HOOKS,
   code: `function App() {
   const [count, setCount] = useState(0)
   const [name, setName] = useState('')

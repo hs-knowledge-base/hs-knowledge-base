@@ -8,8 +8,8 @@ export interface Demo {
   title: string
   /** 案例描述 */
   description: string
-  /** 分类（"Hooks" 或 "Components"） */
-  category: string
+  /** 分类 */
+  category: DemoCategory
   /** React 代码 */
   code: string
   /** 可选的额外作用域 */
@@ -22,8 +22,12 @@ export interface Demo {
  * 案例分类枚举
  */
 export const DemoCategories = {
-  HOOKS: 'Hooks',
-  COMPONENTS: 'Components'
+  REACT_HOOKS: 'React Hooks',
+  PERFORMANCE: 'Performance',
+  CUSTOM_HOOKS: 'Custom Hooks',
+  COMPONENTS: 'Components',
+  STATE_MANAGEMENT: 'State Management',
+  UI_UX: 'UI/UX'
 } as const
 
 export type DemoCategory = typeof DemoCategories[keyof typeof DemoCategories]

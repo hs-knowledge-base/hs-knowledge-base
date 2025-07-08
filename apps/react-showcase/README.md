@@ -1,25 +1,29 @@
-# 🚀 React 生态展示平台
+# React Showcase
 
-一个基于 Next.js 构建的 React 生态技术展示平台，提供实时代码编辑和预览功能，帮助开发者学习和掌握 React 最佳实践。
+一个现代化的 React 生态系统展示平台，基于 Next.js 构建，提供实时代码编辑和预览功能。
 
 ## ✨ 特性
 
-- 🎯 **实时代码编辑** - 基于 React Live 的在线代码编辑器
-- 📱 **响应式设计** - 适配桌面和移动设备
-- 🎨 **现代 UI** - 使用 Tailwind CSS 和 Shadcn UI 组件库
-- 🔧 **TypeScript 支持** - 完整的类型安全保障
-- 📦 **CDN 依赖加载** - 支持动态加载第三方库
-- 🎪 **多样化案例** - 涵盖 React Hooks、性能优化、自定义 Hooks 等
+- **实时代码演示** - 基于 React Live 的在线代码编辑器
+- **丰富的案例库** - 涵盖 React Hooks、性能优化、自定义 Hooks 等
+- **现代化 UI** - 使用 Tailwind CSS 和 Shadcn/ui 组件库
+- **响应式设计** - 完美适配桌面端和移动端
+- **TypeScript 支持** - 完整的类型安全保障
+- **CDN 依赖加载** - 支持动态加载第三方库
+- **多面板布局** - 代码编辑、预览、控制台三合一
 
-## 🛠️ 技术栈
+## 技术栈
 
-- **框架**: Next.js 15 (App Router)
-- **语言**: TypeScript
-- **样式**: Tailwind CSS + Shadcn UI
-- **代码编辑**: React Live + Monaco Editor
-- **图标**: Lucide React
-- **构建**: Turbopack
-- **代码质量**: ESLint + Prettier
+| 技术               | 版本 | 用途 |
+|------------------|------|------|
+| **Next.js**      | 15.x | React 全栈框架 |
+| **React**        | 18.x | 用户界面库 |
+| **TypeScript**   | 5.x | 类型安全的 JavaScript |
+| **Tailwind CSS** | 4.x | 原子化 CSS 框架 |
+| **Shadcn/ui**    | - | React 组件库 |
+| **React Live**   | 4.x | 实时代码编辑器 |
+| **Lucide React** | - | 图标库 |
+| **Zod**          | 3.x | 运行时类型验证 |
 
 ## 📁 项目结构
 

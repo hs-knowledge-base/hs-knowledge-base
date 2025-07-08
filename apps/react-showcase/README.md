@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 React 生态展示平台
 
-## Getting Started
+一个基于 Next.js 构建的 React 生态技术展示平台，提供实时代码编辑和预览功能，帮助开发者学习和掌握 React 最佳实践。
 
-First, run the development server:
+## ✨ 特性
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- 🎯 **实时代码编辑** - 基于 React Live 的在线代码编辑器
+- 📱 **响应式设计** - 适配桌面和移动设备
+- 🎨 **现代 UI** - 使用 Tailwind CSS 和 Shadcn UI 组件库
+- 🔧 **TypeScript 支持** - 完整的类型安全保障
+- 📦 **CDN 依赖加载** - 支持动态加载第三方库
+- 🎪 **多样化案例** - 涵盖 React Hooks、性能优化、自定义 Hooks 等
+
+## 🛠️ 技术栈
+
+- **框架**: Next.js 15 (App Router)
+- **语言**: TypeScript
+- **样式**: Tailwind CSS + Shadcn UI
+- **代码编辑**: React Live + Monaco Editor
+- **图标**: Lucide React
+- **构建**: Turbopack
+- **代码质量**: ESLint + Prettier
+
+## 📁 项目结构
+
+```
+src/
+├── app/                    # Next.js App Router 页面
+│   ├── demo/[id]/         # 动态演示页面
+│   └── page.tsx           # 首页
+├── components/            # React 组件
+│   ├── ui/               # 基础 UI 组件
+│   └── layout/           # 布局组件
+├── lib/                  # 核心库
+│   ├── demos/           # 演示案例系统
+│   ├── cdn-loader.ts    # CDN 依赖加载器
+│   └── react-live/      # React Live 配置
+└── styles/              # 全局样式
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 快速开始
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 环境要求
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js 18.17 或更高版本
+- npm、yarn、pnpm 或 bun
 
-## Learn More
+### 安装依赖
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm install
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 启动开发服务器
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm dev
+```
 
-## Deploy on Vercel
+打开 [http://localhost:3000](http://localhost:3000) 查看应用。
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 构建生产版本
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+npm run start
+```

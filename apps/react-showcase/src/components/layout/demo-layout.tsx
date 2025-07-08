@@ -24,7 +24,7 @@ export function DemoLayout({
   const [isCodeOpen, setIsCodeOpen] = useState(false)
   const [drawerMode, setDrawerMode] = useState<'view' | 'edit'>('view')
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [finalScope, setFinalScope] = useState<Record<string, any>>({})
+  const [finalScope, setFinalScope] = useState<Record<string, unknown>>({})
   const [isLoadingDeps, setIsLoadingDeps] = useState(true)
 
   // 创建 scope（包含 React hooks、案例 scope 和 CDN 依赖）
@@ -39,7 +39,7 @@ export function DemoLayout({
         /**
          * 降级到基础 scope
          */
-        const fallbackScope: Record<string, any> = {
+        const fallbackScope: Record<string, unknown> = {
           useState,
           useEffect,
           useCallback,

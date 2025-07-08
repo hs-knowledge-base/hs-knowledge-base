@@ -19,8 +19,8 @@ const BASE_SCOPE = {
  * 创建 React Live 的 scope
  * 包含基础 React Hooks、案例特定的 scope 和 CDN 依赖
  */
-export async function createScope(demo: Demo): Promise<Record<string, any>> {
-  let scope: Record<string, any> = { ...BASE_SCOPE }
+export async function createScope(demo: Demo): Promise<Record<string, unknown>> {
+  let scope: Record<string, unknown> = { ...BASE_SCOPE }
 
   // 添加案例特定的 scope
   if (demo.scope) {

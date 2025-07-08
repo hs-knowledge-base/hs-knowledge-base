@@ -13,7 +13,7 @@ export interface Demo {
   /** React 代码 */
   code: string
   /** 可选的额外作用域 */
-  scope?: Record<string, any>
+  scope?: Record<string, unknown>
   /** 需要从 CDN 加载的依赖库名称列表 */
   cdnDependencies?: string[]
 }

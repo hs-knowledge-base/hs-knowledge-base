@@ -101,7 +101,7 @@ function loadResource(resource: CDNResource): Promise<void> {
 /**
  * 动态加载 CDN 库（支持多资源）
  */
-export async function loadCDNLibrary(libraryName: string): Promise<any> {
+export async function loadCDNLibrary(libraryName: string): Promise<unknown> {
   if (typeof window === 'undefined') {
     // 服务端渲染时返回 undefined
     return undefined
@@ -114,7 +114,7 @@ export async function loadCDNLibrary(libraryName: string): Promise<any> {
   }
 
   // 检查是否已经加载
-  const globalVar = (window as any)[library.globalName]
+  const globalVar = (window as unknown as Record<string, unknown>)[library.globalName]
   if (globalVar) {
     console.log(`✅ ${library.name} 已加载`)
     return globalVar
@@ -133,7 +133,7 @@ export async function loadCDNLibrary(libraryName: string): Promise<any> {
     }
 
     // 检查全局变量是否可用
-    const loadedLibrary = (window as any)[library.globalName]
+    const loadedLibrary = (window as unknown as Record<string, unknown>)[library.globalName]
     if (loadedLibrary) {
       console.log(`✅ 已从 CDN 加载 ${library.name}`)
       return loadedLibrary
@@ -149,8 +149,8 @@ export async function loadCDNLibrary(libraryName: string): Promise<any> {
 /**
  * 批量加载多个 CDN 库
  */
-export async function loadMultipleCDNLibraries(libraryNames: string[]): Promise<Record<string, any>> {
-  const results: Record<string, any> = {}
+export async function loadMultipleCDNLibraries(libraryNames: string[]): Promise<Record<string, unknown>> {
+  const results: Record<string, unknown> = {}
   
   for (const name of libraryNames) {
     try {
@@ -167,7 +167,7 @@ export async function loadMultipleCDNLibraries(libraryNames: string[]): Promise<
 /**
  * 创建带 CDN 依赖的 scope
  */
-export async function createScopeWithCDN(dependencies: string[]): Promise<Record<string, any>> {
+export async function createScopeWithCDN(dependencies: string[]): Promise<Record<string, unknown>> {
   const cdnLibraries = await loadMultipleCDNLibraries(dependencies)
   
   return {

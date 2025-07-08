@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import type { Demo, DemoCategory } from "./types"
 
 /**
@@ -52,18 +53,23 @@ export function sortDemosByCategory(demos: Demo[]): Demo[] {
 }
 
 /**
+ * Demo 案例的 Zod Schema
+ */
+const DemoSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  category: z.enum(['React Hooks', 'Performance', 'Custom Hooks', 'Components', 'State Management', 'UI/UX']),
+  code: z.string().min(1),
+  scope: z.record(z.unknown()).optional(),
+  cdnDependencies: z.array(z.string()).optional()
+})
+
+/**
  * 验证案例对象是否有效
  */
-export function isValidDemo(obj: any): obj is Demo {
-  return (
-    obj &&
-    typeof obj === 'object' &&
-    typeof obj.id === 'string' &&
-    typeof obj.title === 'string' &&
-    typeof obj.description === 'string' &&
-    typeof obj.category === 'string' &&
-    typeof obj.code === 'string'
-  )
+export function isValidDemo(obj: unknown): obj is Demo {
+  return DemoSchema.safeParse(obj).success
 }
 
 /**

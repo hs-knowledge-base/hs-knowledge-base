@@ -8,9 +8,14 @@
     "docs:dev": "pnpm --filter docs dev",
     "docs:build": "pnpm --filter docs build",
     "docs:preview": "pnpm --filter docs preview",
+
     "playground:dev": "pnpm --filter playground dev",
     "playground:build": "pnpm --filter playground build",
-    "playground:start": "pnpm --filter playground start"
+    "playground:start": "pnpm --filter playground start",
+
+    "react-showcase:dev": "pnpm --filter react-showcase dev",
+    "react-showcase:build": "pnpm --filter react-showcase build",
+    "react-showcase:start": "pnpm --filter react-showcase start"
   },
   "devDependencies": {
     "typescript": "^5.0.2"

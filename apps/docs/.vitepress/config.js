@@ -25,8 +25,45 @@ export default defineConfig({
   base: "/",
   title: "火山知识库",
   description: "客户端、服务端、系统底层及DevOps的技术知识整理与分享",
-  head: [["link", { rel: "icon", href: "/img/logo.png" }]],
   lang: "zh-CN",
+
+  sitemap: {
+    hostname: 'https://hs-docs.top'
+  },
+
+  head: [
+    // 基础图标
+    ["link", { rel: "icon", href: "/img/logo.png" }],
+    ["link", { rel: "apple-touch-icon", href: "/img/logo.png" }],
+
+    // SEO Meta 标签
+    ["meta", { name: "keywords", content: "技术文档,前端开发,后端开发,DevOps,系统编程,AI应用,知识库,技术分享,编程教程" }],
+    ["meta", { name: "author", content: "火山知识库团队" }],
+    ["meta", { name: "robots", content: "index,follow" }],
+
+    // Open Graph 标签
+    ["meta", { property: "og:type", content: "website" }],
+    ["meta", { property: "og:title", content: "火山知识库 - 技术知识沉淀与分享" }],
+    ["meta", { property: "og:description", content: "客户端、服务端、系统底层及DevOps的技术知识整理与分享" }],
+    ["meta", { property: "og:image", content: "/img/logo.png" }],
+
+    ["meta", { property: "og:site_name", content: "火山知识库" }],
+    ["meta", { property: "og:locale", content: "zh_CN" }],
+
+    // Twitter Cards
+    ["meta", { name: "twitter:card", content: "summary_large_image" }],
+    ["meta", { name: "twitter:title", content: "火山知识库 - 技术知识沉淀与分享" }],
+    ["meta", { name: "twitter:description", content: "客户端、服务端、系统底层及DevOps的技术知识整理与分享" }],
+    ["meta", { name: "twitter:image", content: "/img/logo.png" }],
+
+    // 移动端优化
+    ["meta", { name: "viewport", content: "width=device-width, initial-scale=1.0" }],
+    ["meta", { name: "theme-color", content: "#3f87ff" }],
+
+
+  ],
+
+  lastUpdated: true,
 
   // 内容配置
   srcDir: "./",
@@ -36,6 +73,9 @@ export default defineConfig({
 
   // 配置额外的内容目录
   srcExclude: ["**/node_modules/**"],
+
+  // 清理 URL（移除 .html 后缀）
+  cleanUrls: true,
 
   // 添加Markdown配置
   markdown: {

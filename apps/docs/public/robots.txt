@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# 禁止访问的目录
+Disallow: /node_modules/
+Disallow: /.vitepress/
+Disallow: /scripts/
+
+# 指定 sitemap 位置
+Sitemap: https://hs-docs.top/sitemap.xml

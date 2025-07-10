@@ -8,9 +8,9 @@ importers:
 
   .:
     devDependencies:
-      typescript:
-        specifier: ^5.0.2
-        version: 5.8.3
+      prettier:
+        specifier: ^3.4.2
+        version: 3.6.2
 
   apps/admin:
     dependencies:

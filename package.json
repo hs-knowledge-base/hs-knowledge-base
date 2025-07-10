@@ -13,7 +13,13 @@
     "playground:start": "pnpm --filter playground start",
     "react-showcase:dev": "pnpm --filter react-showcase dev",
     "react-showcase:build": "pnpm --filter react-showcase build",
-    "react-showcase:start": "pnpm --filter react-showcase start"
+    "react-showcase:start": "pnpm --filter react-showcase start",
+    "admin:dev": "pnpm --filter admin dev",
+    "admin:build": "pnpm --filter admin build",
+    "admin:start": "pnpm --filter admin start",
+    "server:dev": "pnpm --filter server dev",
+    "server:build": "pnpm --filter server build",
+    "server:start": "pnpm --filter server start"
   },
   "devDependencies": {
     "prettier": "^3.4.2"

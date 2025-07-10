@@ -1,0 +1,29 @@
+{
+  "openapi": "3.0.0",
+  "paths": {},
+  "info": {
+    "title": "hs-knowledge-base-server",
+    "description": "火山知识库平台API文档",
+    "version": "0.0.1",
+    "contact": {
+      "name": "火山",
+      "url": "https://github.com/hs-knowledge-base/hs-knowledge-base",
+      "email": "2633057734@qq.com"
+    }
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "name": "Authorization",
+        "description": "请输入 JWT 格式的 Token",
+        "in": "header"
+      }
+    },
+    "schemas": {}
+  }
+}

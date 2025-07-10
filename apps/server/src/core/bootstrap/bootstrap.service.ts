@@ -1,6 +1,7 @@
 import {INestApplication, Injectable} from '@nestjs/common';
 import {AppConfig} from '../config/app.config';
 import {LoggerService} from '../logger/logger.service';
+import { getDocumentInfo } from '@/config/swagger';
 
 /**
  * 应用启动服务
@@ -55,9 +56,13 @@ export class BootstrapService {
     const port = this.appConfig.port;
     await app.listen(port);
 
-    this.logger.log(`应用已启动: http://localhost:${port}`);
-    this.logger.log(`前台API文档: http://localhost:${port}/blog-api-docs`);
-    this.logger.log(`后台API文档: http://localhost:${port}/admin-api-docs`);
-    this.logger.log(`Knife4j 文档: http://localhost:${port}/doc.html`);
+    const baseUrl = `http://localhost:${port}`;
+    const documentInfo = getDocumentInfo(baseUrl);
+
+    this.logger.log(`应用已启动: ${baseUrl}`);
+
+    Object.values(documentInfo).forEach(doc => {
+      this.logger.log(`${doc.title}: ${doc.url}`);
+    });
   }
 }

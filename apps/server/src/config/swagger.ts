@@ -161,6 +161,38 @@ function setupKnife4j(app: INestApplication): void {
 }
 
 /**
+ * 获取文档路径信息
+ */
+export function getDocumentPaths() {
+  return {
+    blog: `/${DOCUMENTS.blog.path}`,
+    admin: `/${DOCUMENTS.admin.path}`,
+    knife4j: '/doc.html',
+  };
+}
+
+/**
+ * 获取文档信息（包含标题和URL）
+ */
+export function getDocumentInfo(baseUrl: string) {
+  const paths = getDocumentPaths();
+  return {
+    blog: {
+      title: DOCUMENTS.blog.title,
+      url: `${baseUrl}${paths.blog}`,
+    },
+    admin: {
+      title: DOCUMENTS.admin.title,
+      url: `${baseUrl}${paths.admin}`,
+    },
+    knife4j: {
+      title: 'Knife4j 文档',
+      url: `${baseUrl}${paths.knife4j}`,
+    },
+  };
+}
+
+/**
  * 生成 Swagger 文档
  */
 export function generateSwaggerDocument(app: INestApplication): void {

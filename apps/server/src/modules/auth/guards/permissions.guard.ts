@@ -78,10 +78,3 @@ export class PoliciesGuard implements CanActivate {
     return handler.handle(ability);
   }
 }
-
-// 便捷的权限检查函数
-export const ReadUserPolicy = (ability: AppAbility) => ability.can(Action.READ, Subject.USER);
-export const CreateUserPolicy = (ability: AppAbility) => ability.can(Action.CREATE, Subject.USER);
-export const UpdateUserPolicy = (ability: AppAbility) => ability.can(Action.UPDATE, Subject.USER);
-export const DeleteUserPolicy = (ability: AppAbility) => ability.can(Action.DELETE, Subject.USER);
-export const ManageUserPolicy = (ability: AppAbility) => ability.can(Action.MANAGE, Subject.USER);

@@ -11,14 +11,10 @@ import {
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PermissionService } from '../services/permission.service';
 import { CreatePermissionDto } from '../dto/create-permission.dto';
-import { PoliciesGuard, CheckPolicies } from '../guards/permissions.guard';
+import { PoliciesGuard } from '../guards/permissions.guard';
 import { CaslAbilityFactory } from '../casl/casl-ability.factory';
-import { Action, Subject, Permission } from '../entities/permission.entity';
-import { AppAbility } from '../casl/casl-ability.factory';
-
-// 权限管理的策略函数
-const ManagePermissionPolicy = (ability: AppAbility) => ability.can(Action.MANAGE, Subject.PERMISSION);
-const ReadPermissionPolicy = (ability: AppAbility) => ability.can(Action.READ, Subject.PERMISSION);
+import { Action, Subject } from '../entities/permission.entity';
+import { RequirePermission } from '@/core/decorators';
 
 @ApiTags('admin', '权限管理')
 @Controller('admin/permissions')
@@ -32,7 +28,7 @@ export class PermissionAdminController {
   @Post()
   @ApiOperation({ summary: '创建权限' })
   @ApiResponse({ status: 201, description: '权限创建成功' })
-  @CheckPolicies(ManagePermissionPolicy)
+  @RequirePermission(Action.MANAGE, Subject.PERMISSION)
   create(@Body() createPermissionDto: CreatePermissionDto) {
     return this.permissionService.create(createPermissionDto);
   }
@@ -40,7 +36,7 @@ export class PermissionAdminController {
   @Get()
   @ApiOperation({ summary: '获取所有权限' })
   @ApiResponse({ status: 200, description: '获取权限列表成功' })
-  @CheckPolicies(ReadPermissionPolicy)
+  @RequirePermission(Action.READ, Subject.PERMISSION)
   findAll() {
     return this.permissionService.findAll();
   }
@@ -48,7 +44,7 @@ export class PermissionAdminController {
   @Get(':id')
   @ApiOperation({ summary: '根据ID获取权限' })
   @ApiResponse({ status: 200, description: '获取权限成功' })
-  @CheckPolicies(ReadPermissionPolicy)
+  @RequirePermission(Action.READ, Subject.PERMISSION)
   findOne(@Param('id') id: string) {
     return this.permissionService.findOne(id);
   }
@@ -56,7 +52,7 @@ export class PermissionAdminController {
   @Patch(':id')
   @ApiOperation({ summary: '更新权限' })
   @ApiResponse({ status: 200, description: '权限更新成功' })
-  @CheckPolicies(ManagePermissionPolicy)
+  @RequirePermission(Action.MANAGE, Subject.PERMISSION)
   update(@Param('id') id: string, @Body() updatePermissionDto: Partial<CreatePermissionDto>) {
     return this.permissionService.update(id, updatePermissionDto);
   }
@@ -64,7 +60,7 @@ export class PermissionAdminController {
   @Delete(':id')
   @ApiOperation({ summary: '删除权限' })
   @ApiResponse({ status: 200, description: '权限删除成功' })
-  @CheckPolicies(ManagePermissionPolicy)
+  @RequirePermission(Action.MANAGE, Subject.PERMISSION)
   remove(@Param('id') id: string) {
     return this.permissionService.remove(id);
   }
@@ -72,6 +68,7 @@ export class PermissionAdminController {
   @Post('check')
   @ApiOperation({ summary: '检查用户权限' })
   @ApiResponse({ status: 200, description: '权限检查完成' })
+  @RequirePermission(Action.READ, Subject.PERMISSION)
   async checkPermission(
     @Body() checkData: { userId: string; action: Action; subject: Subject; conditions?: any }
   ) {

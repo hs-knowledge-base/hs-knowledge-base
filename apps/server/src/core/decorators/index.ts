@@ -4,3 +4,4 @@
 
 export { RequirePermission } from './require-permission.decorator';
 export { SkipResponseTransform } from './skip-transform.decorator';
+export { VoTransform, VoTransformOptions, VO_TRANSFORM_KEY } from './vo-transform.decorator';

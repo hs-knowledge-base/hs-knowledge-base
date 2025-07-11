@@ -1,0 +1,272 @@
+{
+  "openapi": "3.0.0",
+  "paths": {},
+  "info": {
+    "title": "hs-knowledge-base-server",
+    "description": "火山知识库平台API文档",
+    "version": "0.0.1",
+    "contact": {
+      "name": "火山",
+      "url": "https://github.com/hs-knowledge-base/hs-knowledge-base",
+      "email": "2633057734@qq.com"
+    }
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "name": "Authorization",
+        "description": "请输入 JWT 格式的 Token",
+        "in": "header"
+      }
+    },
+    "schemas": {
+      "CreateRoleDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "角色名称",
+            "example": "admin"
+          },
+          "description": {
+            "type": "string",
+            "description": "角色描述",
+            "example": "系统管理员"
+          },
+          "permissionIds": {
+            "description": "权限ID列表",
+            "example": [
+              "permission-uuid-1",
+              "permission-uuid-2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "attributes": {
+            "type": "object",
+            "description": "角色属性",
+            "example": {
+              "level": "high",
+              "department": "IT"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "usernameOrEmail": {
+            "type": "string",
+            "description": "用户名或邮箱",
+            "example": "admin"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "admin123"
+          }
+        },
+        "required": [
+          "usernameOrEmail",
+          "password"
+        ]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "用户名",
+            "example": "newuser"
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱",
+            "example": "newuser@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "password123"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "名字",
+            "example": "张"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "姓氏",
+            "example": "三"
+          },
+          "department": {
+            "type": "string",
+            "description": "部门",
+            "example": "技术部"
+          },
+          "position": {
+            "type": "string",
+            "description": "职位",
+            "example": "开发工程师"
+          }
+        },
+        "required": [
+          "username",
+          "email",
+          "password"
+        ]
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "刷新令牌",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "CreatePermissionDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "操作类型",
+            "enum": [
+              "create",
+              "read",
+              "update",
+              "delete",
+              "manage"
+            ],
+            "example": "read"
+          },
+          "subject": {
+            "type": "string",
+            "description": "资源类型",
+            "enum": [
+              "User",
+              "Role",
+              "Permission",
+              "Document",
+              "KnowledgeBase",
+              "all"
+            ],
+            "example": "User"
+          },
+          "conditions": {
+            "type": "object",
+            "description": "条件限制",
+            "example": {
+              "department": "IT",
+              "level": {
+                "$gte": 3
+              }
+            }
+          },
+          "fields": {
+            "type": "string",
+            "description": "字段限制",
+            "example": "name,email"
+          },
+          "inverted": {
+            "type": "boolean",
+            "description": "是否为禁止权限",
+            "example": false
+          },
+          "reason": {
+            "type": "string",
+            "description": "权限说明",
+            "example": "允许读取同部门用户信息"
+          }
+        },
+        "required": [
+          "action",
+          "subject"
+        ]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "用户名",
+            "example": "admin"
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱",
+            "example": "admin@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "password123"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "是否激活",
+            "example": true
+          },
+          "firstName": {
+            "type": "string",
+            "description": "名字",
+            "example": "张"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "姓氏",
+            "example": "三"
+          },
+          "department": {
+            "type": "string",
+            "description": "部门",
+            "example": "技术部"
+          },
+          "position": {
+            "type": "string",
+            "description": "职位",
+            "example": "开发工程师"
+          },
+          "roleIds": {
+            "description": "角色ID列表",
+            "example": [
+              "role-uuid-1",
+              "role-uuid-2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "attributes": {
+            "type": "object",
+            "description": "用户属性",
+            "example": {
+              "level": 3,
+              "clearance": "high"
+            }
+          }
+        },
+        "required": [
+          "username",
+          "email",
+          "password"
+        ]
+      }
+    }
+  }
+}

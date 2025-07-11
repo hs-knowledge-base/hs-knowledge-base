@@ -1,0 +1,834 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/admin/roles": {
+      "post": {
+        "operationId": "create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "角色创建成功"
+          }
+        },
+        "summary": "创建角色",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      },
+      "get": {
+        "operationId": "findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "获取角色列表成功"
+          }
+        },
+        "summary": "获取所有角色",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      }
+    },
+    "/api/admin/roles/{id}": {
+      "get": {
+        "operationId": "findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取角色成功"
+          }
+        },
+        "summary": "根据ID获取角色",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      },
+      "patch": {
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "角色更新成功"
+          }
+        },
+        "summary": "更新角色",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      },
+      "delete": {
+        "operationId": "remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "角色删除成功"
+          }
+        },
+        "summary": "删除角色",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      }
+    },
+    "/api/admin/auth/login": {
+      "post": {
+        "operationId": "login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "登录成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "description": "用户信息（不包含密码）"
+                    },
+                    "accessToken": {
+                      "type": "string",
+                      "description": "访问令牌"
+                    },
+                    "refreshToken": {
+                      "type": "string",
+                      "description": "刷新令牌"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "用户名或密码错误"
+          }
+        },
+        "summary": "用户登录",
+        "tags": [
+          "admin",
+          "认证管理"
+        ]
+      }
+    },
+    "/api/admin/auth/register": {
+      "post": {
+        "operationId": "register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "注册成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "description": "用户信息（不包含密码）"
+                    },
+                    "accessToken": {
+                      "type": "string",
+                      "description": "访问令牌"
+                    },
+                    "refreshToken": {
+                      "type": "string",
+                      "description": "刷新令牌"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "用户名或邮箱已存在"
+          }
+        },
+        "summary": "用户注册",
+        "tags": [
+          "admin",
+          "认证管理"
+        ]
+      }
+    },
+    "/api/admin/auth/refresh": {
+      "post": {
+        "operationId": "refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "刷新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string",
+                      "description": "新的访问令牌"
+                    },
+                    "refreshToken": {
+                      "type": "string",
+                      "description": "新的刷新令牌"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "刷新令牌无效"
+          }
+        },
+        "summary": "刷新访问令牌",
+        "tags": [
+          "admin",
+          "认证管理"
+        ]
+      }
+    },
+    "/api/admin/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "登出成功"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "用户登出",
+        "tags": [
+          "admin",
+          "认证管理"
+        ]
+      }
+    },
+    "/api/admin/auth/profile": {
+      "get": {
+        "operationId": "getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "获取用户信息成功"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "获取当前用户信息",
+        "tags": [
+          "admin",
+          "认证管理"
+        ]
+      }
+    },
+    "/api/admin/auth/check": {
+      "get": {
+        "operationId": "checkToken",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "令牌有效"
+          },
+          "401": {
+            "description": "令牌无效"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "检查令牌有效性",
+        "tags": [
+          "admin",
+          "认证管理"
+        ]
+      }
+    },
+    "/api/admin/permissions": {
+      "post": {
+        "operationId": "create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePermissionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "权限创建成功"
+          }
+        },
+        "summary": "创建权限",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      },
+      "get": {
+        "operationId": "findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "获取权限列表成功"
+          }
+        },
+        "summary": "获取所有权限",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      }
+    },
+    "/api/admin/permissions/{id}": {
+      "get": {
+        "operationId": "findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取权限成功"
+          }
+        },
+        "summary": "根据ID获取权限",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      },
+      "patch": {
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "权限更新成功"
+          }
+        },
+        "summary": "更新权限",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      },
+      "delete": {
+        "operationId": "remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "权限删除成功"
+          }
+        },
+        "summary": "删除权限",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      }
+    },
+    "/api/admin/permissions/check": {
+      "post": {
+        "operationId": "checkPermission",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "权限检查完成"
+          }
+        },
+        "summary": "检查用户权限",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      }
+    },
+    "/api/admin/users": {
+      "post": {
+        "operationId": "create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "用户创建成功"
+          }
+        },
+        "summary": "创建用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      },
+      "get": {
+        "operationId": "findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "获取用户列表成功"
+          }
+        },
+        "summary": "获取所有用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      }
+    },
+    "/api/admin/users/{id}": {
+      "get": {
+        "operationId": "findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取用户成功"
+          }
+        },
+        "summary": "根据ID获取用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      },
+      "patch": {
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "用户更新成功"
+          }
+        },
+        "summary": "更新用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      },
+      "delete": {
+        "operationId": "remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "用户删除成功"
+          }
+        },
+        "summary": "删除用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "hs-knowledge-base-server",
+    "description": "火山知识库平台API文档",
+    "version": "0.0.1",
+    "contact": {
+      "name": "火山",
+      "url": "https://github.com/hs-knowledge-base/hs-knowledge-base",
+      "email": "2633057734@qq.com"
+    }
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "name": "Authorization",
+        "description": "请输入 JWT 格式的 Token",
+        "in": "header"
+      }
+    },
+    "schemas": {
+      "CreateRoleDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "角色名称",
+            "example": "admin"
+          },
+          "description": {
+            "type": "string",
+            "description": "角色描述",
+            "example": "系统管理员"
+          },
+          "permissionIds": {
+            "description": "权限ID列表",
+            "example": [
+              "permission-uuid-1",
+              "permission-uuid-2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "attributes": {
+            "type": "object",
+            "description": "角色属性",
+            "example": {
+              "level": "high",
+              "department": "IT"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "usernameOrEmail": {
+            "type": "string",
+            "description": "用户名或邮箱",
+            "example": "admin"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "admin123"
+          }
+        },
+        "required": [
+          "usernameOrEmail",
+          "password"
+        ]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "用户名",
+            "example": "newuser"
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱",
+            "example": "newuser@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "password123"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "名字",
+            "example": "张"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "姓氏",
+            "example": "三"
+          },
+          "department": {
+            "type": "string",
+            "description": "部门",
+            "example": "技术部"
+          },
+          "position": {
+            "type": "string",
+            "description": "职位",
+            "example": "开发工程师"
+          }
+        },
+        "required": [
+          "username",
+          "email",
+          "password"
+        ]
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "刷新令牌",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "CreatePermissionDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "操作类型",
+            "enum": [
+              "create",
+              "read",
+              "update",
+              "delete",
+              "manage"
+            ],
+            "example": "read"
+          },
+          "subject": {
+            "type": "string",
+            "description": "资源类型",
+            "enum": [
+              "User",
+              "Role",
+              "Permission",
+              "Document",
+              "KnowledgeBase",
+              "all"
+            ],
+            "example": "User"
+          },
+          "conditions": {
+            "type": "object",
+            "description": "条件限制",
+            "example": {
+              "department": "IT",
+              "level": {
+                "$gte": 3
+              }
+            }
+          },
+          "fields": {
+            "type": "string",
+            "description": "字段限制",
+            "example": "name,email"
+          },
+          "inverted": {
+            "type": "boolean",
+            "description": "是否为禁止权限",
+            "example": false
+          },
+          "reason": {
+            "type": "string",
+            "description": "权限说明",
+            "example": "允许读取同部门用户信息"
+          }
+        },
+        "required": [
+          "action",
+          "subject"
+        ]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "用户名",
+            "example": "admin"
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱",
+            "example": "admin@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "password123"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "是否激活",
+            "example": true
+          },
+          "firstName": {
+            "type": "string",
+            "description": "名字",
+            "example": "张"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "姓氏",
+            "example": "三"
+          },
+          "department": {
+            "type": "string",
+            "description": "部门",
+            "example": "技术部"
+          },
+          "position": {
+            "type": "string",
+            "description": "职位",
+            "example": "开发工程师"
+          },
+          "roleIds": {
+            "description": "角色ID列表",
+            "example": [
+              "role-uuid-1",
+              "role-uuid-2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "attributes": {
+            "type": "object",
+            "description": "用户属性",
+            "example": {
+              "level": 3,
+              "clearance": "high"
+            }
+          }
+        },
+        "required": [
+          "username",
+          "email",
+          "password"
+        ]
+      }
+    }
+  }
+}

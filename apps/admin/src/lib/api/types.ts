@@ -6,22 +6,29 @@
  * 标准 API 响应格式
  */
 export interface ApiResponse<T = any> {
-  success: boolean;
+  code: number;
   data: T;
-  message?: string;
-  code?: string;
+  message: string;
+  errors: any;
+}
+
+/**
+ * 分页数据格式
+ */
+export interface PaginatedData<T = any> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
 }
 
 /**
  * 分页响应格式
  */
-export interface PaginatedResponse<T = any> {
-  data: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-}
+export interface PaginatedResponse<T = any> extends ApiResponse<PaginatedData<T>> {}
 
 /**
  * 分页查询参数
@@ -39,15 +46,4 @@ export interface PaginationParams {
 export interface QueryParams extends PaginationParams {
   search?: string;
   filters?: Record<string, any>;
-}
-
-/**
- * API 错误响应格式
- */
-export interface ApiErrorResponse {
-  success: false;
-  message: string;
-  code?: string;
-  details?: any;
-  timestamp?: string;
 }

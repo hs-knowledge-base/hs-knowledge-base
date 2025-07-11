@@ -7,11 +7,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { User, Role } from '@/types/auth';
-import {roleApi, userApi} from "@/lib/api/services";
+import { roleApi } from "@/lib/api/services/roles";
+import {RoleRes, UserRes} from "@/types/auth";
+import { userApi } from "@/lib/api/services/users";
 
 interface UserRoleAssignmentProps {
-  user: User;
+  user: UserRes;
   onSuccess?: () => void;
 }
 
@@ -24,11 +25,12 @@ export function UserRoleAssignment({ user, onSuccess }: UserRoleAssignmentProps)
     data: roles,
     loading: rolesLoading,
     error: rolesError,
-  } = useRequest(roleApi.getAll()) as {
-    data: Role[] | undefined;
-    loading: boolean;
-    error: any;
-  };
+  } = useRequest(roleApi.getAll())
+  // as {
+  //   data: RoleRes[] | undefined;
+  //   loading: boolean;
+  //   error: any;
+  // };
 
   const {
     loading: updating,
@@ -97,7 +99,7 @@ export function UserRoleAssignment({ user, onSuccess }: UserRoleAssignmentProps)
       <div>
         <Label className="text-sm font-medium">选择角色</Label>
         <div className="mt-3 space-y-3">
-          {roles && Array.isArray(roles) ? roles.map((role: Role) => (
+          {roles && Array.isArray(roles) ? roles.map((role: RoleRes) => (
             <div key={role.id} className="flex items-start space-x-3">
               <Checkbox
                 id={`role-${role.id}`}

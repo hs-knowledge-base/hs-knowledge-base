@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRequest } from 'alova/client';
-import { Permission, CreatePermissionDto, Action, Subject } from '@/types/auth';
+import {Action, CreatePermissionReq, PermissionRes, Subject} from '@/types/auth';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {permissionApi} from "@/lib/api/services";
+import { permissionApi } from "@/lib/api/services/permissions";
 
 const permissionSchema = z.object({
   action: z.nativeEnum(Action),
@@ -38,7 +38,7 @@ const permissionSchema = z.object({
 type PermissionFormData = z.infer<typeof permissionSchema>;
 
 interface PermissionFormProps {
-  permission?: Permission;
+  permission?: PermissionRes;
   onSuccess?: () => void;
 }
 
@@ -58,12 +58,12 @@ export function PermissionForm({ permission, onSuccess }: PermissionFormProps) {
   });
 
   const { send: createPermission, loading: creating } = useRequest(
-    (data: CreatePermissionDto) => permissionApi.createPermission(data),
+    (data: CreatePermissionReq) => permissionApi.createPermission(data),
     { immediate: false }
   );
 
   const { send: updatePermission, loading: updating } = useRequest(
-    (id: string, data: Partial<CreatePermissionDto>) => permissionApi.updatePermission(id, data),
+    (id: string, data: Partial<CreatePermissionReq>) => permissionApi.updatePermission(id, data),
     { immediate: false }
   );
 
@@ -71,7 +71,7 @@ export function PermissionForm({ permission, onSuccess }: PermissionFormProps) {
     try {
       const { conditions, ...permissionData } = data;
       
-      const submitData: CreatePermissionDto | Partial<CreatePermissionDto> = {
+      const submitData: CreatePermissionReq | Partial<CreatePermissionReq> = {
         ...permissionData,
         ...(conditions && { conditions: JSON.parse(conditions) }),
       };
@@ -79,7 +79,7 @@ export function PermissionForm({ permission, onSuccess }: PermissionFormProps) {
       if (isEdit) {
         await updatePermission(permission.id, submitData);
       } else {
-        await createPermission(submitData as CreatePermissionDto);
+        await createPermission(submitData as CreatePermissionReq);
       }
 
       onSuccess?.();

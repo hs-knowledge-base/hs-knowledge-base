@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRequest } from 'alova/client';
-import { User, CreateUserDto } from '@/types/auth';
+import { UserRes, CreateUserReq } from '@/types/auth';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import {userApi} from "@/lib/api/services";
+import { userApi } from "@/lib/api/services/users";
 
 const userSchema = z.object({
   username: z.string().min(1, '用户名不能为空'),
@@ -32,7 +32,7 @@ const userSchema = z.object({
 type UserFormData = z.infer<typeof userSchema>;
 
 interface UserFormProps {
-  user?: User;
+  user?: UserRes;
   onSuccess?: () => void;
 }
 
@@ -53,12 +53,12 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
   });
 
   const { send: createUser, loading: creating } = useRequest(
-    (data: CreateUserDto) => userApi.createUser(data),
+    (data: CreateUserReq) => userApi.createUser(data),
     { immediate: false }
   );
 
   const { send: updateUser, loading: updating } = useRequest(
-    (id: string, data: Partial<CreateUserDto>) => userApi.updateUser(id, data),
+    (id: string, data: Partial<CreateUserReq>) => userApi.updateUser(id, data),
     { immediate: false }
   );
 
@@ -66,7 +66,7 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
     try {
       const { attributes, password, ...userData } = data;
       
-      const submitData: CreateUserDto | Partial<CreateUserDto> = {
+      const submitData: CreateUserReq | Partial<CreateUserReq> = {
         ...userData,
         ...(password && { password }),
         ...(attributes && { attributes: JSON.parse(attributes) }),
@@ -75,7 +75,7 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
       if (isEdit) {
         await updateUser(user.id, submitData);
       } else {
-        await createUser(submitData as CreateUserDto);
+        await createUser(submitData as CreateUserReq);
       }
 
       onSuccess?.();

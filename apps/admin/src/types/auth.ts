@@ -13,18 +13,18 @@ export enum Action {
  * 资源主体枚举
  */
 export enum Subject {
-  USER = 'User',
-  ROLE = 'Role',
-  PERMISSION = 'Permission',
-  DOCUMENT = 'Document',
-  KNOWLEDGE_BASE = 'KnowledgeBase',
+  USER = 'user',
+  ROLE = 'role',
+  PERMISSION = 'permission',
+  DOCUMENT = 'document',
+  KNOWLEDGE_BASE = 'knowledge_base',
   ALL = 'all',
 }
 
 /**
- * 用户接口
+ * 用户响应接口
  */
-export interface User {
+export interface UserRes {
   id: string;
   username: string;
   email: string;
@@ -34,29 +34,29 @@ export interface User {
   department?: string;
   position?: string;
   attributes?: Record<string, any>;
-  roles?: Role[];
+  roles?: RoleRes[];
   createdAt: string;
   updatedAt: string;
 }
 
 /**
- * 角色接口
+ * 角色响应接口
  */
-export interface Role {
+export interface RoleRes {
   id: string;
   name: string;
   description?: string;
   attributes?: Record<string, any>;
-  users?: User[];
-  permissions?: Permission[];
+  users?: UserRes[];
+  permissions?: PermissionRes[];
   createdAt: string;
   updatedAt: string;
 }
 
 /**
- * 权限接口
+ * 权限响应接口
  */
-export interface Permission {
+export interface PermissionRes {
   id: string;
   action: Action;
   subject: Subject;
@@ -64,15 +64,15 @@ export interface Permission {
   fields?: string;
   inverted: boolean;
   reason?: string;
-  roles?: Role[];
+  roles?: RoleRes[];
   createdAt: string;
   updatedAt: string;
 }
 
 /**
- * 创建用户
+ * 创建用户请求
  */
-export interface CreateUserDto {
+export interface CreateUserReq {
   username: string;
   email: string;
   password: string;
@@ -84,9 +84,23 @@ export interface CreateUserDto {
 }
 
 /**
- * 创建角色
+ * 更新用户请求
  */
-export interface CreateRoleDto {
+export interface UpdateUserReq {
+  username?: string;
+  email?: string;
+  password?: string;
+  isActive?: boolean;
+  firstName?: string;
+  lastName?: string;
+  roleIds?: string[];
+  attributes?: Record<string, any>;
+}
+
+/**
+ * 创建角色请求
+ */
+export interface CreateRoleReq {
   name: string;
   description?: string;
   permissionIds?: string[];
@@ -94,9 +108,19 @@ export interface CreateRoleDto {
 }
 
 /**
- * 创建权限
+ * 更新角色请求
  */
-export interface CreatePermissionDto {
+export interface UpdateRoleReq {
+  name?: string;
+  description?: string;
+  permissionIds?: string[];
+  attributes?: Record<string, any>;
+}
+
+/**
+ * 创建权限请求
+ */
+export interface CreatePermissionReq {
   action: Action;
   subject: Subject;
   conditions?: Record<string, any>;
@@ -106,19 +130,73 @@ export interface CreatePermissionDto {
 }
 
 /**
+ * 更新权限请求
+ */
+export interface UpdatePermissionReq {
+  action?: string;
+  subject?: string;
+  conditions?: Record<string, any>;
+  fields?: string;
+  inverted?: boolean;
+  reason?: string;
+}
+
+
+
+/**
  * 权限检查请求
  */
-export interface PermissionCheckRequest {
+export interface PermissionCheckReq {
   userId: string;
-  action: Action;
-  subject: Subject;
-  conditions?: any;
+  action: string;
+  subject: string;
+  resource?: Record<string, any>;
+  context?: Record<string, any>;
 }
 
 /**
  * 权限检查响应
  */
-export interface PermissionCheckResponse {
+export interface PermissionCheckRes {
   allowed: boolean;
-  message?: string;
+  reason?: string;
+  matchedPermissions?: PermissionRes[];
 }
+
+/**
+ * 登录请求
+ */
+export interface LoginReq {
+  usernameOrEmail: string;
+  password: string;
+}
+
+/**
+ * 登录响应
+ */
+export interface LoginRes {
+  accessToken: string;
+  refreshToken: string;
+  user: UserRes;
+}
+
+/**
+ * 注册请求
+ */
+export interface RegisterReq {
+  username: string;
+  email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+/**
+ * 刷新令牌响应
+ */
+export interface RefreshTokenRes {
+  accessToken: string;
+  refreshToken: string;
+}
+
+

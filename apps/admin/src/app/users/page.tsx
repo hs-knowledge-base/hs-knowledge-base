@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useRequest } from 'alova/client';
-import { userApi } from '@/lib/api/services';
-import { User, Subject } from '@/types/auth';
+import { UserRes, Subject } from '@/types/auth';
 import { CanRead, CanCreate, CanUpdate, CanDelete } from '@/components/auth/permission-guard';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,9 +23,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { UserForm } from '@/components/auth/user-form';
 import { UserRoleAssignment } from '@/components/auth/user-role-assignment';
+import { userApi } from "@/lib/api/services/users";
 
 export default function UsersPage() {
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserRes | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
@@ -58,12 +58,12 @@ export default function UsersPage() {
     }
   };
 
-  const handleEdit = (user: User) => {
+  const handleEdit = (user: UserRes) => {
     setSelectedUser(user);
     setIsEditDialogOpen(true);
   };
 
-  const handleAssignRoles = (user: User) => {
+  const handleAssignRoles = (user: UserRes) => {
     setSelectedUser(user);
     setIsRoleDialogOpen(true);
   };
@@ -117,7 +117,7 @@ export default function UsersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users && Array.isArray(users) ? users.map((user: User) => (
+              {users?.data && Array.isArray(users.data) ? users.data.map((user: UserRes) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.username}</TableCell>
                   <TableCell>{user.email}</TableCell>

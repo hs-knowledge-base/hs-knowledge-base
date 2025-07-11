@@ -1,10 +1,12 @@
 import { useRequest } from 'alova/client';
-import { permissionApi, userApi } from '@/lib/api';
 import { Action, Subject, PermissionCheckRequest } from '@/types/auth';
 import { useMemo } from 'react';
 import { useAuth } from '@/contexts/auth-context';
+import {permissionApi, userApi} from "@/lib/api/services";
 
-// 权限检查 Hook
+/**
+ * 权限检查 Hook
+ */
 export function usePermissionCheck() {
   const checkPermission = async (request: PermissionCheckRequest) => {
     try {
@@ -19,7 +21,10 @@ export function usePermissionCheck() {
   return { checkPermission };
 }
 
-// 用户权限 Hook
+/**
+ * 用户权限 Hook
+ * @param userId
+ */
 export function useUserPermissions(userId?: string) {
   const {
     data: user,
@@ -90,7 +95,9 @@ export function useUserPermissions(userId?: string) {
   };
 }
 
-// 当前用户权限 Hook（集成认证系统）
+/**
+ * 当前用户权限 Hook（集成认证系统）
+ */
 export function useCurrentUserPermissions() {
   const { user } = useAuth();
 

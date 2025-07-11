@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRequest } from 'alova/client';
-import { userApi } from '@/lib/api';
+import { userApi } from '@/lib/api/services';
 import { User, Subject } from '@/types/auth';
 import { CanRead, CanCreate, CanUpdate, CanDelete } from '@/components/auth/permission-guard';
 import { Button } from '@/components/ui/button';
@@ -36,14 +36,9 @@ export default function UsersPage() {
     loading,
     error,
     send: refetchUsers,
-  } = useRequest(() => userApi.getUsers(), {
+  } = useRequest(() => userApi.getAllUsers(), {
     immediate: true,
-  }) as {
-    data: User[] | undefined;
-    loading: boolean;
-    error: any;
-    send: () => void;
-  };
+  });
 
   const { send: deleteUser } = useRequest(
     (id: string) => userApi.deleteUser(id),

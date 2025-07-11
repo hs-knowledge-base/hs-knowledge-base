@@ -7,8 +7,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { userApi, roleApi } from '@/lib/api';
 import { User, Role } from '@/types/auth';
+import {roleApi, userApi} from "@/lib/api/services";
 
 interface UserRoleAssignmentProps {
   user: User;
@@ -20,7 +20,6 @@ export function UserRoleAssignment({ user, onSuccess }: UserRoleAssignmentProps)
     user.roles?.map(role => role.id) || []
   );
 
-  // 获取所有角色
   const {
     data: roles,
     loading: rolesLoading,
@@ -31,7 +30,6 @@ export function UserRoleAssignment({ user, onSuccess }: UserRoleAssignmentProps)
     error: any;
   };
 
-  // 更新用户角色
   const {
     loading: updating,
     send: updateUserRoles,
@@ -81,7 +79,7 @@ export function UserRoleAssignment({ user, onSuccess }: UserRoleAssignmentProps)
       <div>
         <Label className="text-sm font-medium">当前角色</Label>
         <div className="mt-2 flex gap-2 flex-wrap">
-          {user.roles?.length > 0 ? (
+          {user.roles && user.roles.length > 0 ? (
             user.roles.map(role => (
               <Badge key={role.id} variant="default">
                 {role.name}

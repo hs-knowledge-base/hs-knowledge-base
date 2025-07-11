@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRequest } from 'alova/client';
-import { userApi, roleApi } from '@/lib/api';
 import { User, CreateUserDto } from '@/types/auth';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import {userApi} from "@/lib/api/services";
 
 const userSchema = z.object({
   username: z.string().min(1, '用户名不能为空'),
@@ -25,7 +25,7 @@ const userSchema = z.object({
   password: z.string().min(6, '密码至少6位').optional(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
   attributes: z.string().optional(),
 });
 

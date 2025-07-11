@@ -25,8 +25,10 @@ export interface User {
   isActive: boolean;
   firstName?: string;
   lastName?: string;
+  department?: string;
+  position?: string;
   attributes?: Record<string, any>;
-  roles: Role[];
+  roles?: Role[];
   createdAt: string;
   updatedAt: string;
 }
@@ -37,8 +39,8 @@ export interface Role {
   name: string;
   description?: string;
   attributes?: Record<string, any>;
-  users: User[];
-  permissions: Permission[];
+  users?: User[];
+  permissions?: Permission[];
   createdAt: string;
   updatedAt: string;
 }
@@ -52,7 +54,7 @@ export interface Permission {
   fields?: string;
   inverted: boolean;
   reason?: string;
-  roles: Role[];
+  roles?: Role[];
   createdAt: string;
   updatedAt: string;
 }

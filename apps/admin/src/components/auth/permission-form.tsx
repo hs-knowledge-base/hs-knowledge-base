@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRequest } from 'alova/client';
-import { permissionApi } from '@/lib/api';
 import { Permission, CreatePermissionDto, Action, Subject } from '@/types/auth';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,13 +24,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {permissionApi} from "@/lib/api/services";
 
 const permissionSchema = z.object({
   action: z.nativeEnum(Action),
   subject: z.nativeEnum(Subject),
   conditions: z.string().optional(),
   fields: z.string().optional(),
-  inverted: z.boolean().default(false),
+  inverted: z.boolean(),
   reason: z.string().optional(),
 });
 
@@ -52,7 +52,7 @@ export function PermissionForm({ permission, onSuccess }: PermissionFormProps) {
       subject: permission?.subject || Subject.USER,
       conditions: permission?.conditions ? JSON.stringify(permission.conditions, null, 2) : '',
       fields: permission?.fields || '',
-      inverted: permission?.inverted || false,
+      inverted: permission?.inverted ?? false,
       reason: permission?.reason || '',
     },
   });

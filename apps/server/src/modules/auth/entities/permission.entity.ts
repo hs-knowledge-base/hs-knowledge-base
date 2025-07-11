@@ -9,30 +9,27 @@ import {
 import { Role } from '../../user/entities/role.entity';
 
 /**
- * 操作类型常量
+ * 操作类型枚举
  */
-export const ACTIONS = {
-  CREATE: 'create',
-  READ: 'read',
-  UPDATE: 'update',
-  DELETE: 'delete',
-  MANAGE: 'manage',
-} as const;
+export enum Action {
+  CREATE = 'create',
+  READ = 'read',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  MANAGE = 'manage',
+}
 
 /**
- * 资源类型常量
+ * 资源类型枚举
  */
-export const SUBJECTS = {
-  USER: 'user',
-  ROLE: 'role',
-  PERMISSION: 'permission',
-  DOCUMENT: 'document',
-  KNOWLEDGE_BASE: 'knowledge_base',
-  ALL: 'all',
-} as const;
-
-export type ActionType = typeof ACTIONS[keyof typeof ACTIONS];
-export type SubjectType = typeof SUBJECTS[keyof typeof SUBJECTS];
+export enum Subject {
+  USER = 'user',
+  ROLE = 'role',
+  PERMISSION = 'permission',
+  DOCUMENT = 'document',
+  KNOWLEDGE_BASE = 'knowledge_base',
+  ALL = 'all',
+}
 
 @Entity('permissions')
 export class Permission {

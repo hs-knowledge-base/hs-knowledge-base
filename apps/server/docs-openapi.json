@@ -136,7 +136,7 @@
             "type": "string",
             "description": "操作类型",
             "example": "read",
-            "examples": [
+            "enum": [
               "create",
               "read",
               "update",
@@ -148,7 +148,7 @@
             "type": "string",
             "description": "资源类型",
             "example": "user",
-            "examples": [
+            "enum": [
               "user",
               "role",
               "permission",

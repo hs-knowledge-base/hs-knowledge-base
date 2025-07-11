@@ -8,7 +8,7 @@ import {
 import { Injectable } from '@nestjs/common';
 import { User } from '../../user/entities/user.entity';
 import { Role } from '../../user/entities/role.entity';
-import { Permission, ActionType } from '../entities/permission.entity';
+import { Permission, Action, Subject } from '../entities/permission.entity';
 
 // 定义所有可能的主体类型 - 包含字符串类型
 type Subjects = InferSubjects<typeof User | typeof Role | typeof Permission> | 'all' | string;

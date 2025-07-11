@@ -13,12 +13,12 @@ import { PermissionService } from '../services/permission.service';
 import { CreatePermissionDto } from '../dto/create-permission.dto';
 import { PoliciesGuard, CheckPolicies } from '../guards/permissions.guard';
 import { CaslAbilityFactory } from '../casl/casl-ability.factory';
-import { ACTIONS, SUBJECTS, ActionType, SubjectType, Permission } from '../entities/permission.entity';
+import { Action, Subject, Permission } from '../entities/permission.entity';
 import { AppAbility } from '../casl/casl-ability.factory';
 
 // 权限管理的策略函数
-const ManagePermissionPolicy = (ability: AppAbility) => ability.can(ACTIONS.MANAGE, SUBJECTS.PERMISSION);
-const ReadPermissionPolicy = (ability: AppAbility) => ability.can(ACTIONS.READ, SUBJECTS.PERMISSION);
+const ManagePermissionPolicy = (ability: AppAbility) => ability.can(Action.MANAGE, Subject.PERMISSION);
+const ReadPermissionPolicy = (ability: AppAbility) => ability.can(Action.READ, Subject.PERMISSION);
 
 @ApiTags('admin', '权限管理')
 @Controller('admin/permissions')
@@ -73,7 +73,7 @@ export class PermissionAdminController {
   @ApiOperation({ summary: '检查用户权限' })
   @ApiResponse({ status: 200, description: '权限检查完成' })
   async checkPermission(
-    @Body() checkData: { userId: string; action: ActionType; subject: SubjectType; conditions?: any }
+    @Body() checkData: { userId: string; action: Action; subject: Subject; conditions?: any }
   ) {
     // 这里需要获取用户信息，实际实现中应该从认证中间件获取
     // 暂时返回检查结果的示例

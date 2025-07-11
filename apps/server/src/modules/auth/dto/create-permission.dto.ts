@@ -1,12 +1,12 @@
 import { IsString, IsOptional, IsBoolean, Length, IsObject } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ACTIONS, SUBJECTS } from '../entities/permission.entity';
+import { Action, Subject } from '../entities/permission.entity';
 
 export class CreatePermissionDto {
   @ApiProperty({
     description: '操作类型',
-    example: ACTIONS.READ,
-    examples: Object.values(ACTIONS)
+    example: Action.READ,
+    enum: Action
   })
   @IsString()
   @Length(1, 50)
@@ -14,8 +14,8 @@ export class CreatePermissionDto {
 
   @ApiProperty({
     description: '资源类型',
-    example: SUBJECTS.USER,
-    examples: Object.values(SUBJECTS)
+    example: Subject.USER,
+    enum: Subject
   })
   @IsString()
   @Length(1, 50)

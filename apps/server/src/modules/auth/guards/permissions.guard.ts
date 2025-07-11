@@ -7,12 +7,13 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { CaslAbilityFactory } from '../casl/casl-ability.factory';
-import { Action, Subject } from '../entities/permission.entity';
+import { ACTIONS, SUBJECTS } from '../entities/permission.entity';
+import { AppAbility } from '../casl/casl-ability.factory';
 import { User } from '../../user/entities/user.entity';
 
 export interface RequiredRule {
-  action: Action;
-  subject: Subject;
+  action: string;
+  subject: string;
   conditions?: any;
 }
 
@@ -79,8 +80,8 @@ export class PoliciesGuard implements CanActivate {
 }
 
 // 便捷的权限检查函数
-export const ReadUserPolicy = (ability: any) => ability.can(Action.READ, Subject.USER);
-export const CreateUserPolicy = (ability: any) => ability.can(Action.CREATE, Subject.USER);
-export const UpdateUserPolicy = (ability: any) => ability.can(Action.UPDATE, Subject.USER);
-export const DeleteUserPolicy = (ability: any) => ability.can(Action.DELETE, Subject.USER);
-export const ManageUserPolicy = (ability: any) => ability.can(Action.MANAGE, Subject.USER);
+export const ReadUserPolicy = (ability: AppAbility) => ability.can(ACTIONS.READ, SUBJECTS.USER);
+export const CreateUserPolicy = (ability: AppAbility) => ability.can(ACTIONS.CREATE, SUBJECTS.USER);
+export const UpdateUserPolicy = (ability: AppAbility) => ability.can(ACTIONS.UPDATE, SUBJECTS.USER);
+export const DeleteUserPolicy = (ability: AppAbility) => ability.can(ACTIONS.DELETE, SUBJECTS.USER);
+export const ManageUserPolicy = (ability: AppAbility) => ability.can(ACTIONS.MANAGE, SUBJECTS.USER);

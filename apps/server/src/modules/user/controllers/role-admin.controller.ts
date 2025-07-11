@@ -12,13 +12,13 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { RoleService } from '../services/role.service';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { PoliciesGuard, CheckPolicies } from '../../auth/guards/permissions.guard';
-import { Action, Subject } from '../../auth/entities/permission.entity';
+import { ACTIONS, SUBJECTS, ActionType, SubjectType } from '../../auth/entities/permission.entity';
 
 // 权限策略函数
-const ReadRolePolicy = (ability: any) => ability.can(Action.READ, Subject.ROLE);
-const CreateRolePolicy = (ability: any) => ability.can(Action.CREATE, Subject.ROLE);
-const UpdateRolePolicy = (ability: any) => ability.can(Action.UPDATE, Subject.ROLE);
-const DeleteRolePolicy = (ability: any) => ability.can(Action.DELETE, Subject.ROLE);
+const ReadRolePolicy = (ability: any) => ability.can(ACTIONS.READ, SUBJECTS.ROLE);
+const CreateRolePolicy = (ability: any) => ability.can(ACTIONS.CREATE, SUBJECTS.ROLE);
+const UpdateRolePolicy = (ability: any) => ability.can(ACTIONS.UPDATE, SUBJECTS.ROLE);
+const DeleteRolePolicy = (ability: any) => ability.can(ACTIONS.DELETE, SUBJECTS.ROLE);
 
 @ApiTags('admin', '角色管理')
 @Controller('admin/roles')

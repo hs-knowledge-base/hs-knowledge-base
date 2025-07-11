@@ -4,7 +4,7 @@ import { PermissionService } from '@/modules/auth/services/permission.service';
 import { RoleRepository } from '@/modules/user/repositories/role.repository';
 import { PermissionRepository } from '@/modules/auth/repositories/permission.repository';
 import { UserRepository } from '@/modules/user/repositories/user.repository';
-import { Action, Subject } from '@/modules/auth/entities/permission.entity';
+import { ACTIONS, SUBJECTS } from '@/modules/auth/entities/permission.entity';
 
 /**
  * 数据初始化服务
@@ -61,23 +61,23 @@ export class DataInitializerService implements OnModuleInit {
 
     const defaultPermissions = [
       // 用户管理权限
-      { action: Action.MANAGE, subject: Subject.ALL, reason: '超级管理员权限' },
-      { action: Action.READ, subject: Subject.USER, reason: '读取用户信息' },
-      { action: Action.CREATE, subject: Subject.USER, reason: '创建用户' },
-      { action: Action.UPDATE, subject: Subject.USER, reason: '更新用户信息' },
-      { action: Action.DELETE, subject: Subject.USER, reason: '删除用户' },
+      { action: ACTIONS.MANAGE, subject: SUBJECTS.ALL, reason: '超级管理员权限' },
+      { action: ACTIONS.READ, subject: SUBJECTS.USER, reason: '读取用户信息' },
+      { action: ACTIONS.CREATE, subject: SUBJECTS.USER, reason: '创建用户' },
+      { action: ACTIONS.UPDATE, subject: SUBJECTS.USER, reason: '更新用户信息' },
+      { action: ACTIONS.DELETE, subject: SUBJECTS.USER, reason: '删除用户' },
 
       // 角色管理权限
-      { action: Action.READ, subject: Subject.ROLE, reason: '读取角色信息' },
-      { action: Action.CREATE, subject: Subject.ROLE, reason: '创建角色' },
-      { action: Action.UPDATE, subject: Subject.ROLE, reason: '更新角色' },
-      { action: Action.DELETE, subject: Subject.ROLE, reason: '删除角色' },
+      { action: ACTIONS.READ, subject: SUBJECTS.ROLE, reason: '读取角色信息' },
+      { action: ACTIONS.CREATE, subject: SUBJECTS.ROLE, reason: '创建角色' },
+      { action: ACTIONS.UPDATE, subject: SUBJECTS.ROLE, reason: '更新角色' },
+      { action: ACTIONS.DELETE, subject: SUBJECTS.ROLE, reason: '删除角色' },
 
       // 权限管理权限
-      { action: Action.READ, subject: Subject.PERMISSION, reason: '读取权限信息' },
-      { action: Action.CREATE, subject: Subject.PERMISSION, reason: '创建权限' },
-      { action: Action.UPDATE, subject: Subject.PERMISSION, reason: '更新权限' },
-      { action: Action.DELETE, subject: Subject.PERMISSION, reason: '删除权限' },
+      { action: ACTIONS.READ, subject: SUBJECTS.PERMISSION, reason: '读取权限信息' },
+      { action: ACTIONS.CREATE, subject: SUBJECTS.PERMISSION, reason: '创建权限' },
+      { action: ACTIONS.UPDATE, subject: SUBJECTS.PERMISSION, reason: '更新权限' },
+      { action: ACTIONS.DELETE, subject: SUBJECTS.PERMISSION, reason: '删除权限' },
     ];
 
     for (const permissionData of defaultPermissions) {

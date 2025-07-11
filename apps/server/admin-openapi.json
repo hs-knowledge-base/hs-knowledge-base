@@ -697,31 +697,31 @@
           "action": {
             "type": "string",
             "description": "操作类型",
-            "enum": [
+            "example": "read",
+            "examples": [
               "create",
               "read",
               "update",
               "delete",
               "manage"
-            ],
-            "example": "read"
+            ]
           },
           "subject": {
             "type": "string",
             "description": "资源类型",
-            "enum": [
-              "User",
-              "Role",
-              "Permission",
-              "Document",
-              "KnowledgeBase",
+            "example": "user",
+            "examples": [
+              "user",
+              "role",
+              "permission",
+              "document",
+              "knowledge_base",
               "all"
-            ],
-            "example": "User"
+            ]
           },
           "conditions": {
             "type": "object",
-            "description": "条件限制",
+            "description": "条件限制 - ABAC 核心功能",
             "example": {
               "department": "IT",
               "level": {

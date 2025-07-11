@@ -14,25 +14,25 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, comment: "用户名" })
   username: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, comment: "邮箱" })
   email: string;
 
   @Column()
   password: string;
 
-  @Column({ name: 'is_active', default: true })
+  @Column({ name: 'is_active', default: true, comment: "是否激活" })
   isActive: boolean;
 
-  @Column({ name: 'first_name', nullable: true })
+  @Column({ name: 'first_name', nullable: true, comment: "名字" })
   firstName?: string;
 
-  @Column({ name: 'last_name', nullable: true })
+  @Column({ name: 'last_name', nullable: true, comment: "姓氏" })
   lastName?: string;
 
-  @Column('json', { nullable: true })
+  @Column('json', { nullable: true, comment: "用户属性" })
   attributes?: Record<string, any>;
 
   @ManyToMany(() => Role, (role) => role.users)

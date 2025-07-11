@@ -12,13 +12,13 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserService } from '../services/user.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { PoliciesGuard, CheckPolicies } from '../../auth/guards/permissions.guard';
-import { Action, Subject } from '../../auth/entities/permission.entity';
+import { ACTIONS, SUBJECTS, ActionType, SubjectType } from '../../auth/entities/permission.entity';
 
 // 权限策略函数
-const ReadUserPolicy = (ability: any) => ability.can(Action.READ, Subject.USER);
-const CreateUserPolicy = (ability: any) => ability.can(Action.CREATE, Subject.USER);
-const UpdateUserPolicy = (ability: any) => ability.can(Action.UPDATE, Subject.USER);
-const DeleteUserPolicy = (ability: any) => ability.can(Action.DELETE, Subject.USER);
+const ReadUserPolicy = (ability: any) => ability.can(ACTIONS.READ, SUBJECTS.USER);
+const CreateUserPolicy = (ability: any) => ability.can(ACTIONS.CREATE, SUBJECTS.USER);
+const UpdateUserPolicy = (ability: any) => ability.can(ACTIONS.UPDATE, SUBJECTS.USER);
+const DeleteUserPolicy = (ability: any) => ability.can(ACTIONS.DELETE, SUBJECTS.USER);
 
 @ApiTags('admin', '用户管理')
 @Controller('admin/users')

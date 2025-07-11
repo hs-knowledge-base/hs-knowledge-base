@@ -8,6 +8,8 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { VoTransformOptions, VO_TRANSFORM_KEY } from '@/core';
+import { VoTransformUtil } from '@/core';
 
 /**
  * 响应数据转换拦截器
@@ -45,11 +47,19 @@ export class TransformInterceptor<T> implements NestInterceptor<T, ApiResponseIn
           return data;
         }
 
-        // 4. 自动转换为标准格式
+        // 4. 检查是否需要 VO 转换
+        const voTransformOptions: VoTransformOptions = Reflect.getMetadata(VO_TRANSFORM_KEY, handler);
+        let transformedData = data;
+
+        if (voTransformOptions && data) {
+          transformedData = VoTransformUtil.transform(data, voTransformOptions);
+        }
+
+        // 5. 自动转换为标准格式
         const statusCode = response.statusCode;
         return {
           code: statusCode,
-          data,
+          data: transformedData,
           message: this.getDefaultMessage(statusCode),
           errors: null,
         };

@@ -20,8 +20,8 @@ const CreateRolePolicy = (ability: any) => ability.can(Action.CREATE, Subject.RO
 const UpdateRolePolicy = (ability: any) => ability.can(Action.UPDATE, Subject.ROLE);
 const DeleteRolePolicy = (ability: any) => ability.can(Action.DELETE, Subject.ROLE);
 
-@ApiTags('角色管理')
-@Controller('roles')
+@ApiTags('admin', '角色管理')
+@Controller('admin/roles')
 @UseGuards(PoliciesGuard)
 export class RoleAdminController {
   constructor(private readonly roleService: RoleService) {}

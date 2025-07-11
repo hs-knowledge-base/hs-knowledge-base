@@ -20,8 +20,8 @@ const CreateUserPolicy = (ability: any) => ability.can(Action.CREATE, Subject.US
 const UpdateUserPolicy = (ability: any) => ability.can(Action.UPDATE, Subject.USER);
 const DeleteUserPolicy = (ability: any) => ability.can(Action.DELETE, Subject.USER);
 
-@ApiTags('用户管理')
-@Controller('users')
+@ApiTags('admin', '用户管理')
+@Controller('admin/users')
 @UseGuards(PoliciesGuard)
 export class UserAdminController {
   constructor(private readonly userService: UserService) {}

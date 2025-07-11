@@ -15,6 +15,7 @@ import { RoleService } from "../user/services/role.service";
 // Controllers
 import { AuthAdminController } from "./controllers/auth-admin.controller";
 import { RoleAdminController } from "@/modules/user/controllers/role-admin.controller";
+import { PermissionAdminController } from "@/modules/auth/controllers/permission-admin.controller";
 
 // Repositories
 import { PermissionRepository } from "./repositories/permission.repository";
@@ -58,7 +59,10 @@ import { JwtConfig } from "./config/jwt.config";
       inject: [ConfigService],
     }),
   ],
-  controllers: [RoleAdminController, AuthAdminController],
+  controllers: [
+    RoleAdminController,
+    AuthAdminController,
+    PermissionAdminController],
   providers: [
     // Services
     PermissionService,

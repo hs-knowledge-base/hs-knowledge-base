@@ -139,6 +139,65 @@
           "refreshToken"
         ]
       },
+      "CreatePermissionDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "操作类型",
+            "enum": [
+              "create",
+              "read",
+              "update",
+              "delete",
+              "manage"
+            ],
+            "example": "read"
+          },
+          "subject": {
+            "type": "string",
+            "description": "资源类型",
+            "enum": [
+              "User",
+              "Role",
+              "Permission",
+              "Document",
+              "KnowledgeBase",
+              "all"
+            ],
+            "example": "User"
+          },
+          "conditions": {
+            "type": "object",
+            "description": "条件限制",
+            "example": {
+              "department": "IT",
+              "level": {
+                "$gte": 3
+              }
+            }
+          },
+          "fields": {
+            "type": "string",
+            "description": "字段限制",
+            "example": "name,email"
+          },
+          "inverted": {
+            "type": "boolean",
+            "description": "是否为禁止权限",
+            "example": false
+          },
+          "reason": {
+            "type": "string",
+            "description": "权限说明",
+            "example": "允许读取同部门用户信息"
+          }
+        },
+        "required": [
+          "action",
+          "subject"
+        ]
+      },
       "CreateUserDto": {
         "type": "object",
         "properties": {

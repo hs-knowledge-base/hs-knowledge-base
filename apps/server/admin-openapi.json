@@ -1,6 +1,117 @@
 {
   "openapi": "3.0.0",
   "paths": {
+    "/api/admin/roles": {
+      "post": {
+        "operationId": "create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "角色创建成功"
+          }
+        },
+        "summary": "创建角色",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      },
+      "get": {
+        "operationId": "findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "获取角色列表成功"
+          }
+        },
+        "summary": "获取所有角色",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      }
+    },
+    "/api/admin/roles/{id}": {
+      "get": {
+        "operationId": "findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取角色成功"
+          }
+        },
+        "summary": "根据ID获取角色",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      },
+      "patch": {
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "角色更新成功"
+          }
+        },
+        "summary": "更新角色",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      },
+      "delete": {
+        "operationId": "remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "角色删除成功"
+          }
+        },
+        "summary": "删除角色",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      }
+    },
     "/api/admin/auth/login": {
       "post": {
         "operationId": "login",
@@ -212,6 +323,244 @@
           "认证管理"
         ]
       }
+    },
+    "/api/admin/permissions": {
+      "post": {
+        "operationId": "create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePermissionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "权限创建成功"
+          }
+        },
+        "summary": "创建权限",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      },
+      "get": {
+        "operationId": "findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "获取权限列表成功"
+          }
+        },
+        "summary": "获取所有权限",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      }
+    },
+    "/api/admin/permissions/{id}": {
+      "get": {
+        "operationId": "findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取权限成功"
+          }
+        },
+        "summary": "根据ID获取权限",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      },
+      "patch": {
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "权限更新成功"
+          }
+        },
+        "summary": "更新权限",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      },
+      "delete": {
+        "operationId": "remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "权限删除成功"
+          }
+        },
+        "summary": "删除权限",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      }
+    },
+    "/api/admin/permissions/check": {
+      "post": {
+        "operationId": "checkPermission",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "权限检查完成"
+          }
+        },
+        "summary": "检查用户权限",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      }
+    },
+    "/api/admin/users": {
+      "post": {
+        "operationId": "create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "用户创建成功"
+          }
+        },
+        "summary": "创建用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      },
+      "get": {
+        "operationId": "findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "获取用户列表成功"
+          }
+        },
+        "summary": "获取所有用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      }
+    },
+    "/api/admin/users/{id}": {
+      "get": {
+        "operationId": "findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取用户成功"
+          }
+        },
+        "summary": "根据ID获取用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      },
+      "patch": {
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "用户更新成功"
+          }
+        },
+        "summary": "更新用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      },
+      "delete": {
+        "operationId": "remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "用户删除成功"
+          }
+        },
+        "summary": "删除用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      }
     }
   },
   "info": {
@@ -350,6 +699,65 @@
         },
         "required": [
           "refreshToken"
+        ]
+      },
+      "CreatePermissionDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "操作类型",
+            "enum": [
+              "create",
+              "read",
+              "update",
+              "delete",
+              "manage"
+            ],
+            "example": "read"
+          },
+          "subject": {
+            "type": "string",
+            "description": "资源类型",
+            "enum": [
+              "User",
+              "Role",
+              "Permission",
+              "Document",
+              "KnowledgeBase",
+              "all"
+            ],
+            "example": "User"
+          },
+          "conditions": {
+            "type": "object",
+            "description": "条件限制",
+            "example": {
+              "department": "IT",
+              "level": {
+                "$gte": 3
+              }
+            }
+          },
+          "fields": {
+            "type": "string",
+            "description": "字段限制",
+            "example": "name,email"
+          },
+          "inverted": {
+            "type": "boolean",
+            "description": "是否为禁止权限",
+            "example": false
+          },
+          "reason": {
+            "type": "string",
+            "description": "权限说明",
+            "example": "允许读取同部门用户信息"
+          }
+        },
+        "required": [
+          "action",
+          "subject"
         ]
       },
       "CreateUserDto": {

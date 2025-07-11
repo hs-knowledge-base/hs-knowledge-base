@@ -33,10 +33,26 @@
 ## 🛡️ 权限装饰器
 
 ### @RequirePermission
-| 参数 | 类型 | 必需 | 说明 |
-|------|------|------|------|
-| `action` | `Action` | ✅ | 操作类型 |
-| `subject` | `Subject` | ✅ | 资源类型 |
+| 参数 | 类型 | 必需 | 说明 | 示例 |
+|------|------|------|------|------|
+| `action` | `Action` | ✅ | 操作类型 | `Action.READ` |
+| `subject` | `Subject` | ✅ | 资源类型 | `Subject.USER` |
+
+**Action 枚举值**：
+- `CREATE` - 创建操作
+- `READ` - 读取操作
+- `UPDATE` - 更新操作
+- `DELETE` - 删除操作
+- `MANAGE` - 管理操作（包含所有）
+
+**Subject 枚举值**：
+- `USER` - 用户管理
+- `ROLE` - 角色管理
+- `PERMISSION` - 权限管理
+- `DOCUMENT` - 文档管理
+- `KNOWLEDGE_BASE` - 知识库管理
+- `SYSTEM` - 系统管理
+- `ALL` - 所有资源
 
 ## 🔄 响应控制装饰器
 

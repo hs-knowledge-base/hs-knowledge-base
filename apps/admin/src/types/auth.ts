@@ -25,8 +25,6 @@ export interface User {
   isActive: boolean;
   firstName?: string;
   lastName?: string;
-  department?: string;
-  position?: string;
   attributes?: Record<string, any>;
   roles: Role[];
   createdAt: string;
@@ -67,8 +65,6 @@ export interface CreateUserDto {
   isActive?: boolean;
   firstName?: string;
   lastName?: string;
-  department?: string;
-  position?: string;
   roleIds?: string[];
   attributes?: Record<string, any>;
 }

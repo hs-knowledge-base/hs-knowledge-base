@@ -44,6 +44,9 @@ export const userApi = {
   
   // 删除用户
   deleteUser: (id: string) => alovaInstance.Delete(`/users/${id}`),
+
+  // 更新用户角色
+  updateRoles: (id: string, roleIds: string[]) => alovaInstance.Patch(`/users/${id}/roles`, { roleIds }),
 };
 
 // 权限相关 API
@@ -94,6 +97,7 @@ export const authApi = {
 export const roleApi = {
   // 获取所有角色
   getRoles: () => alovaInstance.Get('/roles'),
+  getAll: () => alovaInstance.Get('/roles'),
 
   // 根据 ID 获取角色
   getRole: (id: string) => alovaInstance.Get(`/roles/${id}`),

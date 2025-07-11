@@ -25,8 +25,6 @@ const userSchema = z.object({
   password: z.string().min(6, '密码至少6位').optional(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
-  department: z.string().optional(),
-  position: z.string().optional(),
   isActive: z.boolean().default(true),
   attributes: z.string().optional(),
 });
@@ -49,8 +47,6 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
       password: '',
       firstName: user?.firstName || '',
       lastName: user?.lastName || '',
-      department: user?.department || '',
-      position: user?.position || '',
       isActive: user?.isActive ?? true,
       attributes: user?.attributes ? JSON.stringify(user.attributes, null, 2) : '',
     },
@@ -167,35 +163,7 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="department"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>部门</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
-          <FormField
-            control={form.control}
-            name="position"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>职位</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
 
         <FormField
           control={form.control}

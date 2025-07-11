@@ -23,11 +23,13 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { UserForm } from '@/components/auth/user-form';
+import { UserRoleAssignment } from '@/components/auth/user-role-assignment';
 
 export default function UsersPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
 
   const {
     data: users,
@@ -36,7 +38,12 @@ export default function UsersPage() {
     send: refetchUsers,
   } = useRequest(() => userApi.getUsers(), {
     immediate: true,
-  });
+  }) as {
+    data: User[] | undefined;
+    loading: boolean;
+    error: any;
+    send: () => void;
+  };
 
   const { send: deleteUser } = useRequest(
     (id: string) => userApi.deleteUser(id),
@@ -61,9 +68,15 @@ export default function UsersPage() {
     setIsEditDialogOpen(true);
   };
 
+  const handleAssignRoles = (user: User) => {
+    setSelectedUser(user);
+    setIsRoleDialogOpen(true);
+  };
+
   const handleFormSuccess = () => {
     setIsCreateDialogOpen(false);
     setIsEditDialogOpen(false);
+    setIsRoleDialogOpen(false);
     setSelectedUser(null);
     refetchUsers();
   };
@@ -103,14 +116,13 @@ export default function UsersPage() {
                 <TableHead>用户名</TableHead>
                 <TableHead>邮箱</TableHead>
                 <TableHead>姓名</TableHead>
-                <TableHead>部门</TableHead>
                 <TableHead>状态</TableHead>
                 <TableHead>角色</TableHead>
                 <TableHead>操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users?.map((user: User) => (
+              {users && Array.isArray(users) ? users.map((user: User) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.username}</TableCell>
                   <TableCell>{user.email}</TableCell>
@@ -119,7 +131,6 @@ export default function UsersPage() {
                       ? `${user.firstName} ${user.lastName}`
                       : '-'}
                   </TableCell>
-                  <TableCell>{user.department || '-'}</TableCell>
                   <TableCell>
                     <Badge variant={user.isActive ? 'default' : 'secondary'}>
                       {user.isActive ? '激活' : '禁用'}
@@ -145,6 +156,15 @@ export default function UsersPage() {
                           编辑
                         </Button>
                       </CanUpdate>
+                      <CanUpdate subject={Subject.ROLE}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAssignRoles(user)}
+                        >
+                          分配角色
+                        </Button>
+                      </CanUpdate>
                       <CanDelete subject={Subject.USER}>
                         <Button
                           variant="destructive"
@@ -157,7 +177,13 @@ export default function UsersPage() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    暂无用户数据
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
@@ -171,6 +197,21 @@ export default function UsersPage() {
           </DialogHeader>
           {selectedUser && (
             <UserForm
+              user={selectedUser}
+              onSuccess={handleFormSuccess}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 分配角色对话框 */}
+      <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>分配角色</DialogTitle>
+          </DialogHeader>
+          {selectedUser && (
+            <UserRoleAssignment
               user={selectedUser}
               onSuccess={handleFormSuccess}
             />

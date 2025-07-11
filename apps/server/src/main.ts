@@ -5,6 +5,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { generateSwaggerDocument } from '@/config/swagger';
 import { BootstrapService } from '@/core/bootstrap/bootstrap.service';
 import { LoggerService } from '@/core/logger/logger.service';
+import { TransformInterceptor } from "@/core";
 
 async function bootstrap() {
   const logger = new LoggerService().setContext('main');
@@ -18,6 +19,9 @@ async function bootstrap() {
     app.useStaticAssets(join(__dirname, '..', 'public'), {
       prefix: '/static/',
     });
+
+    /*全局拦截器，统一响应*/
+    app.useGlobalInterceptors(new TransformInterceptor());
 
     await bootstrapService.setup(app);
 

@@ -92,3 +92,7 @@ DateTransformUtil.toRelativeTime(value)
 - VO 字段必须使用 `@Expose()` 装饰器
 - 优先级：`includeFields` > `excludeFields` > `excludeSensitive`
 - 嵌套转换需要 `@Type()` 装饰器
+
+## 📚 相关文档
+
+- [装饰器参考](../reference/decorators.md) - 包含 `@CurrentUser` 等用户装饰器

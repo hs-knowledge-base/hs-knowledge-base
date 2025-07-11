@@ -19,18 +19,12 @@
 - **`DateTransformUtil`** - 日期格式化工具
 - **`TransformInterceptor`** - 自动执行转换
 
-## 📋 配置选项
+## 📋 工作流程
 
-```typescript
-interface VoTransformOptions {
-  voClass: Type<any>;           // 目标 VO 类
-  excludeSensitive?: boolean;   // 排除敏感字段
-  excludeFields?: string[];     // 排除指定字段
-  includeFields?: string[];     // 只包含指定字段
-  deep?: boolean;              // 深度转换嵌套对象
-  transform?: (data) => any;   // 自定义转换函数
-}
-```
+1. **装饰器配置** - `@VoTransform` 设置转换规则
+2. **拦截器检测** - `TransformInterceptor` 读取配置
+3. **数据转换** - `VoTransformUtil` 执行转换
+4. **响应包装** - 包装为标准 API 格式
 
 ## 🛡️ 安全特性
 

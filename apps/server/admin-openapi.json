@@ -17,7 +17,14 @@
         },
         "responses": {
           "201": {
-            "description": "角色创建成功"
+            "description": "角色创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleVo"
+                }
+              }
+            }
           }
         },
         "summary": "创建角色",
@@ -31,7 +38,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "获取角色列表成功"
+            "description": "获取角色列表成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimpleRoleVo"
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "获取所有角色",
@@ -56,7 +73,14 @@
         ],
         "responses": {
           "200": {
-            "description": "获取角色成功"
+            "description": "获取角色成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleDetailVo"
+                }
+              }
+            }
           }
         },
         "summary": "根据ID获取角色",
@@ -79,7 +103,14 @@
         ],
         "responses": {
           "200": {
-            "description": "角色更新成功"
+            "description": "角色更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleVo"
+                }
+              }
+            }
           }
         },
         "summary": "更新角色",
@@ -474,7 +505,14 @@
         },
         "responses": {
           "201": {
-            "description": "用户创建成功"
+            "description": "用户创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVo"
+                }
+              }
+            }
           }
         },
         "summary": "创建用户",
@@ -488,7 +526,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "获取用户列表成功"
+            "description": "获取用户列表成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimpleUserVo"
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "获取所有用户",
@@ -513,7 +561,14 @@
         ],
         "responses": {
           "200": {
-            "description": "获取用户成功"
+            "description": "获取用户成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailVo"
+                }
+              }
+            }
           }
         },
         "summary": "根据ID获取用户",
@@ -536,7 +591,14 @@
         ],
         "responses": {
           "200": {
-            "description": "用户更新成功"
+            "description": "用户更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVo"
+                }
+              }
+            }
           }
         },
         "summary": "更新用户",
@@ -631,77 +693,24 @@
           "name"
         ]
       },
-      "LoginDto": {
-        "type": "object",
-        "properties": {
-          "usernameOrEmail": {
-            "type": "string",
-            "description": "用户名或邮箱",
-            "example": "admin"
-          },
-          "password": {
-            "type": "string",
-            "description": "密码",
-            "example": "admin123"
-          }
-        },
-        "required": [
-          "usernameOrEmail",
-          "password"
-        ]
-      },
-      "PermissionVo": {
+      "SimplePermissionVo": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "权限ID",
-            "example": "uuid-string"
+            "description": "权限ID"
           },
           "action": {
             "type": "string",
-            "description": "操作类型",
-            "example": "read"
+            "description": "操作类型"
           },
           "subject": {
             "type": "string",
-            "description": "资源类型",
-            "example": "user"
-          },
-          "conditions": {
-            "type": "object",
-            "description": "条件限制",
-            "example": {
-              "department": "IT",
-              "level": {
-                "$gte": 3
-              }
-            }
-          },
-          "fields": {
-            "type": "string",
-            "description": "字段限制",
-            "example": "name,email,phone"
-          },
-          "inverted": {
-            "type": "boolean",
-            "description": "是否为禁止权限",
-            "example": false
+            "description": "资源类型"
           },
           "reason": {
             "type": "string",
-            "description": "权限说明",
-            "example": "用户读取权限"
-          },
-          "createdAt": {
-            "type": "string",
-            "description": "创建时间",
-            "example": "2024-01-01T00:00:00.000Z"
-          },
-          "updatedAt": {
-            "type": "string",
-            "description": "更新时间",
-            "example": "2024-01-01T00:00:00.000Z"
+            "description": "权限说明"
           },
           "displayName": {
             "type": "string",
@@ -711,10 +720,7 @@
         "required": [
           "id",
           "action",
-          "subject",
-          "inverted",
-          "createdAt",
-          "updatedAt"
+          "subject"
         ]
       },
       "RoleVo": {
@@ -739,14 +745,22 @@
             "type": "object",
             "description": "角色属性",
             "example": {
-              "level": "high"
+              "level": "high",
+              "department": "IT"
             }
           },
           "permissions": {
             "description": "权限列表",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/PermissionVo"
+              "$ref": "#/components/schemas/SimplePermissionVo"
+            }
+          },
+          "users": {
+            "description": "用户列表",
+            "type": "array",
+            "items": {
+              "type": "array"
             }
           },
           "createdAt": {
@@ -758,13 +772,157 @@
             "type": "string",
             "description": "更新时间",
             "example": "2024-01-01T00:00:00.000Z"
+          },
+          "createdAtLocal": {
+            "type": "string",
+            "description": "创建时间（本地格式）",
+            "example": "2024/1/1"
+          },
+          "permissionCount": {
+            "type": "number",
+            "description": "权限数量"
+          },
+          "userCount": {
+            "type": "number",
+            "description": "用户数量"
           }
         },
         "required": [
           "id",
           "name",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "createdAtLocal"
+        ]
+      },
+      "SimpleRoleVo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "角色ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "角色名称"
+          },
+          "description": {
+            "type": "string",
+            "description": "角色描述"
+          },
+          "createdAtLocal": {
+            "type": "string",
+            "description": "创建时间（本地格式）",
+            "example": "2024/1/1"
+          },
+          "permissionCount": {
+            "type": "number",
+            "description": "权限数量"
+          },
+          "userCount": {
+            "type": "number",
+            "description": "用户数量"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdAtLocal"
+        ]
+      },
+      "RoleDetailVo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "角色ID",
+            "example": "uuid-string"
+          },
+          "name": {
+            "type": "string",
+            "description": "角色名称",
+            "example": "admin"
+          },
+          "description": {
+            "type": "string",
+            "description": "角色描述",
+            "example": "系统管理员"
+          },
+          "attributes": {
+            "type": "object",
+            "description": "角色属性",
+            "example": {
+              "level": "high",
+              "department": "IT"
+            }
+          },
+          "permissions": {
+            "description": "权限列表",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SimplePermissionVo"
+            }
+          },
+          "users": {
+            "description": "用户列表",
+            "type": "array",
+            "items": {
+              "type": "array"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "创建时间",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "更新时间",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "createdAtLocal": {
+            "type": "string",
+            "description": "创建时间（本地格式）",
+            "example": "2024/1/1"
+          },
+          "permissionCount": {
+            "type": "number",
+            "description": "权限数量"
+          },
+          "userCount": {
+            "type": "number",
+            "description": "用户数量"
+          },
+          "permissionsBySubject": {
+            "type": "object",
+            "description": "角色拥有的权限分组"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdAt",
+          "updatedAt",
+          "createdAtLocal"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "usernameOrEmail": {
+            "type": "string",
+            "description": "用户名或邮箱",
+            "example": "admin"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "admin123"
+          }
+        },
+        "required": [
+          "usernameOrEmail",
+          "password"
         ]
       },
       "UserVo": {
@@ -804,7 +962,8 @@
             "type": "object",
             "description": "用户属性",
             "example": {
-              "department": "IT"
+              "department": "IT",
+              "level": 3
             }
           },
           "roles": {
@@ -828,6 +987,15 @@
             "type": "string",
             "description": "全名",
             "example": "张三"
+          },
+          "createdAtLocal": {
+            "type": "string",
+            "description": "创建时间（本地格式）",
+            "example": "2024/1/1"
+          },
+          "roleCount": {
+            "type": "number",
+            "description": "角色数量"
           }
         },
         "required": [
@@ -1043,6 +1211,73 @@
           "subject"
         ]
       },
+      "PermissionVo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "权限ID",
+            "example": "uuid-string"
+          },
+          "action": {
+            "type": "string",
+            "description": "操作类型",
+            "example": "read"
+          },
+          "subject": {
+            "type": "string",
+            "description": "资源类型",
+            "example": "user"
+          },
+          "conditions": {
+            "type": "object",
+            "description": "条件限制",
+            "example": {
+              "department": "IT",
+              "level": {
+                "$gte": 3
+              }
+            }
+          },
+          "fields": {
+            "type": "string",
+            "description": "字段限制",
+            "example": "name,email,phone"
+          },
+          "inverted": {
+            "type": "boolean",
+            "description": "是否为禁止权限",
+            "example": false
+          },
+          "reason": {
+            "type": "string",
+            "description": "权限说明",
+            "example": "用户读取权限"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "创建时间",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "更新时间",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "权限显示名称"
+          }
+        },
+        "required": [
+          "id",
+          "action",
+          "subject",
+          "inverted",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "CreateUserDto": {
         "type": "object",
         "properties": {
@@ -1100,6 +1335,136 @@
           "username",
           "email",
           "password"
+        ]
+      },
+      "SimpleUserVo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "用户ID"
+          },
+          "username": {
+            "type": "string",
+            "description": "用户名"
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "是否激活"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "全名"
+          },
+          "createdAtLocal": {
+            "type": "string",
+            "description": "创建时间（本地格式）",
+            "example": "2024/1/1"
+          },
+          "roleCount": {
+            "type": "number",
+            "description": "角色数量"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "email",
+          "isActive",
+          "createdAtLocal"
+        ]
+      },
+      "UserDetailVo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "用户ID",
+            "example": "uuid-string"
+          },
+          "username": {
+            "type": "string",
+            "description": "用户名",
+            "example": "john_doe"
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱",
+            "example": "john@example.com"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "是否激活",
+            "example": true
+          },
+          "firstName": {
+            "type": "string",
+            "description": "名字",
+            "example": "张"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "姓氏",
+            "example": "三"
+          },
+          "attributes": {
+            "type": "object",
+            "description": "用户属性",
+            "example": {
+              "department": "IT",
+              "level": 3
+            }
+          },
+          "roles": {
+            "description": "用户角色列表",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleVo"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "创建时间",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "更新时间",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "全名",
+            "example": "张三"
+          },
+          "createdAtLocal": {
+            "type": "string",
+            "description": "创建时间（本地格式）",
+            "example": "2024/1/1"
+          },
+          "roleCount": {
+            "type": "number",
+            "description": "角色数量"
+          },
+          "allPermissions": {
+            "description": "用户拥有的所有权限（通过角色）",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "email",
+          "isActive",
+          "createdAt",
+          "updatedAt"
         ]
       }
     }

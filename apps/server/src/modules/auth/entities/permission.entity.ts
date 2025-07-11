@@ -28,6 +28,7 @@ export enum Subject {
   PERMISSION = 'permission',
   DOCUMENT = 'document',
   KNOWLEDGE_BASE = 'knowledge_base',
+  SYSTEM = 'system',
   ALL = 'all',
 }
 

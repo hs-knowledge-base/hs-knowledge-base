@@ -11,11 +11,13 @@ import { Permission } from "./entities/permission.entity";
 import { PermissionService } from "./services/permission.service";
 import { AuthService } from "./services/auth.service";
 import { RoleService } from "../user/services/role.service";
+import { RoleInitService } from "./services/role-init.service";
 
 // Controllers
 import { AuthAdminController } from "./controllers/auth-admin.controller";
 import { RoleAdminController } from "@/modules/user/controllers/role-admin.controller";
 import { PermissionAdminController } from "@/modules/auth/controllers/permission-admin.controller";
+import { RoleInitAdminController } from "./controllers/role-init-admin.controller";
 
 // Repositories
 import { PermissionRepository } from "./repositories/permission.repository";
@@ -62,12 +64,14 @@ import { JwtConfig } from "./config/jwt.config";
   controllers: [
     RoleAdminController,
     AuthAdminController,
-    PermissionAdminController],
+    PermissionAdminController,
+    RoleInitAdminController],
   providers: [
     // Services
     PermissionService,
     AuthService,
     RoleService,
+    RoleInitService,
 
     // Repositories
     UserRepository,
@@ -87,6 +91,7 @@ import { JwtConfig } from "./config/jwt.config";
     PermissionService,
     AuthService,
     RoleService,
+    RoleInitService,
     UserRepository,
     RoleRepository,
     PermissionRepository,

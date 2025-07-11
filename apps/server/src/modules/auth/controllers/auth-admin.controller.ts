@@ -16,7 +16,7 @@ import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { JwtAuthGuard, Public } from '../guards/jwt-auth.guard';
 import { User } from '../../user/entities/user.entity';
-import { VoTransform } from '@/core/decorators';
+import { VoTransform, CurrentUser } from '@/core/decorators';
 import { LoginResponseVo, RegisterResponseVo, RefreshTokenResponseVo, TokenCheckResponseVo, UserVo } from '../vo';
 
 @ApiTags('admin', '认证管理')
@@ -86,8 +86,8 @@ export class AuthAdminController {
   @ApiOperation({ summary: '获取当前用户信息' })
   @ApiResponse({ status: 200, description: '获取用户信息成功', type: UserVo })
   @VoTransform({ voClass: UserVo, excludeSensitive: true })
-  async getProfile(@Request() req: { user: User }) {
-    return req.user;
+  async getProfile(@CurrentUser() user: User) {
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -97,10 +97,10 @@ export class AuthAdminController {
   @ApiResponse({ status: 200, description: '令牌有效', type: TokenCheckResponseVo })
   @ApiResponse({ status: 401, description: '令牌无效' })
   @VoTransform({ voClass: TokenCheckResponseVo })
-  async checkToken(@Request() req: { user: User }) {
+  async checkToken(@CurrentUser() user: User) {
     return {
       valid: true,
-      user: req.user,
+      user,
     };
   }
 }

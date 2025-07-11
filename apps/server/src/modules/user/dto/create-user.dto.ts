@@ -30,16 +30,6 @@ export class CreateUserDto {
   @IsString()
   lastName?: string;
 
-  @ApiPropertyOptional({ description: '部门', example: '技术部' })
-  @IsOptional()
-  @IsString()
-  department?: string;
-
-  @ApiPropertyOptional({ description: '职位', example: '开发工程师' })
-  @IsOptional()
-  @IsString()
-  position?: string;
-
   @ApiPropertyOptional({ description: '角色ID列表', example: ['role-uuid-1', 'role-uuid-2'] })
   @IsOptional()
   @IsString({ each: true })

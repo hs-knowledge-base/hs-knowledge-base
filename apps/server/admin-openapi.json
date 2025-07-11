@@ -670,16 +670,6 @@
             "type": "string",
             "description": "姓氏",
             "example": "三"
-          },
-          "department": {
-            "type": "string",
-            "description": "部门",
-            "example": "技术部"
-          },
-          "position": {
-            "type": "string",
-            "description": "职位",
-            "example": "开发工程师"
           }
         },
         "required": [
@@ -792,16 +782,6 @@
             "type": "string",
             "description": "姓氏",
             "example": "三"
-          },
-          "department": {
-            "type": "string",
-            "description": "部门",
-            "example": "技术部"
-          },
-          "position": {
-            "type": "string",
-            "description": "职位",
-            "example": "开发工程师"
           },
           "roleIds": {
             "description": "角色ID列表",

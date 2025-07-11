@@ -32,12 +32,6 @@ export class User {
   @Column({ name: 'last_name', nullable: true })
   lastName?: string;
 
-  @Column({ nullable: true })
-  department?: string;
-
-  @Column({ nullable: true })
-  position?: string;
-
   @Column('json', { nullable: true })
   attributes?: Record<string, any>;
 

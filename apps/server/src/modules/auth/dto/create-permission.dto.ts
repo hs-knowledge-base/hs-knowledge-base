@@ -1,21 +1,32 @@
-import { IsEnum, IsOptional, IsBoolean, IsString } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, Length, IsObject } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Action, Subject } from '../entities/permission.entity';
+import { ACTIONS, SUBJECTS } from '../entities/permission.entity';
 
 export class CreatePermissionDto {
-  @ApiProperty({ description: '操作类型', enum: Action, example: Action.READ })
-  @IsEnum(Action)
-  action: Action;
+  @ApiProperty({
+    description: '操作类型',
+    example: ACTIONS.READ,
+    examples: Object.values(ACTIONS)
+  })
+  @IsString()
+  @Length(1, 50)
+  action: string;
 
-  @ApiProperty({ description: '资源类型', enum: Subject, example: Subject.USER })
-  @IsEnum(Subject)
-  subject: Subject;
+  @ApiProperty({
+    description: '资源类型',
+    example: SUBJECTS.USER,
+    examples: Object.values(SUBJECTS)
+  })
+  @IsString()
+  @Length(1, 50)
+  subject: string;
 
-  @ApiPropertyOptional({ 
-    description: '条件限制', 
-    example: { department: 'IT', level: { $gte: 3 } } 
+  @ApiPropertyOptional({
+    description: '条件限制 - ABAC 核心功能',
+    example: { department: 'IT', level: { $gte: 3 } }
   })
   @IsOptional()
+  @IsObject()
   conditions?: Record<string, any>;
 
   @ApiPropertyOptional({ description: '字段限制', example: 'name,email' })

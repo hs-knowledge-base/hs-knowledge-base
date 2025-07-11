@@ -1,6 +1,219 @@
 {
   "openapi": "3.0.0",
-  "paths": {},
+  "paths": {
+    "/api/admin/auth/login": {
+      "post": {
+        "operationId": "login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "登录成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "description": "用户信息（不包含密码）"
+                    },
+                    "accessToken": {
+                      "type": "string",
+                      "description": "访问令牌"
+                    },
+                    "refreshToken": {
+                      "type": "string",
+                      "description": "刷新令牌"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "用户名或密码错误"
+          }
+        },
+        "summary": "用户登录",
+        "tags": [
+          "admin",
+          "认证管理"
+        ]
+      }
+    },
+    "/api/admin/auth/register": {
+      "post": {
+        "operationId": "register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "注册成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "description": "用户信息（不包含密码）"
+                    },
+                    "accessToken": {
+                      "type": "string",
+                      "description": "访问令牌"
+                    },
+                    "refreshToken": {
+                      "type": "string",
+                      "description": "刷新令牌"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "用户名或邮箱已存在"
+          }
+        },
+        "summary": "用户注册",
+        "tags": [
+          "admin",
+          "认证管理"
+        ]
+      }
+    },
+    "/api/admin/auth/refresh": {
+      "post": {
+        "operationId": "refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "刷新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string",
+                      "description": "新的访问令牌"
+                    },
+                    "refreshToken": {
+                      "type": "string",
+                      "description": "新的刷新令牌"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "刷新令牌无效"
+          }
+        },
+        "summary": "刷新访问令牌",
+        "tags": [
+          "admin",
+          "认证管理"
+        ]
+      }
+    },
+    "/api/admin/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "登出成功"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "用户登出",
+        "tags": [
+          "admin",
+          "认证管理"
+        ]
+      }
+    },
+    "/api/admin/auth/profile": {
+      "get": {
+        "operationId": "getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "获取用户信息成功"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "获取当前用户信息",
+        "tags": [
+          "admin",
+          "认证管理"
+        ]
+      }
+    },
+    "/api/admin/auth/check": {
+      "get": {
+        "operationId": "checkToken",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "令牌有效"
+          },
+          "401": {
+            "description": "令牌无效"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "检查令牌有效性",
+        "tags": [
+          "admin",
+          "认证管理"
+        ]
+      }
+    }
+  },
   "info": {
     "title": "hs-knowledge-base-server",
     "description": "火山知识库平台API文档",
@@ -24,6 +237,190 @@
         "in": "header"
       }
     },
-    "schemas": {}
+    "schemas": {
+      "CreateRoleDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "角色名称",
+            "example": "admin"
+          },
+          "description": {
+            "type": "string",
+            "description": "角色描述",
+            "example": "系统管理员"
+          },
+          "permissionIds": {
+            "description": "权限ID列表",
+            "example": [
+              "permission-uuid-1",
+              "permission-uuid-2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "attributes": {
+            "type": "object",
+            "description": "角色属性",
+            "example": {
+              "level": "high",
+              "department": "IT"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "usernameOrEmail": {
+            "type": "string",
+            "description": "用户名或邮箱",
+            "example": "admin"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "admin123"
+          }
+        },
+        "required": [
+          "usernameOrEmail",
+          "password"
+        ]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "用户名",
+            "example": "newuser"
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱",
+            "example": "newuser@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "password123"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "名字",
+            "example": "张"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "姓氏",
+            "example": "三"
+          },
+          "department": {
+            "type": "string",
+            "description": "部门",
+            "example": "技术部"
+          },
+          "position": {
+            "type": "string",
+            "description": "职位",
+            "example": "开发工程师"
+          }
+        },
+        "required": [
+          "username",
+          "email",
+          "password"
+        ]
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "刷新令牌",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "用户名",
+            "example": "admin"
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱",
+            "example": "admin@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "password123"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "是否激活",
+            "example": true
+          },
+          "firstName": {
+            "type": "string",
+            "description": "名字",
+            "example": "张"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "姓氏",
+            "example": "三"
+          },
+          "department": {
+            "type": "string",
+            "description": "部门",
+            "example": "技术部"
+          },
+          "position": {
+            "type": "string",
+            "description": "职位",
+            "example": "开发工程师"
+          },
+          "roleIds": {
+            "description": "角色ID列表",
+            "example": [
+              "role-uuid-1",
+              "role-uuid-2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "attributes": {
+            "type": "object",
+            "description": "用户属性",
+            "example": {
+              "level": 3,
+              "clearance": "high"
+            }
+          }
+        },
+        "required": [
+          "username",
+          "email",
+          "password"
+        ]
+      }
+    }
   }
 }

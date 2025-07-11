@@ -12,18 +12,21 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { 
-  LayoutDashboard, 
-  Users, 
-  Settings, 
-  FileText, 
+import {
+  LayoutDashboard,
+  Users,
+  Settings,
+  FileText,
   BarChart3,
   Package,
   Shield,
-  HelpCircle
+  HelpCircle,
+  LogOut
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useAuth } from '@/contexts/auth-context'
+import { Button } from '@/components/ui/button'
 
 const menuItems = [
   {
@@ -73,6 +76,15 @@ const systemItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname()
+  const { user, logout } = useAuth()
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } catch (error) {
+      console.error('登出失败:', error)
+    }
+  }
 
   return (
     <Sidebar>
@@ -132,12 +144,29 @@ export function AdminSidebar() {
       <SidebarFooter className="border-t p-4">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-            <span className="text-sm font-medium">管</span>
+            <span className="text-sm font-medium">
+              {user?.firstName?.charAt(0) || user?.username?.charAt(0) || '用'}
+            </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">管理员</p>
-            <p className="text-xs text-muted-foreground truncate">admin@example.com</p>
+            <p className="text-sm font-medium truncate">
+              {user?.firstName && user?.lastName
+                ? `${user.firstName} ${user.lastName}`
+                : user?.username || '用户'}
+            </p>
+            <p className="text-xs text-muted-foreground truncate">
+              {user?.email || 'user@example.com'}
+            </p>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="h-8 w-8 p-0"
+            title="登出"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
         </div>
       </SidebarFooter>
     </Sidebar>

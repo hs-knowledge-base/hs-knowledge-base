@@ -1,15 +1,18 @@
 import { useRequest } from 'alova/client';
-import { permissionApi, userApi } from '@/lib/api';
-import { Action, Subject, PermissionCheckRequest } from '@/types/auth';
+import {Action, PermissionCheckReq, Subject} from '@/types/auth';
 import { useMemo } from 'react';
 import { useAuth } from '@/contexts/auth-context';
+import { permissionApi } from "@/lib/api/services/permissions";
+import { userApi } from "@/lib/api/services/users";
 
-// 权限检查 Hook
+/**
+ * 权限检查 Hook
+ */
 export function usePermissionCheck() {
-  const checkPermission = async (request: PermissionCheckRequest) => {
+  const checkPermission = async (request: PermissionCheckReq) => {
     try {
       const response = await permissionApi.checkPermission(request);
-      return response.allowed;
+      return response.data.allowed;
     } catch (error) {
       console.error('权限检查失败:', error);
       return false;
@@ -19,7 +22,10 @@ export function usePermissionCheck() {
   return { checkPermission };
 }
 
-// 用户权限 Hook
+/**
+ * 用户权限 Hook
+ * @param userId
+ */
 export function useUserPermissions(userId?: string) {
   const {
     data: user,
@@ -33,9 +39,9 @@ export function useUserPermissions(userId?: string) {
   );
 
   const permissions = useMemo(() => {
-    if (!user?.roles) return [];
+    if (!user.data?.roles) return [];
     
-    const allPermissions = user.roles.flatMap(role => role.permissions || []);
+    const allPermissions = user.data.roles.flatMap(role => role.permissions || []);
     return allPermissions;
   }, [user]);
 
@@ -90,7 +96,9 @@ export function useUserPermissions(userId?: string) {
   };
 }
 
-// 当前用户权限 Hook（集成认证系统）
+/**
+ * 当前用户权限 Hook（集成认证系统）
+ */
 export function useCurrentUserPermissions() {
   const { user } = useAuth();
 

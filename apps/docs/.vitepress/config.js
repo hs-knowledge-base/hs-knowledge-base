@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { generateSidebars } from "./sidebar.js";
 import { ContributorsPlugin } from "./plugins/contributors.js";
 import { MarkdownTransformPlugin } from "./plugins/markdown-transform.js";
+import { MermaidMarkdownPlugin } from "./plugins/mermaid/index.js";
 import { getDocumentContributors } from "../scripts/contributors.js";
 import { NAV_ITEMS } from "./nav-config.js";
 
@@ -86,10 +87,19 @@ export default defineConfig({
       light: "github-light",
       dark: "github-dark",
     },
+
+    // 配置 markdown-it 插件
+    config: (md) => {
+      // 添加 Mermaid 插件
+      MermaidMarkdownPlugin(md);
+    }
   },
 
   vite: {
-    plugins: [MarkdownTransformPlugin(), ContributorsPlugin(contributorsData)],
+    plugins: [
+      MarkdownTransformPlugin(),
+      ContributorsPlugin(contributorsData)
+    ],
     server: {
       fs: {
         // 允许访问上层目录

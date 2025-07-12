@@ -1,11 +1,11 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { authApi } from '@/lib/api';
-import { User } from '@/types/auth';
+import { UserRes } from '@/types/auth';
+import { authApi } from "@/lib/api/services/auth";
 
 interface AuthContextType {
-  user: User | null;
+  user: UserRes | null;
   loading: boolean;
   login: (usernameOrEmail: string, password: string) => Promise<void>;
   register: (registerData: any) => Promise<void>;
@@ -21,7 +21,7 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserRes | null>(null);
   const [loading, setLoading] = useState(true);
 
   const isAuthenticated = !!user;
@@ -33,7 +33,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (token) {
         try {
           const response = await authApi.getProfile();
-          setUser(response);
+          setUser(response.data);
         } catch (error) {
           // 令牌无效，清除本地存储
           localStorage.removeItem('token');
@@ -52,11 +52,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await authApi.login({ usernameOrEmail, password });
       
       // 存储令牌
-      localStorage.setItem('token', response.accessToken);
-      localStorage.setItem('refreshToken', response.refreshToken);
-      localStorage.setItem('currentUserId', response.user.id);
+      localStorage.setItem('token', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+      localStorage.setItem('currentUserId', response.data.user.id);
       
-      setUser(response.user);
+      setUser(response.data.user);
     } catch (error) {
       throw error;
     }
@@ -67,11 +67,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await authApi.register(registerData);
       
       // 存储令牌
-      localStorage.setItem('token', response.accessToken);
-      localStorage.setItem('refreshToken', response.refreshToken);
-      localStorage.setItem('currentUserId', response.user.id);
+      localStorage.setItem('token', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+      localStorage.setItem('currentUserId', response.data.user.id);
       
-      setUser(response.user);
+      setUser(response.data.user);
     } catch (error) {
       throw error;
     }
@@ -103,8 +103,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await authApi.refreshToken(storedRefreshToken);
       
       // 更新令牌
-      localStorage.setItem('token', response.accessToken);
-      localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem('token', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
     } catch (error) {
       // 刷新失败，清除认证状态
       await logout();

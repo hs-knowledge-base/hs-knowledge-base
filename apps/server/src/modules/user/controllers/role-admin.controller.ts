@@ -11,14 +11,10 @@ import {
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { RoleService } from '../services/role.service';
 import { CreateRoleDto } from '../dto/create-role.dto';
-import { PoliciesGuard, CheckPolicies } from '../../auth/guards/permissions.guard';
+import { PoliciesGuard } from '../../auth/guards/permissions.guard';
 import { Action, Subject } from '../../auth/entities/permission.entity';
-
-// 权限策略函数
-const ReadRolePolicy = (ability: any) => ability.can(Action.READ, Subject.ROLE);
-const CreateRolePolicy = (ability: any) => ability.can(Action.CREATE, Subject.ROLE);
-const UpdateRolePolicy = (ability: any) => ability.can(Action.UPDATE, Subject.ROLE);
-const DeleteRolePolicy = (ability: any) => ability.can(Action.DELETE, Subject.ROLE);
+import { RequirePermission, VoTransform } from '@/core/decorators';
+import { RoleVo, SimpleRoleVo, RoleDetailVo } from '../vo';
 
 @ApiTags('admin', '角色管理')
 @Controller('admin/roles')
@@ -28,32 +24,36 @@ export class RoleAdminController {
 
   @Post()
   @ApiOperation({ summary: '创建角色' })
-  @ApiResponse({ status: 201, description: '角色创建成功' })
-  @CheckPolicies(CreateRolePolicy)
+  @ApiResponse({ status: 201, description: '角色创建成功', type: RoleVo })
+  @RequirePermission(Action.CREATE, Subject.ROLE)
+  @VoTransform({ voClass: RoleVo })
   create(@Body() createRoleDto: CreateRoleDto) {
     return this.roleService.create(createRoleDto);
   }
 
   @Get()
   @ApiOperation({ summary: '获取所有角色' })
-  @ApiResponse({ status: 200, description: '获取角色列表成功' })
-  @CheckPolicies(ReadRolePolicy)
+  @ApiResponse({ status: 200, description: '获取角色列表成功', type: [SimpleRoleVo] })
+  @RequirePermission(Action.READ, Subject.ROLE)
+  @VoTransform({ voClass: SimpleRoleVo })
   findAll() {
     return this.roleService.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: '根据ID获取角色' })
-  @ApiResponse({ status: 200, description: '获取角色成功' })
-  @CheckPolicies(ReadRolePolicy)
+  @ApiResponse({ status: 200, description: '获取角色成功', type: RoleDetailVo })
+  @RequirePermission(Action.READ, Subject.ROLE)
+  @VoTransform({ voClass: RoleDetailVo, deep: true })
   findOne(@Param('id') id: string) {
     return this.roleService.findOne(id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: '更新角色' })
-  @ApiResponse({ status: 200, description: '角色更新成功' })
-  @CheckPolicies(UpdateRolePolicy)
+  @ApiResponse({ status: 200, description: '角色更新成功', type: RoleVo })
+  @RequirePermission(Action.UPDATE, Subject.ROLE)
+  @VoTransform({ voClass: RoleVo })
   update(@Param('id') id: string, @Body() updateRoleDto: Partial<CreateRoleDto>) {
     return this.roleService.update(id, updateRoleDto);
   }
@@ -61,7 +61,7 @@ export class RoleAdminController {
   @Delete(':id')
   @ApiOperation({ summary: '删除角色' })
   @ApiResponse({ status: 200, description: '角色删除成功' })
-  @CheckPolicies(DeleteRolePolicy)
+  @RequirePermission(Action.DELETE, Subject.ROLE)
   remove(@Param('id') id: string) {
     return this.roleService.remove(id);
   }

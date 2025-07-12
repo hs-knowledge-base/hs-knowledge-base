@@ -16,6 +16,8 @@ import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { JwtAuthGuard, Public } from '../guards/jwt-auth.guard';
 import { User } from '../../user/entities/user.entity';
+import { VoTransform, CurrentUser } from '@/core/decorators';
+import { LoginResponseVo, RegisterResponseVo, RefreshTokenResponseVo, TokenCheckResponseVo, UserVo } from '../vo';
 
 @ApiTags('admin', '认证管理')
 @Controller('admin/auth')
@@ -27,28 +29,13 @@ export class AuthAdminController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '用户登录' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: '登录成功',
-    schema: {
-      type: 'object',
-      properties: {
-        user: {
-          type: 'object',
-          description: '用户信息（不包含密码）'
-        },
-        accessToken: {
-          type: 'string',
-          description: '访问令牌'
-        },
-        refreshToken: {
-          type: 'string',
-          description: '刷新令牌'
-        }
-      }
-    }
+    type: LoginResponseVo
   })
   @ApiResponse({ status: 401, description: '用户名或密码错误' })
+  @VoTransform({ voClass: LoginResponseVo })
   async login(@Request() req: { user: User }, @Body() loginDto: LoginDto) {
     return this.authService.login(req.user);
   }
@@ -56,28 +43,13 @@ export class AuthAdminController {
   @Public()
   @Post('register')
   @ApiOperation({ summary: '用户注册' })
-  @ApiResponse({ 
-    status: 201, 
+  @ApiResponse({
+    status: 201,
     description: '注册成功',
-    schema: {
-      type: 'object',
-      properties: {
-        user: {
-          type: 'object',
-          description: '用户信息（不包含密码）'
-        },
-        accessToken: {
-          type: 'string',
-          description: '访问令牌'
-        },
-        refreshToken: {
-          type: 'string',
-          description: '刷新令牌'
-        }
-      }
-    }
+    type: RegisterResponseVo
   })
   @ApiResponse({ status: 409, description: '用户名或邮箱已存在' })
+  @VoTransform({ voClass: RegisterResponseVo })
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
@@ -86,24 +58,13 @@ export class AuthAdminController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '刷新访问令牌' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: '刷新成功',
-    schema: {
-      type: 'object',
-      properties: {
-        accessToken: {
-          type: 'string',
-          description: '新的访问令牌'
-        },
-        refreshToken: {
-          type: 'string',
-          description: '新的刷新令牌'
-        }
-      }
-    }
+    type: RefreshTokenResponseVo
   })
   @ApiResponse({ status: 401, description: '刷新令牌无效' })
+  @VoTransform({ voClass: RefreshTokenResponseVo })
   async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refreshToken(refreshTokenDto.refreshToken);
   }
@@ -123,27 +84,23 @@ export class AuthAdminController {
   @Get('profile')
   @ApiBearerAuth()
   @ApiOperation({ summary: '获取当前用户信息' })
-  @ApiResponse({ status: 200, description: '获取用户信息成功' })
-  async getProfile(@Request() req: { user: User }) {
-    const { password, ...userWithoutPassword } = req.user;
-    return userWithoutPassword;
+  @ApiResponse({ status: 200, description: '获取用户信息成功', type: UserVo })
+  @VoTransform({ voClass: UserVo, excludeSensitive: true })
+  async getProfile(@CurrentUser() user: User) {
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('check')
   @ApiBearerAuth()
   @ApiOperation({ summary: '检查令牌有效性' })
-  @ApiResponse({ status: 200, description: '令牌有效' })
+  @ApiResponse({ status: 200, description: '令牌有效', type: TokenCheckResponseVo })
   @ApiResponse({ status: 401, description: '令牌无效' })
-  async checkToken(@Request() req: { user: User }) {
+  @VoTransform({ voClass: TokenCheckResponseVo })
+  async checkToken(@CurrentUser() user: User) {
     return {
       valid: true,
-      user: {
-        id: req.user.id,
-        username: req.user.username,
-        email: req.user.email,
-        isActive: req.user.isActive,
-      },
+      user,
     };
   }
 }

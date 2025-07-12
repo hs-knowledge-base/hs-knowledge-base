@@ -15,13 +15,13 @@ export class Role {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, comment: "角色名称", length: 50 })
   name: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, comment: "角色描述", length: 200 })
   description?: string;
 
-  @Column('json', { nullable: true })
+  @Column('json', { nullable: true, comment: "角色属性" })
   attributes?: Record<string, any>;
 
   @ManyToMany(() => User, (user) => user.roles)

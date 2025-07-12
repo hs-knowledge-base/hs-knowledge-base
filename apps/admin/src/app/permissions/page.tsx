@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useRequest } from 'alova/client';
-import { permissionApi } from '@/lib/api';
-import { Permission, Subject, Action } from '@/types/auth';
+import { PermissionRes, Subject, Action } from '@/types/auth';
 import { CanRead, CanCreate, CanUpdate, CanDelete } from '@/components/auth/permission-guard';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,9 +22,10 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { PermissionForm } from '@/components/auth/permission-form';
+import { permissionApi } from "@/lib/api/services/permissions";
 
 export default function PermissionsPage() {
-  const [selectedPermission, setSelectedPermission] = useState<Permission | null>(null);
+  const [selectedPermission, setSelectedPermission] = useState<PermissionRes | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
@@ -34,7 +34,7 @@ export default function PermissionsPage() {
     loading,
     error,
     send: refetchPermissions,
-  } = useRequest(() => permissionApi.getPermissions(), {
+  } = useRequest(() => permissionApi.getAllPermissions(), {
     immediate: true,
   });
 
@@ -56,7 +56,7 @@ export default function PermissionsPage() {
     }
   };
 
-  const handleEdit = (permission: Permission) => {
+  const handleEdit = (permission: PermissionRes) => {
     setSelectedPermission(permission);
     setIsEditDialogOpen(true);
   };
@@ -133,7 +133,7 @@ export default function PermissionsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {permissions?.map((permission: Permission) => (
+              {permissions?.data?.map((permission: PermissionRes) => (
                 <TableRow key={permission.id}>
                   <TableCell>
                     <Badge variant="outline">

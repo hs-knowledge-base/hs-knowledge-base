@@ -4,8 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRequest } from 'alova/client';
-import { userApi, roleApi } from '@/lib/api';
-import { User, CreateUserDto } from '@/types/auth';
+import { UserRes, CreateUserReq } from '@/types/auth';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -18,6 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { userApi } from "@/lib/api/services/users";
 
 const userSchema = z.object({
   username: z.string().min(1, '用户名不能为空'),
@@ -25,16 +25,14 @@ const userSchema = z.object({
   password: z.string().min(6, '密码至少6位').optional(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
-  department: z.string().optional(),
-  position: z.string().optional(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
   attributes: z.string().optional(),
 });
 
 type UserFormData = z.infer<typeof userSchema>;
 
 interface UserFormProps {
-  user?: User;
+  user?: UserRes;
   onSuccess?: () => void;
 }
 
@@ -49,20 +47,18 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
       password: '',
       firstName: user?.firstName || '',
       lastName: user?.lastName || '',
-      department: user?.department || '',
-      position: user?.position || '',
       isActive: user?.isActive ?? true,
       attributes: user?.attributes ? JSON.stringify(user.attributes, null, 2) : '',
     },
   });
 
   const { send: createUser, loading: creating } = useRequest(
-    (data: CreateUserDto) => userApi.createUser(data),
+    (data: CreateUserReq) => userApi.createUser(data),
     { immediate: false }
   );
 
   const { send: updateUser, loading: updating } = useRequest(
-    (id: string, data: Partial<CreateUserDto>) => userApi.updateUser(id, data),
+    (id: string, data: Partial<CreateUserReq>) => userApi.updateUser(id, data),
     { immediate: false }
   );
 
@@ -70,7 +66,7 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
     try {
       const { attributes, password, ...userData } = data;
       
-      const submitData: CreateUserDto | Partial<CreateUserDto> = {
+      const submitData: CreateUserReq | Partial<CreateUserReq> = {
         ...userData,
         ...(password && { password }),
         ...(attributes && { attributes: JSON.parse(attributes) }),
@@ -79,7 +75,7 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
       if (isEdit) {
         await updateUser(user.id, submitData);
       } else {
-        await createUser(submitData as CreateUserDto);
+        await createUser(submitData as CreateUserReq);
       }
 
       onSuccess?.();
@@ -167,35 +163,7 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="department"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>部门</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
-          <FormField
-            control={form.control}
-            name="position"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>职位</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
 
         <FormField
           control={form.control}

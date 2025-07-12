@@ -71,7 +71,6 @@ flowchart TD
     G --> H{所有条件满足?}
     H -->|是| I[允许访问]
     H -->|否| J[拒绝访问]
-
     style A fill:#e1f5fe
     style I fill:#e8f5e8
     style J fill:#ffebee
@@ -103,7 +102,6 @@ graph TD
     F --> G{角色数量过多?}
     G -->|是| H[角色爆炸问题]
     G -->|否| I[完成配置]
-
     style H fill:#ffebee
     style I fill:#e8f5e8
 :::
@@ -116,7 +114,6 @@ graph TD
     B --> C[编写权限规则]
     C --> D[部署规则]
     D --> E[立即生效]
-
     style E fill:#e8f5e8
 :::
 
@@ -177,7 +174,7 @@ const rules = [
 
 ### 场景2：多租户SaaS平台
 
-```mermaid
+:::mermaid
 graph TD
     subgraph "RBAC 挑战"
         R1[租户A管理员] --> R2[只能管理租户A]
@@ -185,37 +182,33 @@ graph TD
         R5[需要为每个租户创建角色]
         R6[角色数量 = 租户数 × 角色类型]
     end
-    
     subgraph "ABAC 优势"
         A1[用户属性: tenantId]
         A2[资源属性: tenantId]
         A3[规则: user.tenantId == resource.tenantId]
         A4[一套规则适用所有租户]
     end
-    
     style R5 fill:#ffebee
     style R6 fill:#ffebee
     style A4 fill:#e8f5e8
-```
+:::
 
 ## 🔄 混合模式分析
 
 ### 为什么需要混合模式？
 
-```mermaid
+:::mermaid
 graph TD
     A[权限需求] --> B{复杂度如何?}
     B -->|简单| C[使用 RBAC]
     B -->|复杂| D[使用 ABAC]
     B -->|中等| E[使用混合模式]
-    
     E --> F[RBAC 处理基础权限]
     E --> G[ABAC 处理特殊条件]
-    
     style E fill:#fff3e0
     style F fill:#e8f5e8
     style G fill:#e1f5fe
-```
+:::
 
 ### 混合模式实现策略
 
@@ -272,53 +265,46 @@ class HybridPermissionChecker {
 
 ## 📊 选择决策矩阵
 
-```mermaid
+:::mermaid
 graph TD
     Start[开始选择权限模型] --> TeamSize{团队规模}
-    
     TeamSize -->|小型 <20人| Small[考虑 RBAC]
     TeamSize -->|中型 20-100人| Medium[考虑混合模式]
     TeamSize -->|大型 >100人| Large[考虑 ABAC]
-    
     Small --> SimpleReq{权限需求简单?}
     SimpleReq -->|是| RBAC[选择 RBAC]
     SimpleReq -->|否| Hybrid1[选择混合模式]
-    
     Medium --> GrowthRate{快速增长?}
     GrowthRate -->|是| Hybrid2[选择混合模式]
     GrowthRate -->|否| RBAC
-    
     Large --> Complexity{业务复杂度}
     Complexity -->|高| ABAC[选择 ABAC]
     Complexity -->|中| Hybrid3[选择混合模式]
-    
     style RBAC fill:#e8f5e8
     style ABAC fill:#e1f5fe
     style Hybrid1 fill:#fff3e0
     style Hybrid2 fill:#fff3e0
     style Hybrid3 fill:#fff3e0
-```
+:::
 
 ## 🎯 最佳实践建议
 
 ### 1. 渐进式实施策略
 
-```mermaid
+:::mermaid
 gantt
     title 权限系统演进路线图
     dateFormat YYYY-MM-DD
     section 第一阶段
     实现基础RBAC    :rbac1, 2024-01-01, 30d
     用户角色管理    :rbac2, after rbac1, 20d
-    
     section 第二阶段
     添加资源所有权  :abac1, after rbac2, 25d
     实现条件权限    :abac2, after abac1, 30d
-    
     section 第三阶段
     完善混合模式    :hybrid, after abac2, 35d
     性能优化       :opt, after hybrid, 20d
-```
+:::
 
 ### 2. 技术选型建议
 
@@ -361,21 +347,19 @@ gantt
 
 ### 选择指南
 
-```mermaid
+:::mermaid
 graph LR
     A[权限需求分析] --> B{复杂度评估}
     B -->|低| C[RBAC]
     B -->|中| D[混合模式]
     B -->|高| E[ABAC]
-    
     C --> F[快速实现]
     D --> G[平衡方案]
     E --> H[最大灵活性]
-    
     style C fill:#e8f5e8
     style D fill:#fff3e0
     style E fill:#e1f5fe
-```
+:::
 
 记住：**最适合的就是最好的**。选择权限模型时，要综合考虑项目需求、团队能力、维护成本和未来发展。
 

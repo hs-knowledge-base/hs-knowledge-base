@@ -78,7 +78,7 @@
         </template>
       </el-image>
 
-      <div ref="chartRef" style="display: none;"></div>
+      <div ref="chartRef" class="hidden-chart-container"></div>
     </div>
   </el-card>
 </template>
@@ -134,17 +134,17 @@ const getMermaidConfig = () => ({
     tertiaryColor: '#ffffff'
   },
   flowchart: {
-    useMaxWidth: true,
+    useMaxWidth: false,  // 允许图表超出容器宽度
     htmlLabels: true,
     curve: 'basis'
   },
   sequence: {
-    useMaxWidth: true,
+    useMaxWidth: false,  // 允许时序图自然宽度
     diagramMarginX: 50,
     diagramMarginY: 10
   },
   gantt: {
-    useMaxWidth: true,
+    useMaxWidth: false,  // 允许甘特图自然宽度
     leftPadding: 75,
     gridLineStartPadding: 35
   }
@@ -162,9 +162,38 @@ const initializeMermaid = async () => {
 // 生成唯一ID
 const generateId = () => `mermaid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
-// 将SVG转换为DataURL
+// 为SVG添加背景色
+const addBackgroundToSvg = (svgString) => {
+  // 检测当前主题模式
+  const isDark = document.documentElement.classList.contains('dark') ||
+                 document.documentElement.getAttribute('data-theme') === 'dark'
+
+  // 根据主题选择背景色
+  const backgroundColor = isDark ? '#1a1a1a' : '#ffffff'
+
+  // 为SVG添加背景
+  const parser = new DOMParser()
+  const svgDoc = parser.parseFromString(svgString, 'image/svg+xml')
+  const svgElement = svgDoc.querySelector('svg')
+
+  if (svgElement) {
+    // 创建背景矩形
+    const rect = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'rect')
+    rect.setAttribute('width', '100%')
+    rect.setAttribute('height', '100%')
+    rect.setAttribute('fill', backgroundColor)
+
+    // 将背景矩形插入到SVG的最前面
+    svgElement.insertBefore(rect, svgElement.firstChild)
+  }
+
+  return new XMLSerializer().serializeToString(svgDoc)
+}
+
+// 将SVG转换为DataURL，添加背景色
 const svgToDataUrl = (svgString) => {
-  const blob = new Blob([svgString], { type: 'image/svg+xml' })
+  const modifiedSvgString = addBackgroundToSvg(svgString)
+  const blob = new Blob([modifiedSvgString], { type: 'image/svg+xml' })
   return URL.createObjectURL(blob)
 }
 
@@ -232,12 +261,13 @@ const copyCode = async () => {
 
 
 
-// 下载SVG
+// 下载SVG（带背景色）
 const downloadSvg = () => {
   if (!svgContent.value) return
 
   try {
-    const blob = new Blob([svgContent.value], { type: 'image/svg+xml' })
+    const finalSvgString = addBackgroundToSvg(svgContent.value)
+    const blob = new Blob([finalSvgString], { type: 'image/svg+xml' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -293,11 +323,32 @@ watch(() => props.code, renderChart)
   text-align: center;
   min-height: 120px;
   position: relative;
+  overflow-x: auto;  /* 支持横向滚动 */
+}
+
+/* 滚动提示 */
+.mermaid-content::-webkit-scrollbar {
+  height: 8px;
+}
+
+.mermaid-content::-webkit-scrollbar-track {
+  background: var(--el-fill-color-lighter);
+  border-radius: 4px;
+}
+
+.mermaid-content::-webkit-scrollbar-thumb {
+  background: var(--el-border-color);
+  border-radius: 4px;
+}
+
+.mermaid-content::-webkit-scrollbar-thumb:hover {
+  background: var(--el-border-color-darker);
 }
 
 /* 图表图片样式 */
 .mermaid-image {
-  max-width: 100%;
+  max-width: none;  /* 移除最大宽度限制 */
+  min-width: 100%;  /* 至少占满容器宽度 */
   cursor: zoom-in;
   transition: transform 0.2s ease;
 }
@@ -314,6 +365,16 @@ watch(() => props.code, renderChart)
   color: var(--el-text-color-secondary);
   background-color: var(--el-fill-color-lighter);
   border-radius: 4px;
+}
+
+/* 隐藏的图表容器 */
+.hidden-chart-container {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  width: auto;
+  height: auto;
+  overflow: visible;
 }
 
 /* 加载状态样式 */

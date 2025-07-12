@@ -99,7 +99,7 @@ export function UserRoleAssignment({ user, onSuccess }: UserRoleAssignmentProps)
       <div>
         <Label className="text-sm font-medium">选择角色</Label>
         <div className="mt-3 space-y-3">
-          {roles && Array.isArray(roles) ? roles.map((role: RoleRes) => (
+          {roles.data && Array.isArray(roles.data) ?roles.data.map((role: RoleRes) => (
             <div key={role.id} className="flex items-start space-x-3">
               <Checkbox
                 id={`role-${role.id}`}

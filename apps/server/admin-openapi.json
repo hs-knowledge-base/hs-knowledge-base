@@ -601,7 +601,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SimpleUserVo"
+                    "$ref": "#/components/schemas/UserDetailVo"
                   }
                 }
               }
@@ -1405,47 +1405,6 @@
           "username",
           "email",
           "password"
-        ]
-      },
-      "SimpleUserVo": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "用户ID"
-          },
-          "username": {
-            "type": "string",
-            "description": "用户名"
-          },
-          "email": {
-            "type": "string",
-            "description": "邮箱"
-          },
-          "isActive": {
-            "type": "boolean",
-            "description": "是否激活"
-          },
-          "fullName": {
-            "type": "string",
-            "description": "全名"
-          },
-          "createdAtLocal": {
-            "type": "string",
-            "description": "创建时间（本地格式）",
-            "example": "2024/1/1"
-          },
-          "roleCount": {
-            "type": "number",
-            "description": "角色数量"
-          }
-        },
-        "required": [
-          "id",
-          "username",
-          "email",
-          "isActive",
-          "createdAtLocal"
         ]
       },
       "UserDetailVo": {

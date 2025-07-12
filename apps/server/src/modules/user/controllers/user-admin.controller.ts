@@ -33,9 +33,9 @@ export class UserAdminController {
 
   @Get()
   @ApiOperation({ summary: '获取所有用户' })
-  @ApiResponse({ status: 200, description: '获取用户列表成功', type: [SimpleUserVo] })
+  @ApiResponse({ status: 200, description: '获取用户列表成功', type: [UserDetailVo] })
   @RequirePermission(Action.READ, Subject.USER)
-  @VoTransform({ voClass: SimpleUserVo, excludeSensitive: true })
+  @VoTransform({ voClass: UserDetailVo, excludeSensitive: true })
   findAll() {
     return this.userService.findAll();
   }

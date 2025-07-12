@@ -54,7 +54,6 @@ sequenceDiagram
     participant R as 角色服务
     participant P as 权限检查器
     participant DB as 数据库
-
     U->>G: 请求访问资源
     G->>R: 获取用户角色
     R->>DB: 查询用户角色
@@ -63,7 +62,6 @@ sequenceDiagram
     G->>P: 检查角色权限
     P->>P: 匹配权限规则
     P-->>G: 返回权限检查结果
-
     alt 有权限
         G-->>U: 允许访问
     else 无权限

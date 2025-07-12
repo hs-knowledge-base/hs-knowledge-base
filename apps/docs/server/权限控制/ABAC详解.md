@@ -31,25 +31,20 @@ sequenceDiagram
     participant RE as 规则引擎
     participant DE as 决策引擎
     participant DB as 数据库
-
     U->>G: 请求访问资源
     G->>AC: 收集所有属性
-
     AC->>AC: 获取用户属性
     AC->>AC: 获取资源属性
     AC->>AC: 获取环境属性
     AC->>AC: 获取操作属性
-
     AC-->>G: 返回属性集合
     G->>RE: 查找匹配规则
     RE->>DB: 查询权限规则
     DB-->>RE: 返回规则列表
     RE-->>G: 返回适用规则
-
     G->>DE: 执行权限决策
     DE->>DE: 评估所有规则
     DE-->>G: 返回决策结果
-
     alt 允许访问
         G-->>U: 授权成功
     else 拒绝访问
@@ -75,10 +70,6 @@ function checkPermission(user, resource, env, action) {
   return rule.condition(user, resource, env, action);
 }
 ```
-
-
-
-
 
 ## 优点
 

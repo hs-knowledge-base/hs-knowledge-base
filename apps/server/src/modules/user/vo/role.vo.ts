@@ -9,7 +9,7 @@ import { DateTransformUtil } from '@/core/utils';
 export class PermissionSummaryVo {
   @ApiProperty({ description: '权限ID' })
   @Expose()
-  id: string;
+  id: number;
 
   @ApiProperty({ description: '权限编码' })
   @Expose()

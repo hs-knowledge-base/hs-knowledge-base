@@ -34,7 +34,6 @@ import { UserRepository } from "../user/repositories/user.repository";
 import { RoleRepository } from "../user/repositories/role.repository";
 
 // Guards
-import { RbacAbilityFactory } from "./casl/rbac-ability.factory";
 import { RbacPermissionsGuard } from "./guards/rbac-permissions.guard";
 
 // Strategies
@@ -84,7 +83,6 @@ import { JwtConfig } from "./config/jwt.config";
     PermissionRepository,
 
     // Guards and Strategies
-    RbacAbilityFactory,
     RbacPermissionsGuard,
     JwtStrategy,
     LocalStrategy,
@@ -102,7 +100,6 @@ import { JwtConfig } from "./config/jwt.config";
     UserRepository,
     RoleRepository,
     PermissionRepository,
-    RbacAbilityFactory,
     RbacPermissionsGuard,
     JwtConfig,
   ],

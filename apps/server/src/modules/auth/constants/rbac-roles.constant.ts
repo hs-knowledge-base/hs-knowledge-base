@@ -160,63 +160,7 @@ export const PERMISSION_TREE = [
   },
 ];
 
-/**
- * 角色权限分配 - 基于权限编码
- * 注意：这里配置的是每个角色拥有的完整权限，不依赖继承
- */
-export const RBAC_ROLE_PERMISSIONS = {
-  [RBAC_ROLES.VISITOR]: [
-    'dashboard',
-  ],
-  
-  [RBAC_ROLES.TEAM_DEVELOPER]: [
-    // 访客权限 + 文档编辑权限
-    'dashboard',
-  ],
-  
-  [RBAC_ROLES.TEAM_LEADER]: [
-    // 开发者权限 + 删除权限 + 部分系统管理权限
-    'dashboard',
-    'system',
-    'system.user',
-    'system.user.view'
-  ],
-  
-  [RBAC_ROLES.ADMIN]: [
-    // 领导权限 + 完整用户和角色管理权限
-    'dashboard',
-    'system',
-    'system.user',
-    'system.user.view',
-    'system.user.add',
-    'system.user.edit',
-    'system.user.delete',
-    'system.role',
-    'system.role.view',
-    'system.role.add',
-    'system.role.edit',
-    'system.role.delete'
-  ],
-  
-  [RBAC_ROLES.SUPER_ADMIN]: [
-    // 所有权限 - 超级管理员拥有系统全部权限
-    'dashboard',
-    'system',
-    'system.user',
-    'system.user.view',
-    'system.user.add',
-    'system.user.edit',
-    'system.user.delete',
-    'system.role',
-    'system.role.view',
-    'system.role.add',
-    'system.role.edit',
-    'system.role.delete',
-    'system.permission',
-    'system.permission.view',
-    'system.permission.edit'
-  ]
-} as const;
+
 
 /**
  * 默认约束配置

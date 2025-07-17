@@ -8,7 +8,7 @@ import { DateTransformUtil } from '@/core/utils/date-transform.util';
 export class PermissionVo {
   @ApiProperty({ description: '权限ID' })
   @Expose()
-  id: string;
+  id: number;
 
   @ApiProperty({ description: '权限编码', example: 'system.user.view' })
   @Expose()
@@ -36,7 +36,7 @@ export class PermissionVo {
 
   @ApiPropertyOptional({ description: '父权限ID' })
   @Expose()
-  parentId?: string;
+  parentId?: number;
 
   @ApiPropertyOptional({ description: '子权限列表', type: [PermissionVo] })
   @Expose()
@@ -67,7 +67,7 @@ export class PermissionVo {
 export class PermissionSimpleVo {
   @ApiProperty({ description: '权限ID' })
   @Expose()
-  id: string;
+  id: number;
 
   @ApiProperty({ description: '权限编码' })
   @Expose()

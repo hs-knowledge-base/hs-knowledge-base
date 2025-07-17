@@ -9,7 +9,6 @@ import {
   RBAC_ROLE_DESCRIPTIONS, 
   RBAC_ROLE_LEVELS, 
   RBAC_ROLE_INHERITANCE, 
-  RBAC_ROLE_PERMISSIONS,
   RBAC_DEFAULT_CONSTRAINTS,
   PERMISSION_TREE
 } from '../constants/rbac-roles.constant';
@@ -48,12 +47,9 @@ export class RoleInitService {
       // 第一步：创建权限树结构
       await this.createPermissionTree();
 
-      // 第二步：创建所有角色（不包含继承关系）
+      // 第二步：创建所有角色（根据权限规则分配权限）
       const createdRoles = new Map<string, Role>();
-      for (const [roleName, permissionCodes] of Object.entries(RBAC_ROLE_PERMISSIONS)) {
-        const role = await this.createRoleWithPermissionCodes(roleName, permissionCodes);
-        createdRoles.set(roleName, role);
-      }
+      await this.createRolesWithDynamicPermissions(createdRoles);
 
               // 第三步：建立角色继承关系
         await this.setupRoleInheritance(createdRoles);
@@ -110,25 +106,91 @@ export class RoleInitService {
   }
 
   /**
-   * 根据权限编码创建角色
+   * 动态创建角色并分配权限
    */
-  private async createRoleWithPermissionCodes(
-    roleName: string,
-    permissionCodes: readonly string[]
-  ): Promise<Role> {
-    // 查找权限
-    const permissions: Permission[] = [];
-    for (const code of permissionCodes) {
-      const permission = await this.permissionTypeOrmRepository.findOne({
-        where: { code }
-      });
-      if (permission) {
-        permissions.push(permission);
-      } else {
-        this.logger.warn(`权限不存在: ${code}`);
-      }
-    }
+  private async createRolesWithDynamicPermissions(createdRoles: Map<string, Role>): Promise<void> {
+    // 获取所有权限
+    const allPermissions = await this.permissionTypeOrmRepository.find();
+    
+    // 按角色层级顺序创建角色
+    const roleOrder = [
+      RBAC_ROLES.VISITOR,
+      RBAC_ROLES.TEAM_DEVELOPER, 
+      RBAC_ROLES.TEAM_LEADER,
+      RBAC_ROLES.ADMIN,
+      RBAC_ROLES.SUPER_ADMIN
+    ];
 
+    for (const roleName of roleOrder) {
+      const permissions = this.getPermissionsForRole(roleName, allPermissions);
+      const role = await this.createRoleWithPermissions(roleName, permissions);
+      createdRoles.set(roleName, role);
+    }
+  }
+
+  /**
+   * 根据角色获取应分配的权限
+   */
+  private getPermissionsForRole(roleName: string, allPermissions: Permission[]): Permission[] {
+    switch (roleName) {
+      case RBAC_ROLES.VISITOR:
+        return allPermissions.filter(p => 
+          p.code === 'dashboard' ||
+          p.code === 'content' ||
+          (p.code.startsWith('content.') && p.code.endsWith('.view')) ||
+          p.code === 'content.document' ||
+          p.code === 'content.knowledge'
+        );
+        
+      case RBAC_ROLES.TEAM_DEVELOPER:
+        return allPermissions.filter(p => 
+          p.code === 'dashboard' ||
+          p.code === 'content' ||
+          p.code === 'content.document' ||
+          p.code === 'content.knowledge' ||
+          (p.code.startsWith('content.') && (
+            p.code.endsWith('.view') || 
+            p.code.endsWith('.add') || 
+            p.code.endsWith('.edit')
+          ))
+        );
+        
+      case RBAC_ROLES.TEAM_LEADER:
+        return allPermissions.filter(p => 
+          p.code === 'dashboard' ||
+          p.code === 'content' ||
+          p.code.startsWith('content.') ||
+          p.code === 'system' ||
+          p.code === 'system.user' ||
+          p.code === 'system.user.view'
+        );
+        
+      case RBAC_ROLES.ADMIN:
+        return allPermissions.filter(p => 
+          p.code === 'dashboard' ||
+          p.code === 'content' ||
+          p.code.startsWith('content.') ||
+          p.code === 'system' ||
+          p.code.startsWith('system.user') ||
+          p.code.startsWith('system.role')
+        );
+        
+      case RBAC_ROLES.SUPER_ADMIN:
+        // 超级管理员拥有所有权限
+        return allPermissions;
+        
+      default:
+        return [];
+    }
+  }
+
+  /**
+   * 根据权限列表创建角色
+   */
+  private async createRoleWithPermissions(
+    roleName: string,
+    permissions: Permission[]
+  ): Promise<Role> {
     // 创建角色
     const role = this.roleRepository.create({
       name: roleName,

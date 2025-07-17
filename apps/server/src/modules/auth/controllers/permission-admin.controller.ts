@@ -13,7 +13,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PermissionService } from '../services/permission.service';
 import { CreatePermissionDto } from '../dto/create-permission.dto';
 import { RbacPermissionsGuard } from '../guards/rbac-permissions.guard';
-import { RbacAbilityFactory } from '../casl/rbac-ability.factory';
+
 import { RequirePermission, VoTransform } from '@/core/decorators';
 import { PermissionVo } from '../vo';
 
@@ -23,7 +23,6 @@ import { PermissionVo } from '../vo';
 export class PermissionAdminController {
   constructor(
     private readonly permissionService: PermissionService,
-    private readonly rbacAbilityFactory: RbacAbilityFactory,
   ) {}
 
   @Post()

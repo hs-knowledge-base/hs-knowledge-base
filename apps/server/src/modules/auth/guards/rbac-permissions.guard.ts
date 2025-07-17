@@ -3,84 +3,71 @@ import {
   ExecutionContext,
   Injectable,
   ForbiddenException,
-  SetMetadata,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { RbacAbilityFactory, RbacAbility } from '../casl/rbac-ability.factory';
+import { REQUIRE_PERMISSION_KEY } from '@/core/decorators/require-permission.decorator';
 import { User } from '../../user/entities/user.entity';
 
-export interface RequiredRule {
-  action: string;
-  subject: string;
-}
-
-export type PolicyHandler = (ability: RbacAbility) => boolean;
-
-export interface IPolicyHandler {
-  handle(ability: RbacAbility): boolean;
-}
-
-export type PolicyHandlerCallback = PolicyHandler | IPolicyHandler;
-
-export const CHECK_POLICIES_KEY = 'check_policy';
-export const CheckPolicies = (...handlers: PolicyHandlerCallback[]) =>
-  SetMetadata(CHECK_POLICIES_KEY, handlers);
-
 /**
- * RBAC权限守卫
- * 基于RBAC2模型的权限检查守卫
+ * RBAC权限守卫 - 基于权限编码的简单权限检查
  */
 @Injectable()
 export class RbacPermissionsGuard implements CanActivate {
-  constructor(
-    private reflector: Reflector,
-    private rbacAbilityFactory: RbacAbilityFactory,
-  ) {}
+  constructor(private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const policyHandlers =
-      this.reflector.get<PolicyHandlerCallback[]>(
-        CHECK_POLICIES_KEY,
-        context.getHandler(),
-      ) || [];
+    const requiredPermission = this.reflector.get<string>(
+      REQUIRE_PERMISSION_KEY,
+      context.getHandler(),
+    );
 
-    if (policyHandlers.length === 0) {
-      return true;
+    if (!requiredPermission) {
+      return true; // 没有权限要求则允许访问
     }
 
     const request = context.switchToHttp().getRequest();
     const user = request.user as User;
 
     if (!user) {
-      throw new ForbiddenException('用户未认证，请先登录');
+      throw new ForbiddenException('用户未登录');
     }
 
     if (!user.isActive) {
       throw new ForbiddenException('用户已被禁用');
     }
 
-    // 创建RBAC权限检查器
-    const ability = this.rbacAbilityFactory.createForUser(user);
-
-    // 检查所有权限策略
-    const hasPermission = policyHandlers.every((handler) =>
-      this.execPolicyHandler(handler, ability),
-    );
-
+    // 检查用户是否具有所需权限
+    const hasPermission = await this.checkUserPermission(user, requiredPermission);
+    
     if (!hasPermission) {
-      throw new ForbiddenException('权限不足，无法执行此操作');
+      throw new ForbiddenException(`缺少权限: ${requiredPermission}`);
     }
 
-    // 将ability添加到请求上下文，供后续使用
-    request.rbacAbility = ability;
-
-    return hasPermission;
+    return true;
   }
 
-  private execPolicyHandler(handler: PolicyHandlerCallback, ability: RbacAbility): boolean {
-    if (typeof handler === 'function') {
-      return handler(ability);
+  /**
+   * 检查用户是否具有指定权限
+   */
+  private async checkUserPermission(user: User, permissionCode: string): Promise<boolean> {
+    if (!user.roles || user.roles.length === 0) {
+      return false;
     }
-    return handler.handle(ability);
+
+    // 遍历用户的所有角色
+    for (const role of user.roles) {
+      if (role.permissions && role.permissions.length > 0) {
+        // 检查角色的权限列表
+        const hasPermission = role.permissions.some(
+          permission => permission.code === permissionCode
+        );
+        
+        if (hasPermission) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 } 

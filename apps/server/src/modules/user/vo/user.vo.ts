@@ -78,7 +78,7 @@ export class UserVo {
 export class SimpleUserVo {
   @ApiProperty({ description: '用户ID' })
   @Expose()
-  id: string;
+  id: number;
 
   @ApiProperty({ description: '用户名' })
   @Expose()

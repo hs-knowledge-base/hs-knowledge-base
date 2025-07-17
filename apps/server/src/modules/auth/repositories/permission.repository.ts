@@ -2,24 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Permission } from '../entities/permission.entity';
-import { BaseRepository } from './base.repository';
-
-export interface IPermissionRepository {
-  findByRoleIds(roleIds: string[]): Promise<Permission[]>;
-  findByCode(code: string): Promise<Permission | null>;
-  findAllWithRoles(): Promise<Permission[]>;
-  existsByCode(code: string): Promise<boolean>;
-  hasAnyPermissions(): Promise<boolean>;
-}
 
 @Injectable()
-export class PermissionRepository extends BaseRepository<Permission> implements IPermissionRepository {
+export class PermissionRepository {
   constructor(
     @InjectRepository(Permission)
-    permissionRepository: Repository<Permission>,
-  ) {
-    super(permissionRepository);
-  }
+    private readonly repository: Repository<Permission>,
+  ) {}
 
   async findByRoleIds(roleIds: string[]): Promise<Permission[]> {
     return this.repository
@@ -36,10 +25,35 @@ export class PermissionRepository extends BaseRepository<Permission> implements 
     });
   }
 
+  async findAll(): Promise<Permission[]> {
+    return this.repository.find();
+  }
+
   async findAllWithRoles(): Promise<Permission[]> {
     return this.repository.find({
       relations: ['roles'],
     });
+  }
+
+  async findOne(id: string): Promise<Permission | null> {
+    return this.repository.findOne({
+      where: { id },
+      relations: ['roles', 'parent', 'children'],
+    });
+  }
+
+  async create(permissionData: Partial<Permission>): Promise<Permission> {
+    const permission = this.repository.create(permissionData);
+    return this.repository.save(permission);
+  }
+
+  async update(id: string, permissionData: Partial<Permission>): Promise<Permission | null> {
+    await this.repository.update(id, permissionData);
+    return this.findOne(id);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.repository.delete(id);
   }
 
   async existsByCode(code: string): Promise<boolean> {

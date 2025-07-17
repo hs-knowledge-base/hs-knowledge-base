@@ -2,51 +2,73 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from '../entities/role.entity';
-import { BaseRepository } from './base.repository';
-
-export interface IRoleRepository {
-  findByName(name: string): Promise<Role | null>;
-  findWithPermissions(id: string): Promise<Role | null>;
-  findAllWithPermissions(): Promise<Role[]>;
-  findByIds(ids: string[]): Promise<Role[]>;
-  existsByName(name: string): Promise<boolean>;
-}
 
 @Injectable()
-export class RoleRepository extends BaseRepository<Role> implements IRoleRepository {
+export class RoleRepository {
   constructor(
     @InjectRepository(Role)
-    private readonly roleRepository: Repository<Role>,
-  ) {
-    super(roleRepository);
-  }
+    private readonly repository: Repository<Role>,
+  ) {}
 
   async findByName(name: string): Promise<Role | null> {
-    return this.roleRepository.findOne({
+    return this.repository.findOne({
       where: { name },
       relations: ['permissions'],
     });
   }
 
   async findWithPermissions(id: string): Promise<Role | null> {
-    return this.roleRepository.findOne({
+    return this.repository.findOne({
       where: { id },
       relations: ['permissions'],
     });
   }
 
   async findAllWithPermissions(): Promise<Role[]> {
-    return this.roleRepository.find({
+    return this.repository.find({
       relations: ['permissions'],
     });
   }
 
+  async findAll(): Promise<Role[]> {
+    return this.repository.find();
+  }
+
+  async findOne(id: string): Promise<Role | null> {
+    return this.repository.findOne({
+      where: { id },
+      relations: ['permissions', 'parent', 'children'],
+    });
+  }
+
   async findByIds(ids: string[]): Promise<Role[]> {
-    return this.roleRepository.findByIds(ids);
+    return this.repository.findByIds(ids);
+  }
+
+  async create(roleData: Partial<Role>): Promise<Role> {
+    const role = this.repository.create(roleData);
+    return this.repository.save(role);
+  }
+
+  async update(id: string, roleData: Partial<Role>): Promise<Role | null> {
+    await this.repository.update(id, roleData);
+    return this.findOne(id);
+  }
+
+  async save(role: Role): Promise<Role> {
+    return this.repository.save(role);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.repository.delete(id);
   }
 
   async existsByName(name: string): Promise<boolean> {
-    const count = await this.roleRepository.count({ where: { name } });
+    const count = await this.repository.count({ where: { name } });
     return count > 0;
+  }
+
+  async count(): Promise<number> {
+    return this.repository.count();
   }
 }

@@ -14,8 +14,7 @@ export class PermissionService {
   ) {}
 
   async create(createPermissionDto: CreatePermissionDto): Promise<Permission> {
-    const permission = this.permissionRepository.create(createPermissionDto);
-    return this.permissionRepository.save(permission);
+    return this.permissionRepository.create(createPermissionDto);
   }
 
   async findAll(): Promise<Permission[]> {
@@ -23,10 +22,7 @@ export class PermissionService {
   }
 
   async findOne(id: string): Promise<Permission> {
-    const permission = await this.permissionRepository.findOne({
-      where: { id },
-      relations: ['roles'],
-    });
+    const permission = await this.permissionRepository.findOne(id);
 
     if (!permission) {
       throw new NotFoundException('权限不存在');
@@ -37,13 +33,16 @@ export class PermissionService {
 
   async update(id: string, updateData: Partial<CreatePermissionDto>): Promise<Permission> {
     const permission = await this.findOne(id);
-    Object.assign(permission, updateData);
-    return this.permissionRepository.save(permission);
+    const updated = await this.permissionRepository.update(id, updateData);
+    if (!updated) {
+      throw new NotFoundException('权限不存在');
+    }
+    return updated;
   }
 
   async remove(id: string): Promise<void> {
     const permission = await this.findOne(id);
-    await this.permissionRepository.remove(permission);
+    await this.permissionRepository.delete(id);
   }
 
   async findByRoleIds(roleIds: string[]): Promise<Permission[]> {

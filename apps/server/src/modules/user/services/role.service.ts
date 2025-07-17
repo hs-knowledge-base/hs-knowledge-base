@@ -13,29 +13,19 @@ export class RoleService {
   ) {}
 
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
-    const { name, permissionIds, ...roleData } = createRoleDto;
-
-    // 检查角色名是否已存在
-    const existingRole = await this.roleRepository.existsByName(name);
-    if (existingRole) {
-      throw new ConflictException('角色名已存在');
-    }
-
-    // 创建角色实例
-    const role = this.roleRepository.create({
-      name,
-      ...roleData,
-    });
+    const { permissionIds, ...roleData } = createRoleDto;
+    
+    // 创建角色
+    const role = await this.roleRepository.create(roleData);
 
     // 如果提供了权限ID，则关联权限
     if (permissionIds && permissionIds.length > 0) {
-      const permissions = await this.permissionRepository.find({
-        where: permissionIds.map(id => ({ id })),
-      });
-      role.permissions = permissions;
+      const permissions = await this.permissionRepository.findAll();
+      const selectedPermissions = permissions.filter(p => permissionIds.includes(p.id));
+      await this.roleRepository.update(role.id, { permissions: selectedPermissions });
     }
 
-    return this.roleRepository.save(role);
+    return this.roleRepository.findOne(role.id) as Promise<Role>;
   }
 
   async findAll(): Promise<Role[]> {
@@ -44,7 +34,7 @@ export class RoleService {
 
   async findOne(id: string): Promise<Role> {
     const role = await this.roleRepository.findWithPermissions(id);
-
+    
     if (!role) {
       throw new NotFoundException('角色不存在');
     }
@@ -56,28 +46,28 @@ export class RoleService {
     return this.roleRepository.findByName(name);
   }
 
-  async update(id: string, updateData: Partial<CreateRoleDto>): Promise<Role> {
-    const role = await this.findOne(id);
-    const { permissionIds, ...otherData } = updateData;
+  async update(id: string, updateRoleDto: Partial<CreateRoleDto>): Promise<Role> {
+    const { permissionIds, ...roleData } = updateRoleDto;
+    
+    // 更新角色基本信息
+    await this.roleRepository.update(id, roleData);
 
-    // 更新权限关联
+    // 如果提供了权限ID，则更新权限关联
     if (permissionIds !== undefined) {
       if (permissionIds.length > 0) {
-        const permissions = await this.permissionRepository.find({
-          where: permissionIds.map(id => ({ id })),
-        });
-        role.permissions = permissions;
+        const permissions = await this.permissionRepository.findAll();
+        const selectedPermissions = permissions.filter(p => permissionIds.includes(p.id));
+        await this.roleRepository.update(id, { permissions: selectedPermissions });
       } else {
-        role.permissions = [];
+        await this.roleRepository.update(id, { permissions: [] });
       }
     }
 
-    Object.assign(role, otherData);
-    return this.roleRepository.save(role);
+    return this.findOne(id);
   }
 
   async remove(id: string): Promise<void> {
     const role = await this.findOne(id);
-    await this.roleRepository.remove(role);
+    await this.roleRepository.delete(id);
   }
 }

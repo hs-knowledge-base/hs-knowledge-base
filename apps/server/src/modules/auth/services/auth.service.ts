@@ -98,7 +98,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // 创建用户
-    const user = this.userRepository.create({
+    const user = await this.userRepository.create({
       username,
       email,
       password: hashedPassword,
@@ -109,12 +109,11 @@ export class AuthService {
     const defaultRole = await this.roleRepository.findByName('user');
     if (defaultRole) {
       user.roles = [defaultRole];
+      await this.userRepository.update(user.id, { roles: [defaultRole] });
     }
 
-    const savedUser = await this.userRepository.save(user);
-
     // 重新获取用户信息（包含角色和权限）
-    const userWithRoles = await this.userRepository.findWithRolesAndPermissions(savedUser.id);
+    const userWithRoles = await this.userRepository.findWithRolesAndPermissions(user.id);
     
     if (!userWithRoles) {
       throw new BadRequestException('用户创建失败');

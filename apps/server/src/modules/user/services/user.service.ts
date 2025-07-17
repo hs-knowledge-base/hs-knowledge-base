@@ -13,37 +13,18 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { username, email, password, roleIds, ...userData } = createUserDto;
-
-    // 检查用户名和邮箱是否已存在
-    const existingUserByUsername = await this.userRepository.existsByUsername(username);
-    if (existingUserByUsername) {
-      throw new ConflictException('用户名已存在');
-    }
-
-    const existingUserByEmail = await this.userRepository.existsByEmail(email);
-    if (existingUserByEmail) {
-      throw new ConflictException('邮箱已存在');
-    }
-
-    // 加密密码
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // 创建用户实例
-    const user = this.userRepository.create({
-      username,
-      email,
-      password: hashedPassword,
-      ...userData,
-    });
+    const { roleIds, ...userData } = createUserDto;
+    
+    // 创建用户
+    const user = await this.userRepository.create(userData);
 
     // 如果提供了角色ID，则关联角色
     if (roleIds && roleIds.length > 0) {
       const roles = await this.roleRepository.findByIds(roleIds);
-      user.roles = roles;
+      await this.userRepository.update(user.id, { roles });
     }
 
-    return this.userRepository.save(user);
+    return this.userRepository.findOne(user.id) as Promise<User>;
   }
 
   async findAll(): Promise<User[]> {
@@ -52,7 +33,7 @@ export class UserService {
 
   async findOne(id: string): Promise<User> {
     const user = await this.userRepository.findWithRolesAndPermissions(id);
-
+    
     if (!user) {
       throw new NotFoundException('用户不存在');
     }
@@ -68,32 +49,28 @@ export class UserService {
     return this.userRepository.findByEmail(email);
   }
 
-  async update(id: string, updateData: Partial<CreateUserDto>): Promise<User> {
-    const user = await this.findOne(id);
-    const { password, roleIds, ...otherData } = updateData;
+  async update(id: string, updateUserDto: Partial<CreateUserDto>): Promise<User> {
+    const { roleIds, ...userData } = updateUserDto;
+    
+    // 更新用户基本信息
+    await this.userRepository.update(id, userData);
 
-    // 如果更新密码，需要加密
-    if (password) {
-      otherData['password'] = await bcrypt.hash(password, 10);
-    }
-
-    // 更新角色关联
+    // 如果提供了角色ID，则更新角色关联
     if (roleIds !== undefined) {
       if (roleIds.length > 0) {
         const roles = await this.roleRepository.findByIds(roleIds);
-        user.roles = roles;
+        await this.userRepository.update(id, { roles });
       } else {
-        user.roles = [];
+        await this.userRepository.update(id, { roles: [] });
       }
     }
 
-    Object.assign(user, otherData);
-    return this.userRepository.save(user);
+    return this.findOne(id);
   }
 
   async remove(id: string): Promise<void> {
     const user = await this.findOne(id);
-    await this.userRepository.remove(user);
+    await this.userRepository.delete(id);
   }
 
   async validatePassword(user: User, password: string): Promise<boolean> {

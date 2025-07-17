@@ -1,44 +1,47 @@
-import { Expose, Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { DateTransformUtil } from '@/core/utils';
+import { Expose, Transform, Type } from 'class-transformer';
+import { DateTransformUtil } from '@/core/utils/date-transform.util';
 
 /**
- * 权限 VO
+ * 权限信息 VO
  */
 export class PermissionVo {
-  @ApiProperty({ description: '权限ID', example: 'uuid-string' })
+  @ApiProperty({ description: '权限ID' })
   @Expose()
   id: string;
 
-  @ApiProperty({ description: '操作类型', example: 'read' })
+  @ApiProperty({ description: '权限编码', example: 'system.user.view' })
   @Expose()
-  action: string;
+  code: string;
 
-  @ApiProperty({ description: '资源类型', example: 'user' })
+  @ApiProperty({ description: '权限名称', example: '查看用户' })
   @Expose()
-  subject: string;
+  name: string;
 
-  @ApiPropertyOptional({ 
-    description: '条件限制', 
-    example: { department: 'IT', level: { $gte: 3 } } 
-  })
+  @ApiProperty({ description: '权限类型', example: 'BUTTON' })
   @Expose()
-  conditions?: Record<string, any>;
+  type: string;
 
-  @ApiPropertyOptional({ 
-    description: '字段限制', 
-    example: 'name,email,phone' 
-  })
+  @ApiPropertyOptional({ description: '路径', example: '/system/user' })
   @Expose()
-  fields?: string;
+  path?: string;
 
-  @ApiProperty({ description: '是否为禁止权限', example: false })
+  @ApiPropertyOptional({ description: '图标', example: 'user-o' })
   @Expose()
-  inverted: boolean;
+  icon?: string;
 
-  @ApiPropertyOptional({ description: '权限说明', example: '用户读取权限' })
+  @ApiProperty({ description: '排序值', example: 1 })
   @Expose()
-  reason?: string;
+  sort: number;
+
+  @ApiPropertyOptional({ description: '父权限ID' })
+  @Expose()
+  parentId?: string;
+
+  @ApiPropertyOptional({ description: '子权限列表', type: [PermissionVo] })
+  @Expose()
+  @Type(() => PermissionVo)
+  children?: PermissionVo[];
 
   @ApiProperty({ description: '创建时间', example: '2024-01-01T00:00:00.000Z' })
   @Expose()
@@ -53,75 +56,35 @@ export class PermissionVo {
   @ApiPropertyOptional({ description: '权限显示名称' })
   @Expose()
   @Transform(({ obj }) => {
-    const actionMap: Record<string, string> = {
-      'create': '创建',
-      'read': '读取',
-      'update': '更新',
-      'delete': '删除',
-      'manage': '管理'
-    };
-    
-    const subjectMap: Record<string, string> = {
-      'user': '用户',
-      'role': '角色',
-      'permission': '权限',
-      'document': '文档',
-      'knowledge_base': '知识库',
-      'all': '全部'
-    };
-
-    const actionText = actionMap[obj.action] || obj.action;
-    const subjectText = subjectMap[obj.subject] || obj.subject;
-    
-    return `${actionText}${subjectText}`;
+    return obj.name || obj.code;
   })
   displayName?: string;
 }
 
 /**
- * 简化权限 VO - 用于列表显示或关联对象
+ * 权限简化信息 VO - 用于在角色等地方显示
  */
-export class SimplePermissionVo {
+export class PermissionSimpleVo {
   @ApiProperty({ description: '权限ID' })
   @Expose()
   id: string;
 
-  @ApiProperty({ description: '操作类型' })
+  @ApiProperty({ description: '权限编码' })
   @Expose()
-  action: string;
+  code: string;
 
-  @ApiProperty({ description: '资源类型' })
+  @ApiProperty({ description: '权限名称' })
   @Expose()
-  subject: string;
+  name: string;
 
-  @ApiPropertyOptional({ description: '权限说明' })
+  @ApiProperty({ description: '权限类型' })
   @Expose()
-  reason?: string;
+  type: string;
 
   @ApiPropertyOptional({ description: '权限显示名称' })
   @Expose()
   @Transform(({ obj }) => {
-    const actionMap: Record<string, string> = {
-      'create': '创建',
-      'read': '读取',
-      'update': '更新',
-      'delete': '删除',
-      'manage': '管理'
-    };
-    
-    const subjectMap: Record<string, string> = {
-      'user': '用户',
-      'role': '角色',
-      'permission': '权限',
-      'document': '文档',
-      'knowledge_base': '知识库',
-      'all': '全部'
-    };
-
-    const actionText = actionMap[obj.action] || obj.action;
-    const subjectText = subjectMap[obj.subject] || obj.subject;
-    
-    return `${actionText}${subjectText}`;
+    return obj.name || obj.code;
   })
   displayName?: string;
 }

@@ -6,12 +6,16 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 
 // Entities
 import { Permission } from "./entities/permission.entity";
+import { UserSession } from "./entities/session.entity";
+import { RbacConstraint } from "./entities/constraint.entity";
 
 // Services
 import { PermissionService } from "./services/permission.service";
 import { AuthService } from "./services/auth.service";
 import { RoleService } from "../user/services/role.service";
 import { RoleInitService } from "./services/role-init.service";
+import { SessionService } from "./services/session.service";
+import { RoleHierarchyService } from "./services/role-hierarchy.service";
 
 // Controllers
 import { AuthAdminController } from "./controllers/auth-admin.controller";
@@ -31,8 +35,8 @@ import { UserRepository } from "../user/repositories/user.repository";
 import { RoleRepository } from "../user/repositories/role.repository";
 
 // Guards
-import { CaslAbilityFactory } from "./casl/casl-ability.factory";
-import { PoliciesGuard } from "./guards/permissions.guard";
+import { RbacAbilityFactory } from "./casl/rbac-ability.factory";
+import { RbacPermissionsGuard } from "./guards/rbac-permissions.guard";
 
 // Strategies
 import { JwtStrategy } from "./strategies/jwt.strategy";
@@ -43,7 +47,7 @@ import { JwtConfig } from "./config/jwt.config";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Role, Permission]),
+    TypeOrmModule.forFeature([User, Role, Permission, UserSession, RbacConstraint]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -72,6 +76,8 @@ import { JwtConfig } from "./config/jwt.config";
     AuthService,
     RoleService,
     RoleInitService,
+    SessionService,
+    RoleHierarchyService,
 
     // Repositories
     UserRepository,
@@ -79,8 +85,8 @@ import { JwtConfig } from "./config/jwt.config";
     PermissionRepository,
 
     // Guards and Strategies
-    CaslAbilityFactory,
-    PoliciesGuard,
+    RbacAbilityFactory,
+    RbacPermissionsGuard,
     JwtStrategy,
     LocalStrategy,
 
@@ -92,11 +98,13 @@ import { JwtConfig } from "./config/jwt.config";
     AuthService,
     RoleService,
     RoleInitService,
+    SessionService,
+    RoleHierarchyService,
     UserRepository,
     RoleRepository,
     PermissionRepository,
-    CaslAbilityFactory,
-    PoliciesGuard,
+    RbacAbilityFactory,
+    RbacPermissionsGuard,
     JwtConfig,
   ],
 })

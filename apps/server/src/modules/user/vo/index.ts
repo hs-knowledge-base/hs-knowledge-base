@@ -3,4 +3,4 @@
  */
 
 export { UserVo, SimpleUserVo, UserDetailVo } from './user.vo';
-export { RoleVo, SimpleRoleVo, RoleDetailVo, SimplePermissionVo } from './role.vo';
+export { RoleVo, SimpleRoleVo, RoleDetailVo, PermissionSummaryVo } from './role.vo';

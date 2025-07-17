@@ -1,9 +1,8 @@
 import { Controller, Post, Get, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { PoliciesGuard } from '../guards/permissions.guard';
+import { RbacPermissionsGuard } from '../guards/rbac-permissions.guard';
 import { RequirePermission } from '@/core/decorators';
-import { Action, Subject } from '../entities/permission.entity';
 import { RoleInitService } from '../services/role-init.service';
 
 /**
@@ -12,7 +11,7 @@ import { RoleInitService } from '../services/role-init.service';
  */
 @ApiTags('admin/role-init', '角色初始化管理')
 @Controller('admin/role-init')
-@UseGuards(JwtAuthGuard, PoliciesGuard)
+@UseGuards(JwtAuthGuard, RbacPermissionsGuard)
 @ApiBearerAuth()
 export class RoleInitAdminController {
   constructor(private readonly roleInitService: RoleInitService) {}
@@ -22,10 +21,10 @@ export class RoleInitAdminController {
   @ApiOperation({ summary: '初始化系统角色和权限' })
   @ApiResponse({ status: 200, description: '初始化成功' })
   @ApiResponse({ status: 403, description: '权限不足' })
-  @RequirePermission(Action.MANAGE, Subject.ROLE)
+  @RequirePermission('system.role.edit')
   async initializeRoles() {
     await this.roleInitService.initializeRoles();
-    return { message: '系统角色和权限初始化完成' };
+    return { message: 'RBAC2系统初始化完成' };
   }
 
   @Post('reset')
@@ -33,16 +32,16 @@ export class RoleInitAdminController {
   @ApiOperation({ summary: '重置系统角色和权限（危险操作）' })
   @ApiResponse({ status: 200, description: '重置成功' })
   @ApiResponse({ status: 403, description: '权限不足' })
-  @RequirePermission(Action.MANAGE, Subject.ALL) // 只有超级管理员可以重置
+  @RequirePermission('system.permission.edit') // 只有超级管理员可以重置
   async resetRoles() {
     await this.roleInitService.resetRoles();
-    return { message: '系统角色和权限重置完成' };
+    return { message: 'RBAC2系统重置完成' };
   }
 
   @Get('overview')
   @ApiOperation({ summary: '获取角色权限概览' })
   @ApiResponse({ status: 200, description: '获取成功' })
-  @RequirePermission(Action.READ, Subject.ROLE)
+  @RequirePermission('system.role.view')
   async getRoleOverview() {
     const overview = await this.roleInitService.getRolePermissionOverview();
     return {

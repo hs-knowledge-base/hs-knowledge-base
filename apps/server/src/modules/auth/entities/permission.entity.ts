@@ -5,31 +5,22 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToMany,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { Role } from '../../user/entities/role.entity';
 
 /**
- * 操作类型枚举
+ * 权限类型枚举
  */
-export enum Action {
-  CREATE = 'create',
-  READ = 'read',
-  UPDATE = 'update',
-  DELETE = 'delete',
-  MANAGE = 'manage',
-}
-
-/**
- * 资源类型枚举
- */
-export enum Subject {
-  USER = 'user',
-  ROLE = 'role',
-  PERMISSION = 'permission',
-  DOCUMENT = 'document',
-  KNOWLEDGE_BASE = 'knowledge_base',
-  SYSTEM = 'system',
-  ALL = 'all',
+export enum PermissionType {
+  /**模块权限*/
+  MODULE = 'module',
+  /**菜单权限*/
+  MENU = 'menu',
+  /**按钮权限*/
+  BUTTON = 'button',
 }
 
 @Entity('permissions')
@@ -37,23 +28,37 @@ export class Permission {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 50, comment: "操作类型，如 create, read, update, delete, manage" })
-  action: string;
+  @Column({ length: 100, unique: true, comment: "权限编码" })
+  code: string;
 
-  @Column({ length: 50, comment: "资源类型，如 user, role, permission, document, knowledge_base, all" })
-  subject: string;
+  @Column({ length: 100, comment: "权限名称" })
+  name: string;
 
-  @Column('json', { nullable: true, comment: "条件限制，如 { department: 'IT', level: { $gte: 3 } }" })
-  conditions?: Record<string, any>;
+  @Column({ length: 50, comment: "权限类型" })
+  type: PermissionType;
 
-  @Column({ nullable: true, comment: "字段限制，如 'name,email,phone'" })
-  fields?: string;
+  @Column({ nullable: true, comment: "权限描述" })
+  description?: string;
 
-  @Column({ default: false, comment: "是否为禁止权限" })
-  inverted: boolean;
+  @Column({ nullable: true, comment: "前端路由路径" })
+  path?: string;
 
-  @Column({ nullable: true, comment: "权限说明" })
-  reason?: string;
+  @Column({ nullable: true, comment: "图标" })
+  icon?: string;
+
+  @Column({ default: 0, comment: "排序" })
+  sort: number;
+
+  @Column({ default: true, comment: "是否启用" })
+  isActive: boolean;
+
+  // 树形结构
+  @ManyToOne(() => Permission, (permission) => permission.children, { nullable: true })
+  @JoinColumn({ name: 'parent_id' })
+  parent?: Permission;
+
+  @OneToMany(() => Permission, (permission) => permission.parent)
+  children: Permission[];
 
   @ManyToMany(() => Role, (role) => role.permissions)
   roles: Role[];

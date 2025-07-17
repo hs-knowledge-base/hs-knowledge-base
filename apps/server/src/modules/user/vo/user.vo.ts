@@ -125,7 +125,7 @@ export class UserDetailVo extends UserVo {
     obj.roles.forEach((role: any) => {
       if (role.permissions) {
         role.permissions.forEach((permission: any) => {
-          permissions.add(`${permission.action}:${permission.subject}`);
+          permissions.add(permission.code);
         });
       }
     });

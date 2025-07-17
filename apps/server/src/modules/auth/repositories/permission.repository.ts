@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Permission, Action, Subject } from '../entities/permission.entity';
+import { Permission } from '../entities/permission.entity';
 import { BaseRepository } from './base.repository';
 
 export interface IPermissionRepository {
   findByRoleIds(roleIds: string[]): Promise<Permission[]>;
-  findByActionAndSubject(action: Action, subject: Subject): Promise<Permission[]>;
+  findByCode(code: string): Promise<Permission | null>;
   findAllWithRoles(): Promise<Permission[]>;
-  existsByActionAndSubject(action: Action, subject: Subject): Promise<boolean>;
+  existsByCode(code: string): Promise<boolean>;
   hasAnyPermissions(): Promise<boolean>;
 }
 
@@ -29,9 +29,9 @@ export class PermissionRepository extends BaseRepository<Permission> implements 
       .getMany();
   }
 
-  async findByActionAndSubject(action: Action, subject: Subject): Promise<Permission[]> {
-    return this.repository.find({
-      where: { action, subject },
+  async findByCode(code: string): Promise<Permission | null> {
+    return this.repository.findOne({
+      where: { code },
       relations: ['roles'],
     });
   }
@@ -42,9 +42,9 @@ export class PermissionRepository extends BaseRepository<Permission> implements 
     });
   }
 
-  async existsByActionAndSubject(action: Action, subject: Subject): Promise<boolean> {
+  async existsByCode(code: string): Promise<boolean> {
     const count = await this.repository.count({
-      where: { action, subject },
+      where: { code },
     });
     return count > 0;
   }

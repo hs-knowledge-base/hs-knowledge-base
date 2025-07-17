@@ -4,20 +4,24 @@ import { SimpleUserVo } from './user.vo';
 import { DateTransformUtil } from '@/core/utils';
 
 /**
- * 权限简化 VO - 用于角色中显示权限信息
+ * 权限摘要信息
  */
-export class SimplePermissionVo {
+export class PermissionSummaryVo {
   @ApiProperty({ description: '权限ID' })
   @Expose()
   id: string;
 
-  @ApiProperty({ description: '操作类型' })
+  @ApiProperty({ description: '权限编码' })
   @Expose()
-  action: string;
+  code: string;
 
-  @ApiProperty({ description: '资源类型' })
+  @ApiProperty({ description: '权限名称' })
   @Expose()
-  subject: string;
+  name: string;
+
+  @ApiProperty({ description: '权限类型' })
+  @Expose()
+  type: string;
 
   @ApiPropertyOptional({ description: '权限说明' })
   @Expose()
@@ -26,27 +30,7 @@ export class SimplePermissionVo {
   @ApiPropertyOptional({ description: '权限显示名称' })
   @Expose()
   @Transform(({ obj }) => {
-    const actionMap: Record<string, string> = {
-      'create': '创建',
-      'read': '读取',
-      'update': '更新',
-      'delete': '删除',
-      'manage': '管理'
-    };
-    
-    const subjectMap: Record<string, string> = {
-      'user': '用户',
-      'role': '角色',
-      'permission': '权限',
-      'document': '文档',
-      'knowledge_base': '知识库',
-      'all': '全部'
-    };
-
-    const actionText = actionMap[obj.action] || obj.action;
-    const subjectText = subjectMap[obj.subject] || obj.subject;
-    
-    return `${actionText}${subjectText}`;
+    return obj.name || obj.code;
   })
   displayName?: string;
 }
@@ -71,10 +55,10 @@ export class RoleVo {
   @Expose()
   attributes?: Record<string, any>;
 
-  @ApiPropertyOptional({ description: '权限列表', type: [SimplePermissionVo] })
+  @ApiPropertyOptional({ description: '权限列表', type: [PermissionSummaryVo] })
   @Expose()
-  @Type(() => SimplePermissionVo)
-  permissions?: SimplePermissionVo[];
+  @Type(() => PermissionSummaryVo)
+  permissions?: PermissionSummaryVo[];
 
   @ApiPropertyOptional({ description: '用户列表', type: [SimpleUserVo] })
   @Expose()
@@ -143,21 +127,21 @@ export class SimpleRoleVo {
  * 角色详情 VO - 包含完整的权限和用户信息
  */
 export class RoleDetailVo extends RoleVo {
-  @ApiPropertyOptional({ description: '角色拥有的权限分组' })
+  @ApiPropertyOptional({ description: '角色拥有的权限按类型分组' })
   @Expose()
   @Transform(({ obj }) => {
     if (!obj.permissions) return {};
     
     const grouped: Record<string, string[]> = {};
     obj.permissions.forEach((permission: any) => {
-      const subject = permission.subject;
-      if (!grouped[subject]) {
-        grouped[subject] = [];
+      const type = permission.type;
+      if (!grouped[type]) {
+        grouped[type] = [];
       }
-      grouped[subject].push(permission.action);
+      grouped[type].push(permission.code);
     });
     
     return grouped;
   })
-  permissionsBySubject?: Record<string, string[]>;
+  permissionsByType?: Record<string, string[]>;
 }

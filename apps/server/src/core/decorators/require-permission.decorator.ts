@@ -1,22 +1,22 @@
-import { CheckPolicies } from '@/modules/auth/guards/permissions.guard';
-import { Action, Subject } from '@/modules/auth/entities/permission.entity';
-import { AppAbility } from '@/modules/auth/casl/casl-ability.factory';
+import { CheckPolicies } from '@/modules/auth/guards/rbac-permissions.guard';
+import { RbacAbility } from '@/modules/auth/casl/rbac-ability.factory';
 
 /**
- * 权限检查装饰器
- * 用于控制器方法的权限验证
+ * RBAC权限检查装饰器
+ * 用于控制器方法的权限验证，基于UI层次权限编码
  * 
- * @param action 操作类型
- * @param subject 资源类型
+ * @param permissionCode 权限编码
  * @returns 装饰器函数
  * 
  * @example
  * ```typescript
- * @RequirePermission(Action.READ, Subject.USER)
+ * @RequirePermission('user-list-btn')
  * async findAll() {
  *   // ...
  * }
  * ```
  */
-export const RequirePermission = (action: Action, subject: Subject) =>
-  CheckPolicies((ability: AppAbility) => ability.can(action, subject));
+export const RequirePermission = (permissionCode: string) =>
+  CheckPolicies((ability: RbacAbility) => ability.can(permissionCode));
+
+

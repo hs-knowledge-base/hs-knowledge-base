@@ -6,39 +6,40 @@ import {
   SetMetadata,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { CaslAbilityFactory } from '../casl/casl-ability.factory';
-import { Action, Subject } from '../entities/permission.entity';
-import { AppAbility } from '../casl/casl-ability.factory';
+import { RbacAbilityFactory, RbacAbility } from '../casl/rbac-ability.factory';
 import { User } from '../../user/entities/user.entity';
 
 export interface RequiredRule {
   action: string;
   subject: string;
-  conditions?: any;
 }
+
+export type PolicyHandler = (ability: RbacAbility) => boolean;
+
+export interface IPolicyHandler {
+  handle(ability: RbacAbility): boolean;
+}
+
+export type PolicyHandlerCallback = PolicyHandler | IPolicyHandler;
 
 export const CHECK_POLICIES_KEY = 'check_policy';
-export const CheckPolicies = (...handlers: PolicyHandler[]) =>
+export const CheckPolicies = (...handlers: PolicyHandlerCallback[]) =>
   SetMetadata(CHECK_POLICIES_KEY, handlers);
 
-interface IPolicyHandler {
-  handle(ability: any): boolean;
-}
-
-type PolicyHandlerCallback = (ability: any) => boolean;
-
-export type PolicyHandler = IPolicyHandler | PolicyHandlerCallback;
-
+/**
+ * RBAC权限守卫
+ * 基于RBAC2模型的权限检查守卫
+ */
 @Injectable()
-export class PoliciesGuard implements CanActivate {
+export class RbacPermissionsGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    private caslAbilityFactory: CaslAbilityFactory,
+    private rbacAbilityFactory: RbacAbilityFactory,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const policyHandlers =
-      this.reflector.get<PolicyHandler[]>(
+      this.reflector.get<PolicyHandlerCallback[]>(
         CHECK_POLICIES_KEY,
         context.getHandler(),
       ) || [];
@@ -58,8 +59,10 @@ export class PoliciesGuard implements CanActivate {
       throw new ForbiddenException('用户已被禁用');
     }
 
-    const ability = this.caslAbilityFactory.createForUser(user);
+    // 创建RBAC权限检查器
+    const ability = this.rbacAbilityFactory.createForUser(user);
 
+    // 检查所有权限策略
     const hasPermission = policyHandlers.every((handler) =>
       this.execPolicyHandler(handler, ability),
     );
@@ -68,13 +71,16 @@ export class PoliciesGuard implements CanActivate {
       throw new ForbiddenException('权限不足，无法执行此操作');
     }
 
+    // 将ability添加到请求上下文，供后续使用
+    request.rbacAbility = ability;
+
     return hasPermission;
   }
 
-  private execPolicyHandler(handler: PolicyHandler, ability: any) {
+  private execPolicyHandler(handler: PolicyHandlerCallback, ability: RbacAbility): boolean {
     if (typeof handler === 'function') {
       return handler(ability);
     }
     return handler.handle(ability);
   }
-}
+} 

@@ -6,6 +6,9 @@ import {
   UpdateDateColumn,
   ManyToMany,
   JoinTable,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Permission } from '../../auth/entities/permission.entity';
@@ -21,8 +24,22 @@ export class Role {
   @Column({ nullable: true, comment: "角色描述", length: 200 })
   description?: string;
 
-  @Column('json', { nullable: true, comment: "角色属性" })
-  attributes?: Record<string, any>;
+  @Column({ default: 0, comment: "角色层级，数字越大权限越高" })
+  level: number;
+
+  @Column({ default: true, comment: "是否启用" })
+  isActive: boolean;
+
+  // RBAC2: 角色层次结构
+  @ManyToOne(() => Role, (role) => role.children, { nullable: true })
+  @JoinColumn({ name: 'parent_id' })
+  parent?: Role;
+
+  @OneToMany(() => Role, (role) => role.parent)
+  children: Role[];
+
+  @Column('simple-array', { nullable: true, comment: "继承的角色ID列表" })
+  inheritedRoleIds?: string[];
 
   @ManyToMany(() => User, (user) => user.roles)
   users: User[];

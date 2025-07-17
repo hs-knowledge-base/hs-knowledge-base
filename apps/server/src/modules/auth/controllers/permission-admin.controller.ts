@@ -11,25 +11,24 @@ import {
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PermissionService } from '../services/permission.service';
 import { CreatePermissionDto } from '../dto/create-permission.dto';
-import { PoliciesGuard } from '../guards/permissions.guard';
-import { CaslAbilityFactory } from '../casl/casl-ability.factory';
-import { Action, Subject } from '../entities/permission.entity';
+import { RbacPermissionsGuard } from '../guards/rbac-permissions.guard';
+import { RbacAbilityFactory } from '../casl/rbac-ability.factory';
 import { RequirePermission, VoTransform } from '@/core/decorators';
 import { PermissionVo } from '../vo';
 
 @ApiTags('admin', '权限管理')
 @Controller('admin/permissions')
-@UseGuards(PoliciesGuard)
+@UseGuards(RbacPermissionsGuard)
 export class PermissionAdminController {
   constructor(
     private readonly permissionService: PermissionService,
-    private readonly caslAbilityFactory: CaslAbilityFactory,
+    private readonly rbacAbilityFactory: RbacAbilityFactory,
   ) {}
 
   @Post()
   @ApiOperation({ summary: '创建权限' })
   @ApiResponse({ status: 201, description: '权限创建成功', type: PermissionVo })
-  @RequirePermission(Action.MANAGE, Subject.PERMISSION)
+  @RequirePermission('system.permission.edit')
   @VoTransform({ voClass: PermissionVo })
   create(@Body() createPermissionDto: CreatePermissionDto) {
     return this.permissionService.create(createPermissionDto);
@@ -38,7 +37,7 @@ export class PermissionAdminController {
   @Get()
   @ApiOperation({ summary: '获取所有权限' })
   @ApiResponse({ status: 200, description: '获取权限列表成功', type: [PermissionVo] })
-  @RequirePermission(Action.READ, Subject.PERMISSION)
+  @RequirePermission('system.permission.view')
   @VoTransform({ voClass: PermissionVo })
   findAll() {
     return this.permissionService.findAll();
@@ -47,7 +46,7 @@ export class PermissionAdminController {
   @Get(':id')
   @ApiOperation({ summary: '根据ID获取权限' })
   @ApiResponse({ status: 200, description: '获取权限成功', type: PermissionVo })
-  @RequirePermission(Action.READ, Subject.PERMISSION)
+  @RequirePermission('system.permission.view')
   @VoTransform({ voClass: PermissionVo })
   findOne(@Param('id') id: string) {
     return this.permissionService.findOne(id);
@@ -56,7 +55,7 @@ export class PermissionAdminController {
   @Patch(':id')
   @ApiOperation({ summary: '更新权限' })
   @ApiResponse({ status: 200, description: '权限更新成功', type: PermissionVo })
-  @RequirePermission(Action.MANAGE, Subject.PERMISSION)
+  @RequirePermission('system.permission.edit')
   @VoTransform({ voClass: PermissionVo })
   update(@Param('id') id: string, @Body() updatePermissionDto: Partial<CreatePermissionDto>) {
     return this.permissionService.update(id, updatePermissionDto);
@@ -65,23 +64,16 @@ export class PermissionAdminController {
   @Delete(':id')
   @ApiOperation({ summary: '删除权限' })
   @ApiResponse({ status: 200, description: '权限删除成功' })
-  @RequirePermission(Action.MANAGE, Subject.PERMISSION)
+  @RequirePermission('system.permission.edit')
   remove(@Param('id') id: string) {
     return this.permissionService.remove(id);
   }
 
-  @Post('check')
-  @ApiOperation({ summary: '检查用户权限' })
-  @ApiResponse({ status: 200, description: '权限检查完成' })
-  @RequirePermission(Action.READ, Subject.PERMISSION)
-  async checkPermission(
-    @Body() checkData: { userId: string; action: Action; subject: Subject; conditions?: any }
-  ) {
-    // 这里需要获取用户信息，实际实现中应该从认证中间件获取
-    // 暂时返回检查结果的示例
-    return {
-      allowed: true,
-      message: '权限检查功能需要配合认证中间件实现',
-    };
+  @Get('tree')
+  @ApiOperation({ summary: '获取权限树' })
+  @ApiResponse({ status: 200, description: '获取权限树成功' })
+  @RequirePermission('system.permission.view')
+  getPermissionTree() {
+    return this.permissionService.getPermissionTree();
   }
 }

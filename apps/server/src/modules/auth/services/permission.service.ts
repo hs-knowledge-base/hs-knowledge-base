@@ -49,4 +49,48 @@ export class PermissionService {
   async findByRoleIds(roleIds: string[]): Promise<Permission[]> {
     return this.permissionRepository.findByRoleIds(roleIds);
   }
+
+  /**
+   * 获取权限树结构
+   */
+  async getPermissionTree(): Promise<Permission[]> {
+    // 获取所有权限
+    const allPermissions = await this.permissionTypeOrmRepository.find({
+      order: { sort: 'ASC' },
+    });
+
+    // 构建树形结构
+    return this.buildPermissionTree(allPermissions);
+  }
+
+  /**
+   * 构建权限树
+   */
+  private buildPermissionTree(permissions: Permission[]): Permission[] {
+    const permissionMap = new Map<string, Permission>();
+    const rootPermissions: Permission[] = [];
+
+    // 先将所有权限放入Map
+    permissions.forEach(permission => {
+      permissionMap.set(permission.id, { ...permission, children: [] });
+    });
+
+    // 建立父子关系
+    permissions.forEach(permission => {
+      const currentPermission = permissionMap.get(permission.id);
+      if (!currentPermission) return;
+
+      if (permission.parent) {
+        const parent = permissionMap.get(permission.parent.id);
+        if (parent) {
+          if (!parent.children) parent.children = [];
+          parent.children.push(currentPermission);
+        }
+      } else {
+        rootPermissions.push(currentPermission);
+      }
+    });
+
+    return rootPermissions;
+  }
 }

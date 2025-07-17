@@ -17,7 +17,8 @@ import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { JwtAuthGuard, Public } from '../guards/jwt-auth.guard';
 import { User } from '../../user/entities/user.entity';
 import { VoTransform, CurrentUser } from '@/core/decorators';
-import { LoginResponseVo, RegisterResponseVo, RefreshTokenResponseVo, TokenCheckResponseVo, UserVo } from '../vo';
+import { LoginResponseVo, RegisterResponseVo, RefreshTokenResponseVo, TokenCheckResponseVo } from '../vo';
+import {UserVo} from "@/modules/user/vo";
 
 @ApiTags('admin', '认证管理')
 @Controller('admin/auth')

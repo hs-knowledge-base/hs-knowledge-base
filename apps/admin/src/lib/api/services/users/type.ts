@@ -7,12 +7,23 @@ export interface UpdateUserReq {
   username?: string;
   email?: string;
   password?: string;
-  isActive?: boolean;
   firstName?: string;
   lastName?: string;
-  // ABAC 用户属性
-  level?: number;
-  attributes?: Record<string, any>;
+  isActive?: boolean;
+  roleIds?: string[];
+}
+
+/**
+ * 创建用户请求
+ */
+export interface CreateUserReq {
+  username: string;
+  email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+  isActive?: boolean;
+  roleIds?: string[];
 }
 
 /**
@@ -33,12 +44,12 @@ export interface LoginRes {
 }
 
 /**
- * 注册请求
+ * 用户分页查询请求
  */
-export interface RegisterReq {
-  username: string;
-  email: string;
-  password: string;
-  firstName?: string;
-  lastName?: string;
+export interface GetUsersReq {
+  page?: number;
+  limit?: number;
+  search?: string;
+  isActive?: boolean;
+  roleId?: string;
 }

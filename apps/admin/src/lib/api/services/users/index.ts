@@ -1,20 +1,20 @@
 import { CreateUserReq, UserRes } from "@/types/auth";
-import { updateUserAttributesReq, UserReq } from "@/lib/api/services/auth/type";
 import { alovaClient } from "@/lib/api/client";
 import { ApiResponse, PaginatedResponse } from "@/lib/api/types";
-import { UpdateUserReq } from "@/lib/api/services/users/type";
+import { UpdateUserReq, GetUsersReq } from "./type";
 
 export const userApi = {
   /**
    * 获取用户列表（支持分页和查询）
    */
-  getUsers: (params?: UserReq) =>
+  getUsers: (params?: GetUsersReq) =>
     alovaClient.Get<PaginatedResponse<UserRes>>("/users", { params }),
 
   /**
    * 获取所有用户（不分页）
    */
-  getAllUsers: () => alovaClient.Get<ApiResponse<UserRes[]>>("/users"),
+  getAllUsers: () => 
+    alovaClient.Get<ApiResponse<UserRes[]>>("/users"),
 
   /**
    * 根据 ID 获取用户详情
@@ -55,8 +55,14 @@ export const userApi = {
     }),
 
   /**
-   * 更新用户属性（ABAC 相关）
+   * 更新用户角色
    */
-  updateUserAttributes: (id: string, attributes: updateUserAttributesReq) =>
-    alovaClient.Put<ApiResponse<UserRes>>(`/users/${id}/attributes`, attributes),
+  updateUserRoles: (id: string, roleIds: string[]) =>
+    alovaClient.Put<ApiResponse<UserRes>>(`/users/${id}/roles`, { roleIds }),
+
+  /**
+   * 获取用户的有效权限
+   */
+  getUserPermissions: (id: string) =>
+    alovaClient.Get<ApiResponse<string[]>>(`/users/${id}/permissions`),
 };

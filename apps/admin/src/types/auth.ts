@@ -1,40 +1,13 @@
 /**
- * 常用操作类型常量
+ * RBAC2权限类型常量
  */
-export const COMMON_ACTIONS = {
-  CREATE: "create",
-  READ: "read", 
-  UPDATE: "update",
-  DELETE: "delete",
-  LIST: "list",
-  EXPORT: "export",
-  IMPORT: "import",
-  APPROVE: "approve",
-  REJECT: "reject",
-  PUBLISH: "publish",
-  ARCHIVE: "archive",
-  MANAGE: "manage",
+export const PermissionType = {
+  MODULE: 'module',
+  MENU: 'menu',
+  BUTTON: 'button',
 } as const;
 
-/**
- * 常用资源类型常量
- */
-export const COMMON_SUBJECTS = {
-  USER: "user",
-  DOCUMENT: "document", 
-  SYSTEM: "system",
-  POLICY: "policy",
-  ATTRIBUTE_DEFINITION: "attribute-definition",
-  ALL: "*",
-} as const;
-
-/**
- * 策略效果枚举
- */
-export enum Effect {
-  ALLOW = "allow",
-  DENY = "deny",
-}
+export type PermissionTypeValues = typeof PermissionType[keyof typeof PermissionType];
 
 /**
  * 用户响应接口
@@ -48,34 +21,61 @@ export interface UserRes {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  // ABAC 用户属性
-  attributes?: {
-    level?: number;
-    skills?: string[];
-    [key: string]: any;
-  };
+  roles: RoleRes[];
+  allPermissions?: string[]; // 用户拥有的所有权限编码
 }
 
 /**
- * ABAC策略响应接口（支持四维属性）
+ * 角色响应接口
  */
-export interface PolicyRes {
+export interface RoleRes {
   id: string;
   name: string;
   description?: string;
-  effect: Effect;
-  action: string;  // 动态字符串，支持任意操作
-  subject: string; // 动态字符串，支持任意资源
+  level: number;
   isActive: boolean;
-  priority: number;
-  
-  // 四维属性条件
-  subjectConditions?: Record<string, any>;    // 主体属性条件
-  resourceConditions?: Record<string, any>;   // 资源属性条件
-  environmentConditions?: Record<string, any>; // 环境属性条件
-  actionConditions?: Record<string, any>;     // 动作属性条件
-  
-  // 元数据
+  parent?: RoleRes;
+  children: RoleRes[];
+  inheritedRoleIds?: string[];
+  permissions: PermissionRes[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * 权限响应接口
+ */
+export interface PermissionRes {
+  id: string;
+  code: string;
+  name: string;
+  type: PermissionTypeValues;
+  description?: string;
+  path?: string;
+  icon?: string;
+  sort: number;
+  isActive: boolean;
+  parent?: PermissionRes;
+  children: PermissionRes[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * 用户会话响应接口
+ */
+export interface SessionRes {
+  id: string;
+  sessionToken: string;
+  startTime: string;
+  endTime?: string;
+  lastActivityTime: string;
+  isActive: boolean;
+  ipAddress?: string;
+  userAgent?: string;
+  deviceInfo?: string;
+  user: UserRes;
+  activeRoles: RoleRes[];
   createdAt: string;
   updatedAt: string;
 }
@@ -87,30 +87,104 @@ export interface CreateUserReq {
   username: string;
   email: string;
   password: string;
-  isActive?: boolean;
   firstName?: string;
   lastName?: string;
-  // ABAC 用户属性
-  level?: number;
-  skills?: string[];
-  attributes?: Record<string, any>;
+  isActive?: boolean;
+  roleIds?: string[];
 }
 
 /**
- * 创建策略请求（支持四维属性）
+ * 更新用户请求
  */
-export interface CreatePolicyReq {
+export interface UpdateUserReq {
+  username?: string;
+  email?: string;
+  password?: string;
+  firstName?: string;
+  lastName?: string;
+  isActive?: boolean;
+  roleIds?: string[];
+}
+
+/**
+ * 创建角色请求
+ */
+export interface CreateRoleReq {
   name: string;
   description?: string;
-  effect: Effect;
-  action: string;
-  subject: string;
+  level?: number;
   isActive?: boolean;
-  priority?: number;
-  
-  // 四维属性条件
-  subjectConditions?: Record<string, any>;
-  resourceConditions?: Record<string, any>;
-  environmentConditions?: Record<string, any>;
-  actionConditions?: Record<string, any>;
+  parentId?: string;
+  permissionIds?: string[];
+}
+
+/**
+ * 更新角色请求
+ */
+export interface UpdateRoleReq {
+  name?: string;
+  description?: string;
+  level?: number;
+  isActive?: boolean;
+  parentId?: string;
+  permissionIds?: string[];
+}
+
+/**
+ * 创建权限请求
+ */
+export interface CreatePermissionReq {
+  code: string;
+  name: string;
+  type: PermissionTypeValues;
+  description?: string;
+  path?: string;
+  icon?: string;
+  sort?: number;
+  parentId?: string;
+}
+
+/**
+ * 更新权限请求
+ */
+export interface UpdatePermissionReq {
+  code?: string;
+  name?: string;
+  type?: PermissionTypeValues;
+  description?: string;
+  path?: string;
+  icon?: string;
+  sort?: number;
+  parentId?: string;
+}
+
+/**
+ * 权限检查请求
+ */
+export interface PermissionCheckReq {
+  permissionCode: string;
+  userId?: string;
+  sessionId?: string;
+}
+
+/**
+ * 登录响应
+ */
+export interface LoginRes {
+  user: UserRes;
+  accessToken: string;
+  refreshToken: string;
+  session: SessionRes;
+}
+
+/**
+ * 权限菜单项
+ */
+export interface MenuPermission {
+  code: string;
+  name: string;
+  path?: string;
+  icon?: string;
+  sort: number;
+  children?: MenuPermission[];
 }

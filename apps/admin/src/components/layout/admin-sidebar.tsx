@@ -20,12 +20,14 @@ import {
   BarChart3,
   Package,
   Shield,
+  UserCheck,
   HelpCircle,
   LogOut
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/auth-context'
+import { useRbac } from '@/hooks/use-rbac'
 import { Button } from '@/components/ui/button'
 
 const menuItems = [
@@ -33,30 +35,41 @@ const menuItems = [
     title: '仪表盘',
     url: '/dashboard',
     icon: LayoutDashboard,
+    permission: 'dashboard'
   },
   {
     title: '用户管理',
     url: '/users',
     icon: Users,
+    permission: 'system.user.view'
   },
 ]
 
 const systemItems = [
   {
+    title: '角色管理',
+    url: '/roles',
+    icon: UserCheck,
+    permission: 'system.role.view'
+  },
+  {
     title: '权限管理',
     url: '/permissions',
     icon: Shield,
+    permission: 'system.permission.view'
   },
   {
     title: '系统设置',
     url: '/settings',
     icon: Settings,
+    permission: 'system.settings.view'
   },
 ]
 
 export function AdminSidebar() {
   const pathname = usePathname()
   const { user, logout } = useAuth()
+  const { hasPermission } = useRbac()
 
   const handleLogout = async () => {
     try {
@@ -65,6 +78,15 @@ export function AdminSidebar() {
       console.error('登出失败:', error)
     }
   }
+
+  // 过滤有权限的菜单项
+  const filteredMenuItems = menuItems.filter(item => 
+    hasPermission(item.permission)
+  )
+  
+  const filteredSystemItems = systemItems.filter(item => 
+    hasPermission(item.permission)
+  )
 
   return (
     <Sidebar>
@@ -78,47 +100,51 @@ export function AdminSidebar() {
       </SidebarHeader>
       
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>主要功能</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={pathname === item.url}
-                  >
-                    <Link href={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {menuItems.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>主要功能</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {menuItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={pathname === item.url}
+                    >
+                      <Link href={item.url}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
-        <SidebarGroup>
-          <SidebarGroupLabel>系统管理</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {systemItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={pathname === item.url}
-                  >
-                    <Link href={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {systemItems.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>系统管理</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {systemItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={pathname === item.url}
+                    >
+                      <Link href={item.url}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t p-4">

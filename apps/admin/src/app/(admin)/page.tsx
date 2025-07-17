@@ -8,8 +8,12 @@ import {
   DollarSign,
   ShoppingCart,
   Eye,
-  MessageSquare
+  MessageSquare,
+  UserCheck,
+  Shield
 } from 'lucide-react'
+import Link from 'next/link'
+import { useRbac } from '@/hooks/use-rbac'
 
 const statsCards = [
   {
@@ -82,6 +86,8 @@ const recentActivities = [
 ]
 
 export default function DashboardPage() {
+  const { hasPermission } = useRbac();
+
   return (
     <div className="space-y-6">
       {/* 页面标题 */}
@@ -192,34 +198,48 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors">
-              <Users className="h-8 w-8 text-blue-500" />
-              <div>
-                <p className="font-medium">用户管理</p>
-                <p className="text-sm text-muted-foreground">管理系统用户</p>
+            {hasPermission('system.user.view') && (
+              <Link href="/users">
+                <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors">
+                  <Users className="h-8 w-8 text-blue-500" />
+                  <div>
+                    <p className="font-medium">用户管理</p>
+                    <p className="text-sm text-muted-foreground">管理系统用户</p>
+                  </div>
+                </div>
+              </Link>
+            )}
+            {hasPermission('system.role.view') && (
+              <Link href="/roles">
+                <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors">
+                  <UserCheck className="h-8 w-8 text-green-500" />
+                  <div>
+                    <p className="font-medium">角色管理</p>
+                    <p className="text-sm text-muted-foreground">管理用户角色</p>
+                  </div>
+                </div>
+              </Link>
+            )}
+            {hasPermission('system.permission.view') && (
+              <Link href="/permissions">
+                <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors">
+                  <Shield className="h-8 w-8 text-orange-500" />
+                  <div>
+                    <p className="font-medium">权限管理</p>
+                    <p className="text-sm text-muted-foreground">查看权限树</p>
+                  </div>
+                </div>
+              </Link>
+            )}
+            {hasPermission('content.document.view') && (
+              <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors">
+                <FileText className="h-8 w-8 text-purple-500" />
+                <div>
+                  <p className="font-medium">内容管理</p>
+                  <p className="text-sm text-muted-foreground">管理文档内容</p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors">
-              <FileText className="h-8 w-8 text-green-500" />
-              <div>
-                <p className="font-medium">内容发布</p>
-                <p className="text-sm text-muted-foreground">创建新内容</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors">
-              <Activity className="h-8 w-8 text-orange-500" />
-              <div>
-                <p className="font-medium">系统监控</p>
-                <p className="text-sm text-muted-foreground">查看系统状态</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors">
-              <TrendingUp className="h-8 w-8 text-purple-500" />
-              <div>
-                <p className="font-medium">数据分析</p>
-                <p className="text-sm text-muted-foreground">查看详细报告</p>
-              </div>
-            </div>
+            )}
           </div>
         </CardContent>
       </Card>

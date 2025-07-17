@@ -81,10 +81,6 @@
             "type": "string",
             "description": "权限类型"
           },
-          "reason": {
-            "type": "string",
-            "description": "权限说明"
-          },
           "displayName": {
             "type": "string",
             "description": "权限显示名称"

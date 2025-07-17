@@ -21,7 +21,6 @@ import { RoleHierarchyService } from "./services/role-hierarchy.service";
 import { AuthAdminController } from "./controllers/auth-admin.controller";
 import { RoleAdminController } from "@/modules/user/controllers/role-admin.controller";
 import { PermissionAdminController } from "@/modules/auth/controllers/permission-admin.controller";
-import { RoleInitAdminController } from "./controllers/role-init-admin.controller";
 
 // Repositories
 import { PermissionRepository } from "./repositories/permission.repository";
@@ -69,7 +68,7 @@ import { JwtConfig } from "./config/jwt.config";
     RoleAdminController,
     AuthAdminController,
     PermissionAdminController,
-    RoleInitAdminController],
+  ],
   providers: [
     // Services
     PermissionService,

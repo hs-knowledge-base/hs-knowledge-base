@@ -23,10 +23,6 @@ export class PermissionSummaryVo {
   @Expose()
   type: string;
 
-  @ApiPropertyOptional({ description: '权限说明' })
-  @Expose()
-  reason?: string;
-
   @ApiPropertyOptional({ description: '权限显示名称' })
   @Expose()
   @Transform(({ obj }) => {

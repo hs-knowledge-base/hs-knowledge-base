@@ -489,75 +489,6 @@
         ]
       }
     },
-    "/api/admin/role-init/initialize": {
-      "post": {
-        "operationId": "initializeRoles",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "初始化成功"
-          },
-          "403": {
-            "description": "权限不足"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "初始化系统角色和权限",
-        "tags": [
-          "admin/role-init",
-          "角色初始化管理"
-        ]
-      }
-    },
-    "/api/admin/role-init/reset": {
-      "post": {
-        "operationId": "resetRoles",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "重置成功"
-          },
-          "403": {
-            "description": "权限不足"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "重置系统角色和权限（危险操作）",
-        "tags": [
-          "admin/role-init",
-          "角色初始化管理"
-        ]
-      }
-    },
-    "/api/admin/role-init/overview": {
-      "get": {
-        "operationId": "getRoleOverview",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "获取成功"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "获取角色权限概览",
-        "tags": [
-          "admin/role-init",
-          "角色初始化管理"
-        ]
-      }
-    },
     "/api/admin/users": {
       "post": {
         "operationId": "create",
@@ -780,10 +711,6 @@
           "type": {
             "type": "string",
             "description": "权限类型"
-          },
-          "reason": {
-            "type": "string",
-            "description": "权限说明"
           },
           "displayName": {
             "type": "string",

@@ -19,7 +19,7 @@ export const userApi = {
   /**
    * 根据 ID 获取用户详情
    */
-  getUser: (id: string) =>
+  getUser: (id: number) =>
     alovaClient.Get<ApiResponse<UserRes>>(`/users/${id}`),
 
   /**
@@ -31,25 +31,25 @@ export const userApi = {
   /**
    * 更新用户信息
    */
-  updateUser: (id: string, userData: UpdateUserReq) =>
+  updateUser: (id: number, userData: UpdateUserReq) =>
     alovaClient.Put<ApiResponse<UserRes>>(`/users/${id}`, userData),
 
   /**
    * 删除用户
    */
-  deleteUser: (id: string) =>
+  deleteUser: (id: number) =>
     alovaClient.Delete<ApiResponse<null>>(`/users/${id}`),
 
   /**
    * 启用/禁用用户
    */
-  toggleUserStatus: (id: string, isActive: boolean) =>
+  toggleUserStatus: (id: number, isActive: boolean) =>
     alovaClient.Put<ApiResponse<UserRes>>(`/users/${id}/status`, { isActive }),
 
   /**
    * 重置用户密码
    */
-  resetPassword: (id: string, newPassword: string) =>
+  resetPassword: (id: number, newPassword: string) =>
     alovaClient.Put<ApiResponse<null>>(`/users/${id}/password`, {
       password: newPassword,
     }),
@@ -57,12 +57,12 @@ export const userApi = {
   /**
    * 更新用户角色
    */
-  updateUserRoles: (id: string, roleIds: string[]) =>
+  updateUserRoles: (id: number, roleIds: number[]) =>
     alovaClient.Put<ApiResponse<UserRes>>(`/users/${id}/roles`, { roleIds }),
 
   /**
    * 获取用户的有效权限
    */
-  getUserPermissions: (id: string) =>
+  getUserPermissions: (id: number) =>
     alovaClient.Get<ApiResponse<string[]>>(`/users/${id}/permissions`),
 };

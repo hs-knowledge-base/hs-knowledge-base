@@ -26,7 +26,7 @@ export const roleApi = {
   /**
    * 根据 ID 获取角色详情
    */
-  getRole: (id: string) =>
+  getRole: (id: number) =>
     alovaClient.Get<ApiResponse<RoleRes>>(`/roles/${id}`),
 
   /**
@@ -38,19 +38,19 @@ export const roleApi = {
   /**
    * 更新角色信息
    */
-  updateRole: (id: string, roleData: UpdateRoleReq) =>
+  updateRole: (id: number, roleData: UpdateRoleReq) =>
     alovaClient.Put<ApiResponse<RoleRes>>(`/roles/${id}`, roleData),
 
   /**
    * 删除角色
    */
-  deleteRole: (id: string) =>
+  deleteRole: (id: number) =>
     alovaClient.Delete<ApiResponse<null>>(`/roles/${id}`),
 
   /**
    * 启用/禁用角色
    */
-  toggleRoleStatus: (id: string, isActive: boolean) =>
+  toggleRoleStatus: (id: number, isActive: boolean) =>
     alovaClient.Put<ApiResponse<RoleRes>>(`/roles/${id}/status`, { isActive }),
 
   /**
@@ -62,7 +62,7 @@ export const roleApi = {
   /**
    * 建立角色继承关系
    */
-  addRoleInheritance: (juniorRoleId: string, seniorRoleId: string) =>
+  addRoleInheritance: (juniorRoleId: number, seniorRoleId: number) =>
     alovaClient.Post<ApiResponse<null>>("/roles/inheritance", {
       juniorRoleId,
       seniorRoleId,
@@ -71,12 +71,12 @@ export const roleApi = {
   /**
    * 移除角色继承关系
    */
-  removeRoleInheritance: (juniorRoleId: string) =>
+  removeRoleInheritance: (juniorRoleId: number) =>
     alovaClient.Delete<ApiResponse<null>>(`/roles/${juniorRoleId}/inheritance`),
 
   /**
    * 获取角色的有效权限
    */
-  getRolePermissions: (id: string) =>
+  getRolePermissions: (id: number) =>
     alovaClient.Get<ApiResponse<string[]>>(`/roles/${id}/permissions`),
 }; 

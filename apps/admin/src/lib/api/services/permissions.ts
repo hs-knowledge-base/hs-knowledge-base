@@ -7,7 +7,7 @@ export interface GetPermissionsReq {
   limit?: number;
   search?: string;
   type?: string;
-  parentId?: string;
+  parentId?: number;
 }
 
 export const permissionApi = {
@@ -32,7 +32,7 @@ export const permissionApi = {
   /**
    * 根据 ID 获取权限详情
    */
-  getPermission: (id: string) =>
+  getPermission: (id: number) =>
     alovaClient.Get<ApiResponse<PermissionRes>>(`/permissions/${id}`),
 
   /**
@@ -44,19 +44,19 @@ export const permissionApi = {
   /**
    * 更新权限信息
    */
-  updatePermission: (id: string, permissionData: UpdatePermissionReq) =>
+  updatePermission: (id: number, permissionData: UpdatePermissionReq) =>
     alovaClient.Put<ApiResponse<PermissionRes>>(`/permissions/${id}`, permissionData),
 
   /**
    * 删除权限
    */
-  deletePermission: (id: string) =>
+  deletePermission: (id: number) =>
     alovaClient.Delete<ApiResponse<null>>(`/permissions/${id}`),
 
   /**
    * 启用/禁用权限
    */
-  togglePermissionStatus: (id: string, isActive: boolean) =>
+  togglePermissionStatus: (id: number, isActive: boolean) =>
     alovaClient.Put<ApiResponse<PermissionRes>>(`/permissions/${id}/status`, { isActive }),
 
   /**

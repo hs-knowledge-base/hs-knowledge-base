@@ -10,7 +10,7 @@ export interface UpdateUserReq {
   firstName?: string;
   lastName?: string;
   isActive?: boolean;
-  roleIds?: string[];
+  roleIds?: number[];
 }
 
 /**
@@ -23,7 +23,7 @@ export interface CreateUserReq {
   firstName?: string;
   lastName?: string;
   isActive?: boolean;
-  roleIds?: string[];
+  roleIds?: number[];
 }
 
 /**
@@ -51,5 +51,5 @@ export interface GetUsersReq {
   limit?: number;
   search?: string;
   isActive?: boolean;
-  roleId?: string;
+  roleId?: number;
 }

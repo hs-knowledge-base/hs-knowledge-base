@@ -13,7 +13,7 @@ export type PermissionTypeValues = typeof PermissionType[keyof typeof Permission
  * 用户响应接口
  */
 export interface UserRes {
-  id: string;
+  id: number;
   username: string;
   email: string;
   firstName?: string;
@@ -29,14 +29,14 @@ export interface UserRes {
  * 角色响应接口
  */
 export interface RoleRes {
-  id: string;
+  id: number;
   name: string;
   description?: string;
   level: number;
   isActive: boolean;
   parent?: RoleRes;
   children: RoleRes[];
-  inheritedRoleIds?: string[];
+  inheritedRoleIds?: number[];
   permissions: PermissionRes[];
   createdAt: string;
   updatedAt: string;
@@ -46,7 +46,7 @@ export interface RoleRes {
  * 权限响应接口
  */
 export interface PermissionRes {
-  id: string;
+  id: number;
   code: string;
   name: string;
   type: PermissionTypeValues;
@@ -65,7 +65,7 @@ export interface PermissionRes {
  * 用户会话响应接口
  */
 export interface SessionRes {
-  id: string;
+  id: number;
   sessionToken: string;
   startTime: string;
   endTime?: string;
@@ -90,7 +90,7 @@ export interface CreateUserReq {
   firstName?: string;
   lastName?: string;
   isActive?: boolean;
-  roleIds?: string[];
+  roleIds?: number[];
 }
 
 /**
@@ -103,7 +103,7 @@ export interface UpdateUserReq {
   firstName?: string;
   lastName?: string;
   isActive?: boolean;
-  roleIds?: string[];
+  roleIds?: number[];
 }
 
 /**
@@ -114,8 +114,8 @@ export interface CreateRoleReq {
   description?: string;
   level?: number;
   isActive?: boolean;
-  parentId?: string;
-  permissionIds?: string[];
+  parentId?: number;
+  permissionIds?: number[];
 }
 
 /**
@@ -126,8 +126,8 @@ export interface UpdateRoleReq {
   description?: string;
   level?: number;
   isActive?: boolean;
-  parentId?: string;
-  permissionIds?: string[];
+  parentId?: number;
+  permissionIds?: number[];
 }
 
 /**
@@ -141,7 +141,7 @@ export interface CreatePermissionReq {
   path?: string;
   icon?: string;
   sort?: number;
-  parentId?: string;
+  parentId?: number;
 }
 
 /**
@@ -155,7 +155,7 @@ export interface UpdatePermissionReq {
   path?: string;
   icon?: string;
   sort?: number;
-  parentId?: string;
+  parentId?: number;
 }
 
 /**
@@ -163,8 +163,8 @@ export interface UpdatePermissionReq {
  */
 export interface PermissionCheckReq {
   permissionCode: string;
-  userId?: string;
-  sessionId?: string;
+  userId?: number;
+  sessionId?: number;
 }
 
 /**

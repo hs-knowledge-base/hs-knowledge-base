@@ -158,120 +158,36 @@ export const PERMISSION_TREE = [
       }
     ]
   },
-  
-  // 内容管理
-  {
-    code: 'content',
-    name: '内容管理',
-    type: PermissionType.MODULE,
-    icon: 'content',
-    path: '/content',
-    sort: 3,
-    children: [
-      {
-        code: 'content.document',
-        name: '文档管理',
-        type: PermissionType.MENU,
-        icon: 'document',
-        path: '/content/document',
-        sort: 1,
-        children: [
-          {
-            code: 'content.document.view',
-            name: '查看',
-            type: PermissionType.BUTTON,
-            sort: 1
-          },
-          {
-            code: 'content.document.add',
-            name: '新增',
-            type: PermissionType.BUTTON,
-            sort: 2
-          },
-          {
-            code: 'content.document.edit',
-            name: '编辑',
-            type: PermissionType.BUTTON,
-            sort: 3
-          },
-          {
-            code: 'content.document.delete',
-            name: '删除',
-            type: PermissionType.BUTTON,
-            sort: 4
-          }
-        ]
-      },
-      {
-        code: 'content.knowledge',
-        name: '知识库管理',
-        type: PermissionType.MENU,
-        icon: 'knowledge',
-        path: '/content/knowledge',
-        sort: 2,
-        children: [
-          {
-            code: 'content.knowledge.view',
-            name: '查看',
-            type: PermissionType.BUTTON,
-            sort: 1
-          },
-          {
-            code: 'content.knowledge.add',
-            name: '新增',
-            type: PermissionType.BUTTON,
-            sort: 2
-          },
-          {
-            code: 'content.knowledge.edit',
-            name: '编辑',
-            type: PermissionType.BUTTON,
-            sort: 3
-          },
-          {
-            code: 'content.knowledge.delete',
-            name: '删除',
-            type: PermissionType.BUTTON,
-            sort: 4
-          }
-        ]
-      }
-    ]
-  }
 ];
 
 /**
  * 角色权限分配 - 基于权限编码
+ * 注意：这里配置的是每个角色拥有的完整权限，不依赖继承
  */
 export const RBAC_ROLE_PERMISSIONS = {
   [RBAC_ROLES.VISITOR]: [
     'dashboard',
-    'content',
-    'content.document',
-    'content.document.view',
-    'content.knowledge',
-    'content.knowledge.view'
   ],
   
   [RBAC_ROLES.TEAM_DEVELOPER]: [
-    // 继承访客权限，增加文档编辑权限
-    'content.document.add',
-    'content.document.edit',
-    'content.knowledge.add',
-    'content.knowledge.edit'
+    // 访客权限 + 文档编辑权限
+    'dashboard',
   ],
   
   [RBAC_ROLES.TEAM_LEADER]: [
-    // 继承开发者权限，增加删除权限
-    'content.document.delete',
-    'content.knowledge.delete',
+    // 开发者权限 + 删除权限 + 部分系统管理权限
+    'dashboard',
     'system',
     'system.user',
     'system.user.view'
   ],
   
   [RBAC_ROLES.ADMIN]: [
-    // 继承领导权限，增加用户和角色管理权限
+    // 领导权限 + 完整用户和角色管理权限
+    'dashboard',
+    'system',
+    'system.user',
+    'system.user.view',
     'system.user.add',
     'system.user.edit',
     'system.user.delete',
@@ -283,7 +199,19 @@ export const RBAC_ROLE_PERMISSIONS = {
   ],
   
   [RBAC_ROLES.SUPER_ADMIN]: [
-    // 继承管理员权限，增加权限管理权限
+    // 所有权限 - 超级管理员拥有系统全部权限
+    'dashboard',
+    'system',
+    'system.user',
+    'system.user.view',
+    'system.user.add',
+    'system.user.edit',
+    'system.user.delete',
+    'system.role',
+    'system.role.view',
+    'system.role.add',
+    'system.role.edit',
+    'system.role.delete',
     'system.permission',
     'system.permission.view',
     'system.permission.edit'

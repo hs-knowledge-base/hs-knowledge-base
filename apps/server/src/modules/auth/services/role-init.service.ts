@@ -198,22 +198,6 @@ export class RoleInitService {
   }
 
   /**
-   * 重置角色和权限（开发环境使用）
-   */
-  async resetRoles(): Promise<void> {
-    this.logger.warn('重置所有角色和权限...');
-    
-    // 删除所有角色（会级联删除权限关联）
-    await this.roleRepository.delete({});
-    await this.permissionTypeOrmRepository.delete({});
-    
-    // 重新初始化
-    await this.initializeRoles();
-    
-    this.logger.log('角色和权限重置完成');
-  }
-
-  /**
    * 获取角色权限概览
    */
   async getRolePermissionOverview(): Promise<any> {

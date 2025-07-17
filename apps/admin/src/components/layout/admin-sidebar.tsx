@@ -39,21 +39,6 @@ const menuItems = [
     url: '/users',
     icon: Users,
   },
-  {
-    title: '内容管理',
-    url: '/content',
-    icon: FileText,
-  },
-  {
-    title: '数据统计',
-    url: '/analytics',
-    icon: BarChart3,
-  },
-  {
-    title: '产品管理',
-    url: '/products',
-    icon: Package,
-  },
 ]
 
 const systemItems = [
@@ -66,11 +51,6 @@ const systemItems = [
     title: '系统设置',
     url: '/settings',
     icon: Settings,
-  },
-  {
-    title: '帮助中心',
-    url: '/help',
-    icon: HelpCircle,
   },
 ]
 

@@ -1,24 +1,39 @@
 /**
- * 权限操作枚举
+ * 常用操作类型常量
  */
-export enum Action {
-  CREATE = 'create',
-  READ = 'read',
-  UPDATE = 'update',
-  DELETE = 'delete',
-  MANAGE = 'manage',
-}
+export const COMMON_ACTIONS = {
+  CREATE: "create",
+  READ: "read", 
+  UPDATE: "update",
+  DELETE: "delete",
+  LIST: "list",
+  EXPORT: "export",
+  IMPORT: "import",
+  APPROVE: "approve",
+  REJECT: "reject",
+  PUBLISH: "publish",
+  ARCHIVE: "archive",
+  MANAGE: "manage",
+} as const;
 
 /**
- * 资源主体枚举
+ * 常用资源类型常量
  */
-export enum Subject {
-  USER = 'user',
-  ROLE = 'role',
-  PERMISSION = 'permission',
-  DOCUMENT = 'document',
-  KNOWLEDGE_BASE = 'knowledge_base',
-  ALL = 'all',
+export const COMMON_SUBJECTS = {
+  USER: "user",
+  DOCUMENT: "document", 
+  SYSTEM: "system",
+  POLICY: "policy",
+  ATTRIBUTE_DEFINITION: "attribute-definition",
+  ALL: "*",
+} as const;
+
+/**
+ * 策略效果枚举
+ */
+export enum Effect {
+  ALLOW = "allow",
+  DENY = "deny",
 }
 
 /**
@@ -28,43 +43,39 @@ export interface UserRes {
   id: string;
   username: string;
   email: string;
-  isActive: boolean;
   firstName?: string;
   lastName?: string;
-  department?: string;
-  position?: string;
-  attributes?: Record<string, any>;
-  roles?: RoleRes[];
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  // ABAC 用户属性
+  attributes?: {
+    level?: number;
+    skills?: string[];
+    [key: string]: any;
+  };
 }
 
 /**
- * 角色响应接口
+ * ABAC策略响应接口（支持四维属性）
  */
-export interface RoleRes {
+export interface PolicyRes {
   id: string;
   name: string;
   description?: string;
-  attributes?: Record<string, any>;
-  users?: UserRes[];
-  permissions?: PermissionRes[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-/**
- * 权限响应接口
- */
-export interface PermissionRes {
-  id: string;
-  action: Action;
-  subject: Subject;
-  conditions?: Record<string, any>;
-  fields?: string;
-  inverted: boolean;
-  reason?: string;
-  roles?: RoleRes[];
+  effect: Effect;
+  action: string;  // 动态字符串，支持任意操作
+  subject: string; // 动态字符串，支持任意资源
+  isActive: boolean;
+  priority: number;
+  
+  // 四维属性条件
+  subjectConditions?: Record<string, any>;    // 主体属性条件
+  resourceConditions?: Record<string, any>;   // 资源属性条件
+  environmentConditions?: Record<string, any>; // 环境属性条件
+  actionConditions?: Record<string, any>;     // 动作属性条件
+  
+  // 元数据
   createdAt: string;
   updatedAt: string;
 }
@@ -79,124 +90,27 @@ export interface CreateUserReq {
   isActive?: boolean;
   firstName?: string;
   lastName?: string;
-  roleIds?: string[];
+  // ABAC 用户属性
+  level?: number;
+  skills?: string[];
   attributes?: Record<string, any>;
 }
 
 /**
- * 更新用户请求
+ * 创建策略请求（支持四维属性）
  */
-export interface UpdateUserReq {
-  username?: string;
-  email?: string;
-  password?: string;
-  isActive?: boolean;
-  firstName?: string;
-  lastName?: string;
-  roleIds?: string[];
-  attributes?: Record<string, any>;
-}
-
-/**
- * 创建角色请求
- */
-export interface CreateRoleReq {
+export interface CreatePolicyReq {
   name: string;
   description?: string;
-  permissionIds?: string[];
-  attributes?: Record<string, any>;
-}
-
-/**
- * 更新角色请求
- */
-export interface UpdateRoleReq {
-  name?: string;
-  description?: string;
-  permissionIds?: string[];
-  attributes?: Record<string, any>;
-}
-
-/**
- * 创建权限请求
- */
-export interface CreatePermissionReq {
-  action: Action;
-  subject: Subject;
-  conditions?: Record<string, any>;
-  fields?: string;
-  inverted?: boolean;
-  reason?: string;
-}
-
-/**
- * 更新权限请求
- */
-export interface UpdatePermissionReq {
-  action?: string;
-  subject?: string;
-  conditions?: Record<string, any>;
-  fields?: string;
-  inverted?: boolean;
-  reason?: string;
-}
-
-
-
-/**
- * 权限检查请求
- */
-export interface PermissionCheckReq {
-  userId: string;
+  effect: Effect;
   action: string;
   subject: string;
-  resource?: Record<string, any>;
-  context?: Record<string, any>;
+  isActive?: boolean;
+  priority?: number;
+  
+  // 四维属性条件
+  subjectConditions?: Record<string, any>;
+  resourceConditions?: Record<string, any>;
+  environmentConditions?: Record<string, any>;
+  actionConditions?: Record<string, any>;
 }
-
-/**
- * 权限检查响应
- */
-export interface PermissionCheckRes {
-  allowed: boolean;
-  reason?: string;
-  matchedPermissions?: PermissionRes[];
-}
-
-/**
- * 登录请求
- */
-export interface LoginReq {
-  usernameOrEmail: string;
-  password: string;
-}
-
-/**
- * 登录响应
- */
-export interface LoginRes {
-  accessToken: string;
-  refreshToken: string;
-  user: UserRes;
-}
-
-/**
- * 注册请求
- */
-export interface RegisterReq {
-  username: string;
-  email: string;
-  password: string;
-  firstName?: string;
-  lastName?: string;
-}
-
-/**
- * 刷新令牌响应
- */
-export interface RefreshTokenRes {
-  accessToken: string;
-  refreshToken: string;
-}
-
-

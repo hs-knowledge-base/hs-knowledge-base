@@ -17,9 +17,3 @@ export const alovaClient = createAlova({
     onError: errorInterceptor,
   },
 });
-
-/**
- * 导出客户端实例供服务使用
- * @deprecated 使用 alovaClient 替代
- */
-export const alovaInstance = alovaClient;

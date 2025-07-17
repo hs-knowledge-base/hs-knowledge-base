@@ -17,7 +17,7 @@ export class RoleRepository {
     });
   }
 
-  async findWithPermissions(id: string): Promise<Role | null> {
+  async findWithPermissions(id: number): Promise<Role | null> {
     return this.repository.findOne({
       where: { id },
       relations: ['permissions'],
@@ -34,14 +34,14 @@ export class RoleRepository {
     return this.repository.find();
   }
 
-  async findOne(id: string): Promise<Role | null> {
+  async findOne(id: number): Promise<Role | null> {
     return this.repository.findOne({
       where: { id },
       relations: ['permissions', 'parent', 'children'],
     });
   }
 
-  async findByIds(ids: string[]): Promise<Role[]> {
+  async findByIds(ids: number[]): Promise<Role[]> {
     return this.repository.findByIds(ids);
   }
 
@@ -50,7 +50,7 @@ export class RoleRepository {
     return this.repository.save(role);
   }
 
-  async update(id: string, roleData: Partial<Role>): Promise<Role | null> {
+  async update(id: number, roleData: Partial<Role>): Promise<Role | null> {
     await this.repository.update(id, roleData);
     return this.findOne(id);
   }
@@ -59,7 +59,7 @@ export class RoleRepository {
     return this.repository.save(role);
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: number): Promise<void> {
     await this.repository.delete(id);
   }
 

@@ -45,8 +45,8 @@ export enum ConstraintType {
  */
 @Entity('rbac_constraints')
 export class RbacConstraint {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ comment: "约束名称" })
   name: string;

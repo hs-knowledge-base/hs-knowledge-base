@@ -233,14 +233,14 @@ export class RoleInitService {
   }
 
   /**
-   * 检查用户是否有指定角色
+   * 检查用户是否具有指定角色
    */
-  async hasRole(userId: string, roleName: string): Promise<boolean> {
+  private async userHasRole(userId: number, roleName: string): Promise<boolean> {
     const role = await this.roleRepository.findOne({
       where: { name: roleName },
-      relations: ['users']
+      relations: ['users'],
     });
-
+    
     return role?.users?.some(user => user.id === userId) || false;
   }
 }

@@ -33,33 +33,42 @@ export class PermissionSummaryVo {
 
 /**
  * 角色 VO - User 模块专用
+ * 用于用户管理中的角色信息展示
  */
 export class RoleVo {
-  @ApiProperty({ description: '角色ID', example: 'uuid-string' })
+  @ApiProperty({ description: '角色ID', example: 1 })
   @Expose()
-  id: string;
+  id: number;
 
   @ApiProperty({ description: '角色名称', example: 'admin' })
   @Expose()
   name: string;
 
-  @ApiPropertyOptional({ description: '角色描述', example: '系统管理员' })
+  @ApiPropertyOptional({ description: '角色描述', example: '管理员角色' })
   @Expose()
   description?: string;
 
-  @ApiPropertyOptional({ description: '角色属性', example: { level: 'high', department: 'IT' } })
+  @ApiProperty({ description: '角色层级', example: 3 })
   @Expose()
-  attributes?: Record<string, any>;
+  level: number;
 
-  @ApiPropertyOptional({ description: '权限列表', type: [PermissionSummaryVo] })
+  @ApiProperty({ description: '是否启用', example: true })
   @Expose()
-  @Type(() => PermissionSummaryVo)
-  permissions?: PermissionSummaryVo[];
+  isActive: boolean;
 
-  @ApiPropertyOptional({ description: '用户列表', type: [SimpleUserVo] })
+  @ApiPropertyOptional({ description: '父角色ID', example: 2 })
   @Expose()
-  @Type(() => SimpleUserVo)
-  users?: SimpleUserVo[];
+  @Transform(({ obj }) => obj.parent?.id || null)
+  parentId?: number;
+
+  @ApiPropertyOptional({ description: '父角色名称', example: 'super_admin' })
+  @Expose()
+  @Transform(({ obj }) => obj.parent?.name || null)
+  parentName?: string;
+
+  @ApiPropertyOptional({ description: '继承的角色ID列表', example: [1, 2] })
+  @Expose()
+  inheritedRoleIds?: number[];
 
   @ApiProperty({ description: '创建时间', example: '2024-01-01T00:00:00.000Z' })
   @Expose()
@@ -70,21 +79,6 @@ export class RoleVo {
   @Expose()
   @Transform(({ value }) => DateTransformUtil.toISOString(value))
   updatedAt: string;
-
-  @ApiProperty({ description: '创建时间（本地格式）', example: '2024/1/1' })
-  @Expose()
-  @Transform(({ value }) => DateTransformUtil.toLocaleDateString(value))
-  createdAtLocal: string;
-
-  @ApiPropertyOptional({ description: '权限数量' })
-  @Expose()
-  @Transform(({ obj }) => obj.permissions?.length || 0)
-  permissionCount?: number;
-
-  @ApiPropertyOptional({ description: '用户数量' })
-  @Expose()
-  @Transform(({ obj }) => obj.users?.length || 0)
-  userCount?: number;
 }
 
 /**

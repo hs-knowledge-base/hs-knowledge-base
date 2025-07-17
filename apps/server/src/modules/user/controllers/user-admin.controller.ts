@@ -1,67 +1,69 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
+import { 
+  Controller, 
+  Get, 
+  Post, 
+  Body, 
+  Param, 
+  Put, 
+  Delete, 
   UseGuards,
+  ParseIntPipe
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UserService } from '../services/user.service';
 import { CreateUserDto } from '../dto/create-user.dto';
+import { UserVo } from '../vo/user.vo';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RbacPermissionsGuard } from '../../auth/guards/rbac-permissions.guard';
-import { RequirePermission, VoTransform } from '@/core/decorators';
-import { UserVo, SimpleUserVo, UserDetailVo } from '../vo';
+import { RequirePermission } from '@/core/decorators/require-permission.decorator';
 
-@ApiTags('admin', '用户管理')
+@ApiTags('用户管理')
 @Controller('admin/users')
-@UseGuards(RbacPermissionsGuard)
+@UseGuards(JwtAuthGuard, RbacPermissionsGuard)
+@ApiBearerAuth()
 export class UserAdminController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @RequirePermission('system.user.add')
   @ApiOperation({ summary: '创建用户' })
   @ApiResponse({ status: 201, description: '用户创建成功', type: UserVo })
-  @RequirePermission('system.user.add')
-  @VoTransform({ voClass: UserVo, excludeSensitive: true })
-  create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto): Promise<any> {
     return this.userService.create(createUserDto);
   }
 
   @Get()
-  @ApiOperation({ summary: '获取所有用户' })
-  @ApiResponse({ status: 200, description: '获取用户列表成功', type: [UserDetailVo] })
   @RequirePermission('system.user.view')
-  @VoTransform({ voClass: UserDetailVo, excludeSensitive: true })
-  findAll() {
+  @ApiOperation({ summary: '获取所有用户' })
+  @ApiResponse({ status: 200, description: '获取成功', type: [UserVo] })
+  async findAll(): Promise<any[]> {
     return this.userService.findAll();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: '根据ID获取用户' })
-  @ApiResponse({ status: 200, description: '获取用户成功', type: UserDetailVo })
   @RequirePermission('system.user.view')
-  @VoTransform({ voClass: UserDetailVo, excludeSensitive: true, deep: true })
-  findOne(@Param('id') id: string) {
+  @ApiOperation({ summary: '根据ID获取用户' })
+  @ApiResponse({ status: 200, description: '获取成功', type: UserVo })
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<any> {
     return this.userService.findOne(id);
   }
 
-  @Patch(':id')
-  @ApiOperation({ summary: '更新用户' })
-  @ApiResponse({ status: 200, description: '用户更新成功', type: UserVo })
+  @Put(':id')
   @RequirePermission('system.user.edit')
-  @VoTransform({ voClass: UserVo, excludeSensitive: true })
-  update(@Param('id') id: string, @Body() updateUserDto: Partial<CreateUserDto>) {
+  @ApiOperation({ summary: '更新用户' })
+  @ApiResponse({ status: 200, description: '更新成功', type: UserVo })
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: Partial<CreateUserDto>
+  ): Promise<any> {
     return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: '删除用户' })
-  @ApiResponse({ status: 200, description: '用户删除成功' })
   @RequirePermission('system.user.delete')
-  remove(@Param('id') id: string) {
+  @ApiOperation({ summary: '删除用户' })
+  @ApiResponse({ status: 200, description: '删除成功' })
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.userService.remove(id);
   }
 }

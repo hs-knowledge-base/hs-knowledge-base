@@ -21,7 +21,7 @@ import { User } from '@/modules/user/entities/user.entity';
  * // 获取用户ID
  * @Get('my-posts')
  * @UseGuards(JwtAuthGuard)
- * async getMyPosts(@CurrentUser('id') userId: string) {
+ * async getMyPosts(@CurrentUser('id') userId: number) {
  *   return this.postService.findByUserId(userId);
  * }
  * 
@@ -107,13 +107,13 @@ export const OptionalCurrentUser = createParamDecorator(
  * ```typescript
  * @Get('my-profile')
  * @UseGuards(JwtAuthGuard)
- * async getMyProfile(@UserId() userId: string) {
+ * async getMyProfile(@UserId() userId: number) {
  *   return this.userService.findOne(userId);
  * }
  * ```
  */
 export const UserId = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext): string => {
+  (data: unknown, ctx: ExecutionContext): number => {
     const request = ctx.switchToHttp().getRequest();
     return request.user?.id;
   },

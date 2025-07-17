@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PermissionService } from '../services/permission.service';
@@ -48,7 +49,7 @@ export class PermissionAdminController {
   @ApiResponse({ status: 200, description: '获取权限成功', type: PermissionVo })
   @RequirePermission('system.permission.view')
   @VoTransform({ voClass: PermissionVo })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.permissionService.findOne(id);
   }
 
@@ -57,7 +58,7 @@ export class PermissionAdminController {
   @ApiResponse({ status: 200, description: '权限更新成功', type: PermissionVo })
   @RequirePermission('system.permission.edit')
   @VoTransform({ voClass: PermissionVo })
-  update(@Param('id') id: string, @Body() updatePermissionDto: Partial<CreatePermissionDto>) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() updatePermissionDto: Partial<CreatePermissionDto>) {
     return this.permissionService.update(id, updatePermissionDto);
   }
 
@@ -65,7 +66,7 @@ export class PermissionAdminController {
   @ApiOperation({ summary: '删除权限' })
   @ApiResponse({ status: 200, description: '权限删除成功' })
   @RequirePermission('system.permission.edit')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.permissionService.remove(id);
   }
 

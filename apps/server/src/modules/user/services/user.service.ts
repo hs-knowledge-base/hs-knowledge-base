@@ -13,15 +13,21 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { roleIds, ...userData } = createUserDto;
+    const { roleIds, password, ...userData } = createUserDto;
+    
+    // 加密密码
+    const hashedPassword = await bcrypt.hash(password, 10);
     
     // 创建用户
-    const user = await this.userRepository.create(userData);
+    const user = await this.userRepository.create({
+      ...userData,
+      password: hashedPassword,
+    });
 
     // 如果提供了角色ID，则关联角色
     if (roleIds && roleIds.length > 0) {
       const roles = await this.roleRepository.findByIds(roleIds);
-      await this.userRepository.update(user.id, { roles });
+      await this.userRepository.updateUserRoles(user.id, roles);
     }
 
     return this.userRepository.findOne(user.id) as Promise<User>;
@@ -31,7 +37,7 @@ export class UserService {
     return this.userRepository.findAllWithRoles();
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOne(id: number): Promise<User> {
     const user = await this.userRepository.findWithRolesAndPermissions(id);
     
     if (!user) {
@@ -49,26 +55,32 @@ export class UserService {
     return this.userRepository.findByEmail(email);
   }
 
-  async update(id: string, updateUserDto: Partial<CreateUserDto>): Promise<User> {
-    const { roleIds, ...userData } = updateUserDto;
+  async update(id: number, updateUserDto: Partial<CreateUserDto>): Promise<User> {
+    const { roleIds, password, ...userData } = updateUserDto;
+    
+    // 如果有密码更新，则加密新密码
+    const updateData: any = { ...userData };
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10);
+    }
     
     // 更新用户基本信息
-    await this.userRepository.update(id, userData);
+    await this.userRepository.update(id, updateData);
 
     // 如果提供了角色ID，则更新角色关联
     if (roleIds !== undefined) {
       if (roleIds.length > 0) {
         const roles = await this.roleRepository.findByIds(roleIds);
-        await this.userRepository.update(id, { roles });
+        await this.userRepository.updateUserRoles(id, roles);
       } else {
-        await this.userRepository.update(id, { roles: [] });
+        await this.userRepository.updateUserRoles(id, []);
       }
     }
 
     return this.findOne(id);
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: number): Promise<void> {
     const user = await this.findOne(id);
     await this.userRepository.delete(id);
   }

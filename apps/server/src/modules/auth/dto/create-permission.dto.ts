@@ -63,6 +63,6 @@ export class CreatePermissionDto {
     description: '父权限ID'
   })
   @IsOptional()
-  @IsString()
-  parentId?: string;
+  @IsNumber()
+  parentId?: number;
 }

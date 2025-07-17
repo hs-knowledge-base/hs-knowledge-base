@@ -8,9 +8,9 @@ import { DateTransformUtil } from '@/core/utils';
  * 包含完整的用户信息，用于用户管理
  */
 export class UserVo {
-  @ApiProperty({ description: '用户ID', example: 'uuid-string' })
+  @ApiProperty({ description: '用户ID', example: 1 })
   @Expose()
-  id: string;
+  id: number;
 
   @ApiProperty({ description: '用户名', example: 'john_doe' })
   @Expose()

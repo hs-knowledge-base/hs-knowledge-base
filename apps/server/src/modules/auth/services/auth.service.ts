@@ -175,9 +175,7 @@ export class AuthService {
     });
   }
 
-  async logout(userId: string): Promise<void> {
-    // 这里可以实现令牌黑名单逻辑
-    // 目前只是一个占位符
-    console.log(`用户 ${userId} 已登出`);
+  async logout(userId: number): Promise<void> {
+    // TODO 令牌黑名单
   }
 }

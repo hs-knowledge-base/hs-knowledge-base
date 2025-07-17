@@ -5,7 +5,7 @@ import { UserRepository } from '../../user/repositories/user.repository';
 import { JwtConfig } from '../config/jwt.config';
 
 export interface JwtPayload {
-  sub: string; // user id
+  sub: number; // user id
   username: string;
   email: string;
   iat?: number;

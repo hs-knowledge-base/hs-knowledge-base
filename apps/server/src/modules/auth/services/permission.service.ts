@@ -1,16 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { PermissionRepository } from '../repositories/permission.repository';
 import { Permission } from '../entities/permission.entity';
 import { CreatePermissionDto } from '../dto/create-permission.dto';
-import { PermissionRepository } from '../repositories/permission.repository';
 
 @Injectable()
 export class PermissionService {
   constructor(
     private readonly permissionRepository: PermissionRepository,
-    @InjectRepository(Permission)
-    private readonly permissionTypeOrmRepository: Repository<Permission>,
   ) {}
 
   async create(createPermissionDto: CreatePermissionDto): Promise<Permission> {
@@ -18,12 +14,12 @@ export class PermissionService {
   }
 
   async findAll(): Promise<Permission[]> {
-    return this.permissionRepository.findAllWithRoles();
+    return this.permissionRepository.findAll();
   }
 
-  async findOne(id: string): Promise<Permission> {
+  async findOne(id: number): Promise<Permission> {
     const permission = await this.permissionRepository.findOne(id);
-
+    
     if (!permission) {
       throw new NotFoundException('权限不存在');
     }
@@ -31,62 +27,63 @@ export class PermissionService {
     return permission;
   }
 
-  async update(id: string, updateData: Partial<CreatePermissionDto>): Promise<Permission> {
-    const permission = await this.findOne(id);
+  async update(id: number, updateData: Partial<CreatePermissionDto>): Promise<Permission> {
+    await this.findOne(id); // 检查权限是否存在
+    
     const updated = await this.permissionRepository.update(id, updateData);
+    
     if (!updated) {
-      throw new NotFoundException('权限不存在');
+      throw new NotFoundException('权限更新失败');
     }
+
     return updated;
   }
 
-  async remove(id: string): Promise<void> {
-    const permission = await this.findOne(id);
+  async remove(id: number): Promise<void> {
+    await this.findOne(id); // 检查权限是否存在
     await this.permissionRepository.delete(id);
   }
 
-  async findByRoleIds(roleIds: string[]): Promise<Permission[]> {
+  async findByRoleIds(roleIds: number[]): Promise<Permission[]> {
     return this.permissionRepository.findByRoleIds(roleIds);
+  }
+
+  async findByCode(code: string): Promise<Permission | null> {
+    return this.permissionRepository.findByCode(code);
   }
 
   /**
    * 获取权限树结构
    */
   async getPermissionTree(): Promise<Permission[]> {
-    // 获取所有权限
-    const allPermissions = await this.permissionTypeOrmRepository.find({
-      order: { sort: 'ASC' },
-    });
+    const permissions = await this.permissionRepository.findAll();
+    
+    if (!permissions || permissions.length === 0) {
+      return [];
+    }
 
-    // 构建树形结构
-    return this.buildPermissionTree(allPermissions);
-  }
-
-  /**
-   * 构建权限树
-   */
-  private buildPermissionTree(permissions: Permission[]): Permission[] {
-    const permissionMap = new Map<string, Permission>();
-    const rootPermissions: Permission[] = [];
-
-    // 先将所有权限放入Map
+    // 创建权限映射
+    const permissionMap = new Map<number, Permission & { children: Permission[] }>();
+    
+    // 初始化所有权限
     permissions.forEach(permission => {
       permissionMap.set(permission.id, { ...permission, children: [] });
     });
 
-    // 建立父子关系
+    // 构建树形结构
+    const rootPermissions: Permission[] = [];
     permissions.forEach(permission => {
       const currentPermission = permissionMap.get(permission.id);
-      if (!currentPermission) return;
-
-      if (permission.parent) {
+      
+      if (permission.parent && permission.parent.id) {
+        // 有父节点，添加到父节点的children中
         const parent = permissionMap.get(permission.parent.id);
         if (parent) {
-          if (!parent.children) parent.children = [];
-          parent.children.push(currentPermission);
+          parent.children.push(currentPermission!);
         }
       } else {
-        rootPermissions.push(currentPermission);
+        // 没有父节点，是根节点
+        rootPermissions.push(currentPermission!);
       }
     });
 

@@ -25,8 +25,8 @@ export enum PermissionType {
 
 @Entity('permissions')
 export class Permission {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ length: 100, unique: true, comment: "权限编码" })
   code: string;

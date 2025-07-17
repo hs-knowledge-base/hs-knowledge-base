@@ -15,8 +15,8 @@ import { Permission } from '../../auth/entities/permission.entity';
 
 @Entity('roles')
 export class Role {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ unique: true, comment: "角色名称", length: 50 })
   name: string;
@@ -39,7 +39,7 @@ export class Role {
   children: Role[];
 
   @Column('simple-array', { nullable: true, comment: "继承的角色ID列表" })
-  inheritedRoleIds?: string[];
+  inheritedRoleIds?: number[];
 
   @ManyToMany(() => User, (user) => user.roles)
   users: User[];

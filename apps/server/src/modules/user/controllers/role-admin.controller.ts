@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { RoleService } from '../services/role.service';
@@ -44,7 +45,7 @@ export class RoleAdminController {
   @ApiResponse({ status: 200, description: '获取角色成功', type: RoleDetailVo })
   @RequirePermission('system.role.view')
   @VoTransform({ voClass: RoleDetailVo, deep: true })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.roleService.findOne(id);
   }
 
@@ -53,7 +54,7 @@ export class RoleAdminController {
   @ApiResponse({ status: 200, description: '角色更新成功', type: RoleVo })
   @RequirePermission('system.role.edit')
   @VoTransform({ voClass: RoleVo })
-  update(@Param('id') id: string, @Body() updateRoleDto: Partial<CreateRoleDto>) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateRoleDto: Partial<CreateRoleDto>) {
     return this.roleService.update(id, updateRoleDto);
   }
 
@@ -61,7 +62,7 @@ export class RoleAdminController {
   @ApiOperation({ summary: '删除角色' })
   @ApiResponse({ status: 200, description: '角色删除成功' })
   @RequirePermission('system.role.delete')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.roleService.remove(id);
   }
 }

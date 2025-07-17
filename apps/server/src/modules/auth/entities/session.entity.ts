@@ -18,8 +18,8 @@ import { Role } from '../../user/entities/role.entity';
  */
 @Entity('user_sessions')
 export class UserSession {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ comment: "会话令牌" })
   sessionToken: string;
@@ -54,7 +54,7 @@ export class UserSession {
   user: User;
 
   @Column({ name: 'user_id' })
-  userId: string;
+  userId: number;
 
   // RBAC2: 会话中激活的角色
   @ManyToMany(() => Role)

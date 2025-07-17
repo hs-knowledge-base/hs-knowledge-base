@@ -1,127 +1,82 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserSession } from '../entities/session.entity';
 import { User } from '../../user/entities/user.entity';
 import { Role } from '../../user/entities/role.entity';
-import { RbacConstraint, ConstraintType } from '../entities/constraint.entity';
 
 /**
- * RBAC2 会话管理服务
- * 管理用户会话和角色激活
+ * 会话管理服务 - RBAC2 模型核心组件
+ * 管理用户会话和会话中的角色激活
  */
 @Injectable()
 export class SessionService {
   constructor(
     @InjectRepository(UserSession)
-    private sessionRepository: Repository<UserSession>,
-    @InjectRepository(RbacConstraint)
-    private constraintRepository: Repository<RbacConstraint>,
+    private readonly sessionRepository: Repository<UserSession>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
   ) {}
 
   /**
    * 创建新的用户会话
    */
   async createSession(
-    user: User,
+    userId: number,
     sessionToken: string,
     refreshToken: string,
-    clientInfo?: {
-      ipAddress?: string;
-      userAgent?: string;
-      deviceInfo?: string;
-    }
+    ipAddress?: string,
+    userAgent?: string,
+    deviceInfo?: string
   ): Promise<UserSession> {
-    const now = new Date();
-    
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['roles'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('用户不存在');
+    }
+
     const session = this.sessionRepository.create({
-      user,
-      userId: user.id,
       sessionToken,
       refreshToken,
-      startTime: now,
-      lastActivityTime: now,
-      isActive: true,
-      ipAddress: clientInfo?.ipAddress,
-      userAgent: clientInfo?.userAgent,
-      deviceInfo: clientInfo?.deviceInfo,
-      // 初始时激活用户的所有角色（可以后续通过activateRole/deactivateRole调整）
-      activeRoles: user.roles || [],
+      userId,
+      user,
+      ipAddress,
+      userAgent,
+      deviceInfo,
+      activeRoles: [], // 初始时没有激活任何角色
     });
 
     return this.sessionRepository.save(session);
   }
 
   /**
-   * 根据会话令牌获取会话
+   * 更新会话的最后活动时间
    */
-  async getSessionByToken(sessionToken: string): Promise<UserSession | null> {
-    return this.sessionRepository.findOne({
-      where: { sessionToken, isActive: true },
-      relations: ['user', 'user.roles', 'activeRoles', 'activeRoles.permissions'],
-    });
-  }
-
-  /**
-   * 更新会话活动时间
-   */
-  async updateActivity(sessionId: string): Promise<void> {
+  async updateLastActivity(sessionId: number): Promise<void> {
     await this.sessionRepository.update(sessionId, {
       lastActivityTime: new Date(),
     });
   }
 
   /**
-   * 结束会话
+   * 根据会话令牌查找会话
    */
-  async endSession(sessionId: string): Promise<void> {
-    const session = await this.sessionRepository.findOne({
-      where: { id: sessionId },
+  async findBySessionToken(sessionToken: string): Promise<UserSession | null> {
+    return this.sessionRepository.findOne({
+      where: { sessionToken, isActive: true },
+      relations: ['user', 'user.roles', 'activeRoles'],
     });
-
-    if (session) {
-      session.endSession();
-      await this.sessionRepository.save(session);
-    }
   }
 
   /**
-   * 结束用户的所有会话
+   * 获取会话详情
    */
-  async endAllUserSessions(userId: string): Promise<void> {
-    const sessions = await this.sessionRepository.find({
-      where: { userId, isActive: true },
-    });
-
-    for (const session of sessions) {
-      session.endSession();
-    }
-
-    await this.sessionRepository.save(sessions);
-  }
-
-  /**
-   * 清理过期会话
-   */
-  async cleanupExpiredSessions(): Promise<number> {
-    const sessions = await this.sessionRepository.find({
-      where: { isActive: true },
-    });
-
-    const expiredSessions = sessions.filter(session => session.isExpired());
-    
-    for (const session of expiredSessions) {
-      session.endSession();
-    }
-
-    await this.sessionRepository.save(expiredSessions);
-    return expiredSessions.length;
-  }
-
-  /**
-   * 在会话中激活角色
-   */
-  async activateRole(sessionId: string, roleId: string): Promise<void> {
+  async getSession(sessionId: number): Promise<UserSession> {
     const session = await this.sessionRepository.findOne({
       where: { id: sessionId },
       relations: ['user', 'user.roles', 'activeRoles'],
@@ -131,14 +86,47 @@ export class SessionService {
       throw new NotFoundException('会话不存在');
     }
 
-    if (session.isExpired()) {
-      throw new ForbiddenException('会话已过期');
+    return session;
+  }
+
+  /**
+   * 获取用户的所有活跃会话
+   */
+  async getUserActiveSessions(userId: number): Promise<UserSession[]> {
+    return this.sessionRepository.find({
+      where: { userId, isActive: true },
+      relations: ['activeRoles'],
+      order: { lastActivityTime: 'DESC' },
+    });
+  }
+
+  /**
+   * 结束会话
+   */
+  async endSession(sessionId: number): Promise<void> {
+    await this.sessionRepository.update(sessionId, {
+      isActive: false,
+      endTime: new Date(),
+    });
+  }
+
+  /**
+   * 在会话中激活角色
+   */
+  async activateRole(sessionId: number, roleId: number): Promise<void> {
+    const session = await this.sessionRepository.findOne({
+      where: { id: sessionId },
+      relations: ['user', 'user.roles', 'activeRoles'],
+    });
+
+    if (!session) {
+      throw new NotFoundException('会话不存在');
     }
 
-    // 检查用户是否有此角色
+    // 检查用户是否拥有该角色
     const userHasRole = session.user.roles?.some(role => role.id === roleId);
     if (!userHasRole) {
-      throw new ForbiddenException('用户没有此角色');
+      throw new BadRequestException('用户没有该角色');
     }
 
     // 获取要激活的角色
@@ -147,22 +135,25 @@ export class SessionService {
       throw new NotFoundException('角色不存在');
     }
 
-    // 检查约束条件
-    await this.validateRoleActivation(session, roleToActivate);
-
-    // 检查是否已经激活
+    // 检查角色是否已经激活
     const isAlreadyActive = session.activeRoles?.some(role => role.id === roleId);
-    if (!isAlreadyActive) {
-      session.activeRoles = session.activeRoles || [];
-      session.activeRoles.push(roleToActivate);
-      await this.sessionRepository.save(session);
+    if (isAlreadyActive) {
+      throw new BadRequestException('角色已经激活');
     }
+
+    // 激活角色
+    if (!session.activeRoles) {
+      session.activeRoles = [];
+    }
+    session.activeRoles.push(roleToActivate);
+
+    await this.sessionRepository.save(session);
   }
 
   /**
    * 在会话中停用角色
    */
-  async deactivateRole(sessionId: string, roleId: string): Promise<void> {
+  async deactivateRole(sessionId: number, roleId: number): Promise<void> {
     const session = await this.sessionRepository.findOne({
       where: { id: sessionId },
       relations: ['activeRoles'],
@@ -172,114 +163,82 @@ export class SessionService {
       throw new NotFoundException('会话不存在');
     }
 
-    if (session.isExpired()) {
-      throw new ForbiddenException('会话已过期');
-    }
-
-    // 移除角色
+    // 从活跃角色中移除指定角色
     session.activeRoles = session.activeRoles?.filter(role => role.id !== roleId) || [];
+
     await this.sessionRepository.save(session);
   }
 
   /**
-   * 验证角色激活是否违反约束
+   * 获取会话中的活跃角色
    */
-  private async validateRoleActivation(session: UserSession, roleToActivate: Role): Promise<void> {
-    const constraints = await this.constraintRepository.find({
-      where: { isActive: true },
-      relations: ['constrainedRoles'],
-    });
-
-    for (const constraint of constraints) {
-      const constrainedRoleIds = constraint.constrainedRoles.map(r => r.id);
-      
-      // 检查约束是否适用于要激活的角色
-      if (!constrainedRoleIds.includes(roleToActivate.id)) {
-        continue;
-      }
-
-      switch (constraint.type) {
-        case ConstraintType.TEMPORAL:
-          if (!constraint.isTimeAllowed()) {
-            throw new ForbiddenException(`角色 ${roleToActivate.name} 在当前时间段不可激活`);
-          }
-          break;
-
-        case ConstraintType.MUTUAL_EXCLUSION:
-          const hasConflictingRole = session.activeRoles?.some(activeRole => 
-            constrainedRoleIds.includes(activeRole.id) && activeRole.id !== roleToActivate.id
-          );
-          if (hasConflictingRole) {
-            throw new ForbiddenException(`角色 ${roleToActivate.name} 与当前激活的角色冲突`);
-          }
-          break;
-
-        case ConstraintType.CARDINALITY:
-          if (constraint.parameters?.maxRoles) {
-            const currentActiveRoles = session.activeRoles?.length || 0;
-            if (currentActiveRoles >= constraint.parameters.maxRoles) {
-              throw new ForbiddenException(`激活角色数量已达上限 (${constraint.parameters.maxRoles})`);
-            }
-          }
-          break;
-
-        case ConstraintType.SEPARATION_OF_DUTY:
-          if (constraint.parameters?.separationType === 'dynamic') {
-            const hasSODConflict = session.activeRoles?.some(activeRole => 
-              constrainedRoleIds.includes(activeRole.id) && activeRole.id !== roleToActivate.id
-            );
-            if (hasSODConflict) {
-              throw new ForbiddenException(`违反职责分离约束，不能同时激活这些角色`);
-            }
-          }
-          break;
-      }
-    }
-  }
-
-  /**
-   * 获取用户的活跃会话
-   */
-  async getUserActiveSessions(userId: string): Promise<UserSession[]> {
-    return this.sessionRepository.find({
-      where: { userId, isActive: true },
+  async getSessionActiveRoles(sessionId: number): Promise<Role[]> {
+    const session = await this.sessionRepository.findOne({
+      where: { id: sessionId },
       relations: ['activeRoles'],
-      order: { lastActivityTime: 'DESC' },
     });
+
+    if (!session) {
+      throw new NotFoundException('会话不存在');
+    }
+
+    return session.activeRoles || [];
   }
 
   /**
-   * 获取会话统计信息
+   * 检查会话中是否有指定的活跃角色
    */
-  async getSessionStats(): Promise<{
-    totalActiveSessions: number;
-    totalUsers: number;
-    averageSessionDuration: number;
+  async hasActiveRole(sessionId: number, roleId: number): Promise<boolean> {
+    const activeRoles = await this.getSessionActiveRoles(sessionId);
+    return activeRoles.some(role => role.id === roleId);
+  }
+
+  /**
+   * 清理过期会话
+   */
+  async cleanupExpiredSessions(): Promise<void> {
+    const expirationTime = new Date();
+    expirationTime.setHours(expirationTime.getHours() - 24); // 24小时后过期
+
+    await this.sessionRepository
+      .createQueryBuilder()
+      .update(UserSession)
+      .set({
+        isActive: false,
+        endTime: new Date(),
+      })
+      .where('lastActivityTime < :expirationTime AND isActive = :isActive', {
+        expirationTime,
+        isActive: true,
+      })
+      .execute();
+  }
+
+  /**
+   * 获取用户的会话统计
+   */
+  async getUserSessionStats(userId: number): Promise<{
+    totalSessions: number;
+    activeSessions: number;
+    lastLoginTime?: Date;
   }> {
-    const activeSessions = await this.sessionRepository.find({
-      where: { isActive: true },
+    const totalSessions = await this.sessionRepository.count({
+      where: { userId },
     });
 
-    const uniqueUsers = new Set(activeSessions.map(s => s.userId)).size;
-    
-    let totalDuration = 0;
-    let sessionsWithDuration = 0;
-    
-    for (const session of activeSessions) {
-      const duration = session.lastActivityTime.getTime() - session.startTime.getTime();
-      if (duration > 0) {
-        totalDuration += duration;
-        sessionsWithDuration++;
-      }
-    }
+    const activeSessions = await this.sessionRepository.count({
+      where: { userId, isActive: true },
+    });
 
-    const averageSessionDuration = sessionsWithDuration > 0 ? 
-      totalDuration / sessionsWithDuration : 0;
+    const lastSession = await this.sessionRepository.findOne({
+      where: { userId },
+      order: { startTime: 'DESC' },
+    });
 
     return {
-      totalActiveSessions: activeSessions.length,
-      totalUsers: uniqueUsers,
-      averageSessionDuration: Math.round(averageSessionDuration / 1000 / 60), // 转换为分钟
+      totalSessions,
+      activeSessions,
+      lastLoginTime: lastSession?.startTime,
     };
   }
 } 

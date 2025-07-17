@@ -10,7 +10,7 @@ export class PermissionRepository {
     private readonly repository: Repository<Permission>,
   ) {}
 
-  async findByRoleIds(roleIds: string[]): Promise<Permission[]> {
+  async findByRoleIds(roleIds: number[]): Promise<Permission[]> {
     return this.repository
       .createQueryBuilder('permission')
       .innerJoin('permission.roles', 'role')
@@ -35,7 +35,7 @@ export class PermissionRepository {
     });
   }
 
-  async findOne(id: string): Promise<Permission | null> {
+  async findOne(id: number): Promise<Permission | null> {
     return this.repository.findOne({
       where: { id },
       relations: ['roles', 'parent', 'children'],
@@ -47,12 +47,12 @@ export class PermissionRepository {
     return this.repository.save(permission);
   }
 
-  async update(id: string, permissionData: Partial<Permission>): Promise<Permission | null> {
+  async update(id: number, permissionData: Partial<Permission>): Promise<Permission | null> {
     await this.repository.update(id, permissionData);
     return this.findOne(id);
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: number): Promise<void> {
     await this.repository.delete(id);
   }
 

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
+import { Role } from '../entities/role.entity';
 
 @Injectable()
 export class UserRepository {
@@ -35,7 +36,7 @@ export class UserRepository {
       .getOne();
   }
 
-  async findWithRolesAndPermissions(id: string): Promise<User | null> {
+  async findWithRolesAndPermissions(id: number): Promise<User | null> {
     return this.repository.findOne({
       where: { id },
       relations: ['roles', 'roles.permissions'],
@@ -52,7 +53,7 @@ export class UserRepository {
     return this.repository.find();
   }
 
-  async findOne(id: string): Promise<User | null> {
+  async findOne(id: number): Promise<User | null> {
     return this.repository.findOne({
       where: { id },
       relations: ['roles'],
@@ -64,12 +65,34 @@ export class UserRepository {
     return this.repository.save(user);
   }
 
-  async update(id: string, userData: Partial<User>): Promise<User | null> {
-    await this.repository.update(id, userData);
+  async update(id: number, userData: Partial<User>): Promise<User | null> {
+    // 从userData中排除roles字段，因为它需要特殊处理
+    const { roles, ...updateData } = userData;
+    
+    if (Object.keys(updateData).length > 0) {
+      await this.repository.update(id, updateData);
+    }
+    
     return this.findOne(id);
   }
 
-  async delete(id: string): Promise<void> {
+  async updateUserRoles(id: number, roles: Role[]): Promise<User | null> {
+    const user = await this.repository.findOne({
+      where: { id },
+      relations: ['roles'],
+    });
+    
+    if (!user) {
+      return null;
+    }
+    
+    user.roles = roles;
+    await this.repository.save(user);
+    
+    return this.findOne(id);
+  }
+
+  async delete(id: number): Promise<void> {
     await this.repository.delete(id);
   }
 

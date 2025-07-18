@@ -55,7 +55,6 @@ import { Textarea } from '@/components/ui/textarea';
 
 import { PermissionRes, PermissionType, PermissionTypeValues, CreatePermissionReq } from '@/types/auth';
 import { permissionApi } from '@/lib/api/services/permissions';
-import { usePermission } from '@/hooks/use-permission';
 import { PermissionGuard } from '@/components/auth/permission-guard';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -98,7 +97,6 @@ function PermissionTreeNode({
   onToggleStatus
 }: PermissionTreeNodeProps) {
   const [isExpanded, setIsExpanded] = useState(level < 2);
-  const { hasPermission } = usePermission();
   
   const isMatch = (perm: PermissionRes) => {
     const matchesSearch = !searchTerm || 
@@ -195,49 +193,58 @@ function PermissionTreeNode({
           )}
         </div>
 
-        {/* 操作按钮 - 始终显示，但根据权限控制是否可用 */}
+        {/* 操作按钮 - 根据权限显示 */}
         <div className="flex items-center gap-1">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => hasPermission('system.permission.edit') ? onEdit(permission) : alert('没有编辑权限')}
-            className="h-8 w-8 p-0"
-            title="编辑权限"
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="更多操作">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem 
-                onClick={() => hasPermission('system.permission.edit') ? onToggleStatus(permission) : alert('没有编辑权限')}
-              >
-                {permission.isActive ? (
-                  <>
-                    <EyeOff className="h-4 w-4 mr-2" />
-                    禁用
-                  </>
-                ) : (
-                  <>
-                    <Eye className="h-4 w-4 mr-2" />
-                    启用
-                  </>
-                )}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                onClick={() => hasPermission('system.permission.edit') ? onDelete(permission) : alert('没有删除权限')}
-                className="text-destructive"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                删除
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <PermissionGuard permission="system.permission.edit">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => onEdit(permission)}
+              className="h-8 w-8 p-0"
+              title="编辑权限"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          </PermissionGuard>
+          <PermissionGuard permissions={["system.permission.edit", "system.permission.delete"]}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="更多操作">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <PermissionGuard permission="system.permission.edit">
+                  <DropdownMenuItem 
+                    onClick={() => onToggleStatus(permission)}
+                  >
+                    {permission.isActive ? (
+                      <>
+                        <EyeOff className="h-4 w-4 mr-2" />
+                        禁用
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="h-4 w-4 mr-2" />
+                        启用
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                </PermissionGuard>
+                
+                <PermissionGuard permission="system.permission.delete">
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => onDelete(permission)}
+                    className="text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    删除
+                  </DropdownMenuItem>
+                </PermissionGuard>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </PermissionGuard>
         </div>
       </div>
 
@@ -269,14 +276,6 @@ export default function PermissionsPage() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedPermission, setSelectedPermission] = useState<PermissionRes | null>(null);
-  
-  const { hasPermission, withPermissionCheck } = usePermission();
-  
-  // 调试权限信息
-  console.log('权限检查结果:', {
-    hasEditPermission: hasPermission('system.permission.edit'),
-    hasViewPermission: hasPermission('system.permission.view')
-  });
 
   const {
     data: permissions,
@@ -454,62 +453,55 @@ export default function PermissionsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">权限管理</h1>
-          <p className="text-muted-foreground">查看和管理系统权限树结构</p>
-        </div>
-        <Button 
-          onClick={() => hasPermission('system.permission.edit') ? setShowCreateDialog(true) : alert('没有创建权限的权限')} 
-          className="gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          新增权限
-        </Button>
-      </div>
-
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
-            权限树
-          </CardTitle>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="搜索权限名称或编码..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="max-w-sm"
-              />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="搜索权限名称或编码..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="max-w-sm"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="筛选类型" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">全部类型</SelectItem>
+                    <SelectItem value={PermissionType.MODULE}>模块</SelectItem>
+                    <SelectItem value={PermissionType.MENU}>菜单</SelectItem>
+                    <SelectItem value={PermissionType.BUTTON}>按钮</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {(searchTerm || (typeFilter && typeFilter !== 'all')) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setTypeFilter('all');
+                  }}
+                >
+                  清除筛选
+                </Button>
+              )}
             </div>
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="筛选类型" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部类型</SelectItem>
-                  <SelectItem value={PermissionType.MODULE}>模块</SelectItem>
-                  <SelectItem value={PermissionType.MENU}>菜单</SelectItem>
-                  <SelectItem value={PermissionType.BUTTON}>按钮</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {(searchTerm || (typeFilter && typeFilter !== 'all')) && (
+            <PermissionGuard permission="system.permission.edit">
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSearchTerm('');
-                  setTypeFilter('all');
-                }}
+                onClick={() => setShowCreateDialog(true)}
+                className="gap-2"
               >
-                清除筛选
+                <Plus className="h-4 w-4" />
+                新增权限
               </Button>
-            )}
+            </PermissionGuard>
           </div>
         </CardHeader>
         <CardContent>
@@ -609,14 +601,14 @@ export default function PermissionsPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>父权限</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(value ? Number(value) : undefined)}>
+                      <Select onValueChange={(value) => field.onChange(value && value !== 'none' ? Number(value) : undefined)}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="选择父权限（可选）" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">无父权限</SelectItem>
+                          <SelectItem value="none">无父权限</SelectItem>
                           {flatPermissions.map((perm) => (
                             <SelectItem key={perm.id} value={perm.id.toString()}>
                               {perm.name} ({perm.code})
@@ -789,8 +781,8 @@ export default function PermissionsPage() {
                     <FormItem>
                       <FormLabel>父权限</FormLabel>
                       <Select 
-                        onValueChange={(value) => field.onChange(value ? Number(value) : undefined)}
-                        value={field.value ? field.value.toString() : ''}
+                        onValueChange={(value) => field.onChange(value && value !== 'none' ? Number(value) : undefined)}
+                        value={field.value ? field.value.toString() : 'none'}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -798,7 +790,7 @@ export default function PermissionsPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">无父权限</SelectItem>
+                          <SelectItem value="none">无父权限</SelectItem>
                           {flatPermissions
                             .filter(perm => perm.id !== selectedPermission?.id)
                             .map((perm) => (

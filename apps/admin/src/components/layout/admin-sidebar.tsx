@@ -79,15 +79,6 @@ export function AdminSidebar() {
     }
   }
 
-  // 过滤有权限的菜单项
-  const filteredMenuItems = menuItems.filter(item => 
-    hasPermission(item.permission)
-  )
-  
-  const filteredSystemItems = systemItems.filter(item => 
-    hasPermission(item.permission)
-  )
-
   return (
     <Sidebar>
       <SidebarHeader className="px-6 py-4">

@@ -1,7 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { Permission } from '../entities/permission.entity';
+
+export interface GetPermissionsQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  type?: string;
+  parentId?: number;
+}
 
 @Injectable()
 export class PermissionRepository {
@@ -26,7 +34,90 @@ export class PermissionRepository {
   }
 
   async findAll(): Promise<Permission[]> {
-    return this.repository.find();
+    return this.repository.find({
+      relations: ['parent', 'children'],
+      order: { sort: 'ASC' },
+    });
+  }
+
+  async findAllWithQuery(query: GetPermissionsQuery): Promise<Permission[]> {
+    const queryBuilder = this.repository.createQueryBuilder('permission')
+      .leftJoinAndSelect('permission.parent', 'parent')
+      .leftJoinAndSelect('permission.children', 'children')
+      .orderBy('permission.sort', 'ASC');
+
+    // 添加搜索条件
+    if (query.search) {
+      queryBuilder.andWhere(
+        '(permission.name LIKE :search OR permission.code LIKE :search)',
+        { search: `%${query.search}%` }
+      );
+    }
+
+    // 添加类型筛选
+    if (query.type) {
+      queryBuilder.andWhere('permission.type = :type', { type: query.type });
+    }
+
+    // 添加父权限筛选
+    if (query.parentId !== undefined) {
+      if (query.parentId === null || query.parentId === 0) {
+        queryBuilder.andWhere('permission.parent IS NULL');
+      } else {
+        queryBuilder.andWhere('permission.parent.id = :parentId', { parentId: query.parentId });
+      }
+    }
+
+    return queryBuilder.getMany();
+  }
+
+  async findAllWithPagination(
+    query: GetPermissionsQuery, 
+    page: number, 
+    limit: number
+  ): Promise<{ data: Permission[]; total: number }> {
+    const queryBuilder = this.repository.createQueryBuilder('permission')
+      .leftJoinAndSelect('permission.parent', 'parent')
+      .leftJoinAndSelect('permission.children', 'children')
+      .orderBy('permission.sort', 'ASC');
+
+    // 添加搜索条件
+    if (query.search) {
+      queryBuilder.andWhere(
+        '(permission.name LIKE :search OR permission.code LIKE :search)',
+        { search: `%${query.search}%` }
+      );
+    }
+
+    // 添加类型筛选
+    if (query.type) {
+      queryBuilder.andWhere('permission.type = :type', { type: query.type });
+    }
+
+    // 添加父权限筛选
+    if (query.parentId !== undefined) {
+      if (query.parentId === null || query.parentId === 0) {
+        queryBuilder.andWhere('permission.parent IS NULL');
+      } else {
+        queryBuilder.andWhere('permission.parent.id = :parentId', { parentId: query.parentId });
+      }
+    }
+
+    // 添加分页
+    const offset = (page - 1) * limit;
+    queryBuilder.skip(offset).take(limit);
+
+    const [data, total] = await queryBuilder.getManyAndCount();
+    
+    return { data, total };
+  }
+
+  async findByType(type: string): Promise<Permission[]> {
+    return this.repository.find({
+      where: { type: type as any },
+      relations: ['parent', 'children'],
+      order: { sort: 'ASC' },
+    });
   }
 
   async findAllWithRoles(): Promise<Permission[]> {

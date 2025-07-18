@@ -15,7 +15,7 @@ export const permissionApi = {
    * 获取权限列表（支持分页和查询）
    */
   getPermissions: (params?: GetPermissionsReq) =>
-    alovaClient.Get<PaginatedResponse<PermissionRes>>("/permissions", { params }),
+    alovaClient.Get<PaginatedResponse<PermissionRes> | ApiResponse<PermissionRes[]>>("/permissions", { params }),
 
   /**
    * 获取所有权限（不分页）
@@ -33,7 +33,7 @@ export const permissionApi = {
    * 根据 ID 获取权限详情
    */
   getPermission: (id: number) =>
-    alovaClient.Get<ApiResponse<PermissionRes>>(`/permissions/${id}`),
+    alovaClient.Get<ApiResponse<PermissionRes>>(`/permissions/detail?id=${id}`),
 
   /**
    * 创建新权限
@@ -45,23 +45,23 @@ export const permissionApi = {
    * 更新权限信息
    */
   updatePermission: (id: number, permissionData: UpdatePermissionReq) =>
-    alovaClient.Put<ApiResponse<PermissionRes>>(`/permissions/${id}`, permissionData),
+    alovaClient.Post<ApiResponse<PermissionRes>>("/permissions/update", { id, ...permissionData }),
 
   /**
    * 删除权限
    */
   deletePermission: (id: number) =>
-    alovaClient.Delete<ApiResponse<null>>(`/permissions/${id}`),
+    alovaClient.Post<ApiResponse<null>>("/permissions/delete", { id }),
 
   /**
    * 启用/禁用权限
    */
   togglePermissionStatus: (id: number, isActive: boolean) =>
-    alovaClient.Put<ApiResponse<PermissionRes>>(`/permissions/${id}/status`, { isActive }),
+    alovaClient.Post<ApiResponse<PermissionRes>>("/permissions/toggle-status", { id, isActive }),
 
   /**
    * 根据类型获取权限
    */
   getPermissionsByType: (type: string) =>
-    alovaClient.Get<ApiResponse<PermissionRes[]>>(`/permissions/type/${type}`),
+    alovaClient.Get<ApiResponse<PermissionRes[]>>(`/permissions/by-type?type=${type}`),
 }; 

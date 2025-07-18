@@ -3,6 +3,22 @@ import { PermissionRepository } from '../repositories/permission.repository';
 import { Permission } from '../entities/permission.entity';
 import { CreatePermissionDto } from '../dto/create-permission.dto';
 
+export interface GetPermissionsQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  type?: string;
+  parentId?: number;
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 @Injectable()
 export class PermissionService {
   constructor(
@@ -15,6 +31,31 @@ export class PermissionService {
 
   async findAll(): Promise<Permission[]> {
     return this.permissionRepository.findAll();
+  }
+
+  async findAllWithQuery(query: GetPermissionsQuery): Promise<PaginatedResult<Permission> | Permission[]> {
+    // 如果没有分页参数，返回所有数据
+    if (!query.page && !query.limit) {
+      const permissions = await this.permissionRepository.findAllWithQuery(query);
+      return permissions;
+    }
+
+    // 有分页参数，返回分页结果
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const { data, total } = await this.permissionRepository.findAllWithPagination(query, page, limit);
+    
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async findByType(type: string): Promise<Permission[]> {
+    return this.permissionRepository.findByType(type);
   }
 
   async findOne(id: number): Promise<Permission> {
@@ -39,6 +80,18 @@ export class PermissionService {
     return updated;
   }
 
+  async toggleStatus(id: number, isActive: boolean): Promise<Permission> {
+    await this.findOne(id); // 检查权限是否存在
+    
+    const updated = await this.permissionRepository.update(id, { isActive });
+    
+    if (!updated) {
+      throw new NotFoundException('权限状态更新失败');
+    }
+
+    return updated;
+  }
+
   async remove(id: number): Promise<void> {
     await this.findOne(id); // 检查权限是否存在
     await this.permissionRepository.delete(id);
@@ -55,7 +108,7 @@ export class PermissionService {
   /**
    * 获取权限树结构
    */
-  async getPermissionTree(): Promise<Permission[]> {
+  async getPermissionTree() {
     const permissions = await this.permissionRepository.findAll();
     
     if (!permissions || permissions.length === 0) {

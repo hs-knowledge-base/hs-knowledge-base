@@ -365,10 +365,98 @@
       },
       "get": {
         "operationId": "findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "搜索关键词",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "权限类型",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "parentId",
+            "required": false,
+            "in": "query",
+            "description": "父权限ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取权限列表成功"
+          }
+        },
+        "summary": "获取权限列表（支持分页和查询）",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      }
+    },
+    "/api/admin/permissions/tree": {
+      "get": {
+        "operationId": "getPermissionTree",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "获取权限列表成功",
+            "description": "获取权限树成功"
+          }
+        },
+        "summary": "获取权限树",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      }
+    },
+    "/api/admin/permissions/by-type": {
+      "get": {
+        "operationId": "findByType",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "query",
+            "description": "权限类型",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取权限成功",
             "content": {
               "application/json": {
                 "schema": {
@@ -381,7 +469,102 @@
             }
           }
         },
-        "summary": "获取所有权限",
+        "summary": "根据类型获取权限",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      }
+    },
+    "/api/admin/permissions/detail": {
+      "get": {
+        "operationId": "findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "query",
+            "description": "权限ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取权限成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionVo"
+                }
+              }
+            }
+          }
+        },
+        "summary": "根据ID获取权限详情",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      }
+    },
+    "/api/admin/permissions/update": {
+      "post": {
+        "operationId": "update",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "权限更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionVo"
+                }
+              }
+            }
+          }
+        },
+        "summary": "更新权限",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      }
+    },
+    "/api/admin/permissions/toggle-status": {
+      "post": {
+        "operationId": "toggleStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "权限状态更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionVo"
+                }
+              }
+            }
+          }
+        },
+        "summary": "切换权限状态",
+        "tags": [
+          "admin",
+          "权限管理"
+        ]
+      }
+    },
+    "/api/admin/permissions/delete": {
+      "post": {
+        "operationId": "remove",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "权限删除成功"
+          }
+        },
+        "summary": "删除权限",
         "tags": [
           "admin",
           "权限管理"
@@ -390,7 +573,7 @@
     },
     "/api/admin/permissions/{id}": {
       "get": {
-        "operationId": "findOne",
+        "operationId": "findOneById",
         "parameters": [
           {
             "name": "id",
@@ -420,7 +603,7 @@
         ]
       },
       "patch": {
-        "operationId": "update",
+        "operationId": "updateById",
         "parameters": [
           {
             "name": "id",
@@ -450,7 +633,7 @@
         ]
       },
       "delete": {
-        "operationId": "remove",
+        "operationId": "removeById",
         "parameters": [
           {
             "name": "id",
@@ -467,22 +650,6 @@
           }
         },
         "summary": "删除权限",
-        "tags": [
-          "admin",
-          "权限管理"
-        ]
-      }
-    },
-    "/api/admin/permissions/tree": {
-      "get": {
-        "operationId": "getPermissionTree",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "获取权限树成功"
-          }
-        },
-        "summary": "获取权限树",
         "tags": [
           "admin",
           "权限管理"

@@ -775,6 +775,344 @@
           "权限管理"
         ]
       }
+    },
+    "/api/admin/users": {
+      "post": {
+        "operationId": "create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "用户创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVo"
+                }
+              }
+            }
+          }
+        },
+        "summary": "创建用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      },
+      "get": {
+        "operationId": "findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "搜索关键词",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "description": "是否启用",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "role",
+            "required": false,
+            "in": "query",
+            "description": "角色名称",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取用户列表成功"
+          }
+        },
+        "summary": "获取用户列表（支持分页和查询）",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      }
+    },
+    "/api/admin/users/detail": {
+      "get": {
+        "operationId": "findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "query",
+            "description": "用户ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取用户成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVo"
+                }
+              }
+            }
+          }
+        },
+        "summary": "根据ID获取用户详情",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      }
+    },
+    "/api/admin/users/update": {
+      "post": {
+        "operationId": "update",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "用户更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVo"
+                }
+              }
+            }
+          }
+        },
+        "summary": "更新用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      }
+    },
+    "/api/admin/users/toggle-status": {
+      "post": {
+        "operationId": "toggleStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "用户状态更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVo"
+                }
+              }
+            }
+          }
+        },
+        "summary": "切换用户状态",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      }
+    },
+    "/api/admin/users/delete": {
+      "post": {
+        "operationId": "remove",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "用户删除成功"
+          }
+        },
+        "summary": "删除用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      }
+    },
+    "/api/admin/users/update-roles": {
+      "post": {
+        "operationId": "updateUserRoles",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "用户角色更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVo"
+                }
+              }
+            }
+          }
+        },
+        "summary": "更新用户角色",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      }
+    },
+    "/api/admin/users/reset-password": {
+      "post": {
+        "operationId": "resetPassword",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "密码重置成功"
+          }
+        },
+        "summary": "重置用户密码",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      }
+    },
+    "/api/admin/users/permissions": {
+      "get": {
+        "operationId": "getUserPermissions",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "query",
+            "description": "用户ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取用户权限成功"
+          }
+        },
+        "summary": "获取用户的有效权限",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      }
+    },
+    "/api/admin/users/{id}": {
+      "get": {
+        "operationId": "findOneById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取用户成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVo"
+                }
+              }
+            }
+          }
+        },
+        "summary": "根据ID获取用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      },
+      "patch": {
+        "operationId": "updateById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "用户更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVo"
+                }
+              }
+            }
+          }
+        },
+        "summary": "更新用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      },
+      "delete": {
+        "operationId": "removeById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "用户删除成功"
+          }
+        },
+        "summary": "删除用户",
+        "tags": [
+          "admin",
+          "用户管理"
+        ]
+      }
     }
   },
   "info": {

@@ -2,7 +2,10 @@
 
 import { useState } from 'react';
 import { useRequest } from 'alova/client';
-import { Plus, Pencil, Trash2, Users, Shield, Mail, Phone } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {Plus, Users, Mail, Edit, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,14 +20,60 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Checkbox } from '@/components/ui/checkbox';
+import { PermissionGuard } from '@/components/auth/permission-guard';
 
 import { UserRes } from '@/types/auth';
 import { userApi } from "@/lib/api/services/users";
-import { useRbac } from '@/hooks/use-rbac';
+import { roleApi } from "@/lib/api/services/roles";
+import { UpdateUserReq } from "@/lib/api/services/users/type";
+
+// 用户表单验证 schema
+const userFormSchema = z.object({
+  username: z.string().min(2, '用户名至少2个字符').max(50, '用户名最多50个字符'),
+  email: z.string().email('请输入有效的邮箱地址'),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  isActive: z.boolean(),
+  roleIds: z.array(z.number()),
+});
+
+type UserFormData = z.infer<typeof userFormSchema>;
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const { hasPermission } = useRbac();
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserRes | null>(null);
+
+  // 表单实例
+  const form = useForm<UserFormData>({
+    resolver: zodResolver(userFormSchema),
+    defaultValues: {
+      username: '',
+      email: '',
+      firstName: '',
+      lastName: '',
+      isActive: true,
+      roleIds: [],
+    },
+  });
 
   const {
     data: users,
@@ -35,21 +84,39 @@ export default function UsersPage() {
     immediate: true,
   });
 
+  // 获取所有角色用于选择
+  const {
+    data: roles,
+    loading: rolesLoading,
+  } = useRequest(() => roleApi.getAllRoles(), {
+    immediate: true,
+  });
+
   const { send: deleteUser } = useRequest(
-    (id: string) => userApi.deleteUser(id),
+    (id: number) => userApi.deleteUser(id),
     {
       immediate: false,
     }
   );
 
   const { send: toggleStatus } = useRequest(
-    (id: string, isActive: boolean) => userApi.toggleUserStatus(id, isActive),
+    (id: number, isActive: boolean) => userApi.toggleUserStatus(id, isActive),
     {
       immediate: false,
     }
   );
 
-  const handleDelete = async (id: string, username: string) => {
+  const { 
+    send: updateUser, 
+    loading: updating 
+  } = useRequest(
+    (id: number, data: UpdateUserReq) => userApi.updateUser(id, data),
+    {
+      immediate: false,
+    }
+  );
+
+  const handleDelete = async (id: number, username: string) => {
     if (confirm(`确定要删除用户"${username}"吗？`)) {
       try {
         await deleteUser(id);
@@ -60,12 +127,47 @@ export default function UsersPage() {
     }
   };
 
-  const handleToggleStatus = async (id: string, currentStatus: boolean) => {
+  const handleToggleStatus = async (id: number, currentStatus: boolean) => {
     try {
       await toggleStatus(id, !currentStatus);
       refetchUsers();
     } catch (error) {
       console.error('切换用户状态失败:', error);
+    }
+  };
+
+  const handleEditUser = (user: UserRes) => {
+    setSelectedUser(user);
+    form.reset({
+      username: user.username,
+      email: user.email,
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      isActive: user.isActive,
+      roleIds: user.roles?.map(r => r.id) || [],
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleUpdateUser = async (data: UserFormData) => {
+    if (!selectedUser) return;
+    
+    try {
+      await updateUser(selectedUser.id, data);
+      alert('用户更新成功');
+      setShowEditDialog(false);
+      setSelectedUser(null);
+      form.reset({
+        username: '',
+        email: '',
+        firstName: '',
+        lastName: '',
+        isActive: true,
+        roleIds: [],
+      });
+      refetchUsers();
+    } catch (error) {
+      alert('用户更新失败');
     }
   };
 
@@ -112,12 +214,12 @@ export default function UsersPage() {
           <h1 className="text-3xl font-bold">用户管理</h1>
           <p className="text-muted-foreground">管理系统用户账号和权限</p>
         </div>
-        {hasPermission('system.user.add') && (
+        <PermissionGuard permission="system.user.add">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             新增用户
           </Button>
-        )}
+        </PermissionGuard>
       </div>
 
       <Card>
@@ -144,20 +246,19 @@ export default function UsersPage() {
                   <TableHead>用户</TableHead>
                   <TableHead>用户名</TableHead>
                   <TableHead>邮箱</TableHead>
-                  <TableHead>电话</TableHead>
                   <TableHead>状态</TableHead>
                   <TableHead>角色</TableHead>
                   <TableHead>创建时间</TableHead>
-                  {(hasPermission('system.user.edit') || hasPermission('system.user.delete')) && (
+                  <PermissionGuard permissions={['system.user.edit', 'system.user.delete']}>
                     <TableHead className="text-right">操作</TableHead>
-                  )}
+                  </PermissionGuard>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredUsers.length === 0 ? (
                   <TableRow>
                     <TableCell 
-                      colSpan={hasPermission('system.user.edit') || hasPermission('system.user.delete') ? 8 : 7} 
+                      colSpan={8} 
                       className="h-24 text-center"
                     >
                       {searchTerm ? '没有找到匹配的用户' : '暂无用户数据'}
@@ -199,17 +300,19 @@ export default function UsersPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {/* TODO: 添加phone字段到用户类型 */}
-                        <span className="text-muted-foreground">-</span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant={user.isActive ? "default" : "secondary"}
-                          className="cursor-pointer"
-                          onClick={() => hasPermission('system.user.edit') && handleToggleStatus(user.id, user.isActive)}
-                        >
-                          {user.isActive ? '启用' : '禁用'}
-                        </Badge>
+                        <PermissionGuard permission="system.user.edit" fallback={
+                          <Badge variant={user.isActive ? "default" : "secondary"}>
+                            {user.isActive ? '启用' : '禁用'}
+                          </Badge>
+                        }>
+                          <Badge 
+                            variant={user.isActive ? "default" : "secondary"}
+                            className="cursor-pointer"
+                            onClick={() => handleToggleStatus(user.id, user.isActive)}
+                          >
+                            {user.isActive ? '启用' : '禁用'}
+                          </Badge>
+                        </PermissionGuard>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
@@ -227,22 +330,19 @@ export default function UsersPage() {
                       <TableCell>
                         {new Date(user.createdAt).toLocaleDateString()}
                       </TableCell>
-                      {(hasPermission('system.user.edit') || hasPermission('system.user.delete')) && (
+                      <PermissionGuard permissions={['system.user.edit', 'system.user.delete']}>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
-                            {hasPermission('system.user.edit') && (
+                            <PermissionGuard permission="system.user.edit">
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => {
-                                  // TODO: 实现编辑功能
-                                  console.log('编辑用户:', user.id);
-                                }}
+                                onClick={() => handleEditUser(user)}
                               >
-                                <Pencil className="h-4 w-4" />
+                                <Edit className="h-4 w-4" />
                               </Button>
-                            )}
-                            {hasPermission('system.user.delete') && (
+                            </PermissionGuard>
+                            <PermissionGuard permission="system.user.delete">
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -251,10 +351,10 @@ export default function UsersPage() {
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
-                            )}
+                            </PermissionGuard>
                           </div>
                         </TableCell>
-                      )}
+                      </PermissionGuard>
                     </TableRow>
                   ))
                 )}
@@ -263,6 +363,198 @@ export default function UsersPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* 编辑用户对话框 */}
+      <Dialog 
+        open={showEditDialog} 
+        onOpenChange={(open) => {
+          setShowEditDialog(open);
+          if (!open) {
+            form.reset({
+              username: '',
+              email: '',
+              firstName: '',
+              lastName: '',
+              isActive: true,
+              roleIds: [],
+            });
+            setSelectedUser(null);
+          }
+        }}
+      >
+        <DialogContent className="w-[90vw] max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>编辑用户</DialogTitle>
+            <DialogDescription>
+              修改用户基本信息和角色分配
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleUpdateUser)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>用户名 *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="请输入用户名" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>邮箱 *</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="请输入邮箱" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>名</FormLabel>
+                      <FormControl>
+                        <Input placeholder="请输入名" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>姓</FormLabel>
+                      <FormControl>
+                        <Input placeholder="请输入姓" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="isActive"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>启用用户</FormLabel>
+                      <FormDescription>
+                        禁用后用户将无法登录系统
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="roleIds"
+                render={() => (
+                  <FormItem>
+                    <div className="mb-4">
+                      <FormLabel className="text-base">角色分配</FormLabel>
+                      <FormDescription>
+                        选择用户的角色，用户将继承所选角色的权限
+                      </FormDescription>
+                    </div>
+                                        {rolesLoading ? (
+                      <div className="text-sm text-muted-foreground">加载角色中...</div>
+                    ) : (
+                      <div className="space-y-2 max-h-80 overflow-y-auto border rounded-md p-3 bg-muted/30">
+                        {roles?.data?.map((role) => (
+                          <FormField
+                            key={role.id}
+                            control={form.control}
+                            name="roleIds"
+                            render={({ field }) => {
+                              return (
+                                <FormItem
+                                  key={role.id}
+                                  className="flex items-center space-x-3 space-y-0 p-3 rounded-md hover:bg-accent transition-colors border border-transparent hover:border-border"
+                                >
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value?.includes(role.id)}
+                                      onCheckedChange={(checked) => {
+                                        return checked
+                                          ? field.onChange([...field.value, role.id])
+                                          : field.onChange(
+                                              field.value?.filter(
+                                                (value) => value !== role.id
+                                              )
+                                            )
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="cursor-pointer flex-1 space-y-1">
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-3">
+                                        <span className="font-medium text-sm">{role.name}</span>
+                                        {role.level && (
+                                          <Badge variant="secondary" className="text-xs font-normal">
+                                            级别 {role.level}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                    {role.description && (
+                                      <div className="text-xs text-muted-foreground leading-relaxed">
+                                        {role.description}
+                                      </div>
+                                    )}
+                                  </FormLabel>
+                                </FormItem>
+                              )
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowEditDialog(false)}
+                >
+                  取消
+                </Button>
+                <Button type="submit" disabled={updating}>
+                  {updating ? '更新中...' : '更新'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

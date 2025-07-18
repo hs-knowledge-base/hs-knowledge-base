@@ -35,37 +35,90 @@
       },
       "get": {
         "operationId": "findAll",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "获取角色列表成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SimpleRoleVo"
-                  }
-                }
-              }
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "搜索关键词",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "description": "是否启用",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "level",
+            "required": false,
+            "in": "query",
+            "description": "角色级别",
+            "schema": {
+              "type": "number"
             }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取角色列表成功"
+          }
         },
-        "summary": "获取所有角色",
+        "summary": "获取角色列表（支持分页和查询）",
         "tags": [
           "admin",
           "角色管理"
         ]
       }
     },
-    "/api/admin/roles/{id}": {
+    "/api/admin/roles/hierarchy": {
+      "get": {
+        "operationId": "getRoleHierarchy",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "获取角色层次结构成功"
+          }
+        },
+        "summary": "获取角色层次结构树",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      }
+    },
+    "/api/admin/roles/detail": {
       "get": {
         "operationId": "findOne",
         "parameters": [
           {
             "name": "id",
             "required": true,
-            "in": "path",
+            "in": "query",
+            "description": "角色ID",
             "schema": {
               "type": "number"
             }
@@ -83,24 +136,17 @@
             }
           }
         },
-        "summary": "根据ID获取角色",
+        "summary": "根据ID获取角色详情",
         "tags": [
           "admin",
           "角色管理"
         ]
-      },
-      "patch": {
+      }
+    },
+    "/api/admin/roles/update": {
+      "post": {
         "operationId": "update",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "角色更新成功",
@@ -118,14 +164,88 @@
           "admin",
           "角色管理"
         ]
-      },
-      "delete": {
+      }
+    },
+    "/api/admin/roles/toggle-status": {
+      "post": {
+        "operationId": "toggleStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "角色状态更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleVo"
+                }
+              }
+            }
+          }
+        },
+        "summary": "切换角色状态",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      }
+    },
+    "/api/admin/roles/delete": {
+      "post": {
         "operationId": "remove",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "角色删除成功"
+          }
+        },
+        "summary": "删除角色",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      }
+    },
+    "/api/admin/roles/inheritance": {
+      "post": {
+        "operationId": "addInheritance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "角色继承关系建立成功"
+          }
+        },
+        "summary": "建立角色继承关系",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      }
+    },
+    "/api/admin/roles/remove-inheritance": {
+      "post": {
+        "operationId": "removeInheritance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "角色继承关系移除成功"
+          }
+        },
+        "summary": "移除角色继承关系",
+        "tags": [
+          "admin",
+          "角色管理"
+        ]
+      }
+    },
+    "/api/admin/roles/permissions": {
+      "get": {
+        "operationId": "getRolePermissions",
         "parameters": [
           {
             "name": "id",
             "required": true,
-            "in": "path",
+            "in": "query",
+            "description": "角色ID",
             "schema": {
               "type": "number"
             }
@@ -133,10 +253,10 @@
         ],
         "responses": {
           "200": {
-            "description": "角色删除成功"
+            "description": "获取角色权限成功"
           }
         },
-        "summary": "删除角色",
+        "summary": "获取角色的有效权限",
         "tags": [
           "admin",
           "角色管理"
@@ -694,11 +814,27 @@
             "description": "角色描述",
             "example": "系统管理员"
           },
+          "level": {
+            "type": "number",
+            "description": "角色级别",
+            "example": 3
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "是否启用",
+            "example": true
+          },
+          "parentId": {
+            "type": "number",
+            "description": "父角色ID",
+            "example": 1
+          },
           "permissionIds": {
             "description": "权限ID列表",
             "example": [
-              "permission-uuid-1",
-              "permission-uuid-2"
+              1,
+              2,
+              3
             ],
             "type": "array",
             "items": {
@@ -709,7 +845,6 @@
             "type": "object",
             "description": "角色属性",
             "example": {
-              "level": "high",
               "department": "IT"
             }
           }
@@ -785,41 +920,6 @@
           "isActive",
           "createdAt",
           "updatedAt"
-        ]
-      },
-      "SimpleRoleVo": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "角色ID"
-          },
-          "name": {
-            "type": "string",
-            "description": "角色名称"
-          },
-          "description": {
-            "type": "string",
-            "description": "角色描述"
-          },
-          "createdAtLocal": {
-            "type": "string",
-            "description": "创建时间（本地格式）",
-            "example": "2024/1/1"
-          },
-          "permissionCount": {
-            "type": "number",
-            "description": "权限数量"
-          },
-          "userCount": {
-            "type": "number",
-            "description": "用户数量"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "createdAtLocal"
         ]
       },
       "RoleDetailVo": {

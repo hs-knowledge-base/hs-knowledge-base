@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsBoolean, IsArray } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateRoleDto {
@@ -11,12 +11,28 @@ export class CreateRoleDto {
   @IsString()
   description?: string;
 
-  @ApiPropertyOptional({ description: '权限ID列表', example: ['permission-uuid-1', 'permission-uuid-2'] })
+  @ApiPropertyOptional({ description: '角色级别', example: 3 })
   @IsOptional()
-  @IsString({ each: true })
-  permissionIds?: string[];
+  @IsNumber()
+  level?: number;
 
-  @ApiPropertyOptional({ description: '角色属性', example: { level: 'high', department: 'IT' } })
+  @ApiPropertyOptional({ description: '是否启用', example: true })
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
+
+  @ApiPropertyOptional({ description: '父角色ID', example: 1 })
+  @IsOptional()
+  @IsNumber()
+  parentId?: number;
+
+  @ApiPropertyOptional({ description: '权限ID列表', example: [1, 2, 3] })
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, { each: true })
+  permissionIds?: number[];
+
+  @ApiPropertyOptional({ description: '角色属性', example: { department: 'IT' } })
   @IsOptional()
   attributes?: Record<string, any>;
 }

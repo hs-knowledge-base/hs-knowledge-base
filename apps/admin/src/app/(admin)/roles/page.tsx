@@ -1,8 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRequest } from 'alova/client';
-import { Plus, Pencil, Trash2, Users, Shield } from 'lucide-react';
+import { 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Users, 
+  Shield, 
+  MoreHorizontal,
+  Eye,
+  EyeOff,
+  Search,
+  Filter
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,15 +27,70 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 
-import { RoleRes } from '@/types/auth';
+import { RoleRes, CreateRoleReq, PermissionRes } from '@/types/auth';
 import { roleApi } from '@/lib/api/services/roles';
+import { permissionApi } from '@/lib/api/services/permissions';
 import { useRbac } from '@/hooks/use-rbac';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+const roleFormSchema = z.object({
+  name: z.string().min(1, '角色名称不能为空').max(100, '角色名称不能超过100个字符'),
+  description: z.string().optional(),
+  level: z.number().min(0, '角色级别不能小于0').optional(),
+  isActive: z.boolean().optional(),
+  parentId: z.number().optional(),
+  permissionIds: z.array(z.number()).optional(),
+});
+
+type RoleFormData = z.infer<typeof roleFormSchema>;
 
 export default function RolesPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<RoleRes | null>(null);
+  
   const { hasPermission } = useRbac();
 
+  // 获取角色列表
   const {
     data: roles,
     loading,
@@ -34,46 +100,142 @@ export default function RolesPage() {
     immediate: true,
   });
 
-  const { send: deleteRole } = useRequest(
-    (id: string) => roleApi.deleteRole(id),
+  // 获取权限列表（用于角色权限选择）
+  const { data: permissions } = useRequest(() => permissionApi.getAllPermissions(), {
+    immediate: true,
+  });
+
+  // 创建角色请求
+  const { loading: creating, send: createRole } = useRequest(
+    (data: CreateRoleReq) => roleApi.createRole(data),
     {
       immediate: false,
     }
   );
 
-  const { send: toggleStatus } = useRequest(
-    (id: string, isActive: boolean) => roleApi.toggleRoleStatus(id, isActive),
+  // 更新角色请求
+  const { loading: updating, send: updateRole } = useRequest(
+    (id: number, data: Partial<CreateRoleReq>) => roleApi.updateRole(id, data),
     {
       immediate: false,
     }
   );
 
-  const handleDelete = async (id: string, roleName: string) => {
-    if (confirm(`确定要删除角色"${roleName}"吗？`)) {
-      try {
-        await deleteRole(id);
-        refetchRoles();
-      } catch (error) {
-        console.error('删除角色失败:', error);
-      }
+  // 删除角色请求
+  const { loading: deleting, send: deleteRole } = useRequest(
+    (id: number) => roleApi.deleteRole(id),
+    {
+      immediate: false,
     }
-  };
+  );
 
-  const handleToggleStatus = async (id: string, currentStatus: boolean) => {
+  // 切换状态请求
+  const { loading: toggling, send: toggleStatus } = useRequest(
+    (id: number, isActive: boolean) => roleApi.toggleRoleStatus(id, isActive),
+    {
+      immediate: false,
+    }
+  );
+
+  // 表单
+  const form = useForm<RoleFormData>({
+    resolver: zodResolver(roleFormSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      level: 0,
+      isActive: true,
+      permissionIds: [],
+    },
+  });
+
+  // 过滤后的角色列表
+  const filteredRoles = useMemo(() => {
+    if (!roles?.data) return [];
+    
+    return roles.data.filter(role => {
+      // 搜索过滤
+      const matchesSearch = !searchTerm || 
+        role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (role.description && role.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      // 状态过滤
+      const matchesStatus = statusFilter === 'all' || 
+        (statusFilter === 'active' && role.isActive) ||
+        (statusFilter === 'inactive' && !role.isActive);
+      
+      return matchesSearch && matchesStatus;
+    });
+  }, [roles?.data, searchTerm, statusFilter]);
+
+  const handleCreateRole = async (data: RoleFormData) => {
     try {
-      await toggleStatus(id, !currentStatus);
+      await createRole(data);
+      alert('角色创建成功');
+      setShowCreateDialog(false);
+      form.reset();
       refetchRoles();
     } catch (error) {
-      console.error('切换角色状态失败:', error);
+      alert('角色创建失败');
     }
   };
 
-  // 过滤角色
-  const filteredRoles = roles?.data?.filter(role =>
-    role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    role.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    role.description?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const handleEditRole = (role: RoleRes) => {
+    setSelectedRole(role);
+    form.reset({
+      name: role.name,
+      description: role.description || '',
+      level: role.level || 0,
+      isActive: role.isActive,
+      parentId: role.parent?.id,
+      permissionIds: role.permissions?.map(p => p.id) || [],
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleUpdateRole = async (data: RoleFormData) => {
+    if (!selectedRole) return;
+    
+    try {
+      await updateRole(selectedRole.id, data);
+      alert('角色更新成功');
+      setShowEditDialog(false);
+      setSelectedRole(null);
+      form.reset();
+      refetchRoles();
+    } catch (error) {
+      alert('角色更新失败');
+    }
+  };
+
+  const handleDeleteRole = (role: RoleRes) => {
+    setSelectedRole(role);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDeleteRole = async () => {
+    if (!selectedRole) return;
+    
+    try {
+      await deleteRole(selectedRole.id);
+      alert('角色删除成功');
+      setShowDeleteDialog(false);
+      setSelectedRole(null);
+      refetchRoles();
+    } catch (error) {
+      alert('角色删除失败');
+    }
+  };
+
+  const handleToggleStatus = async (role: RoleRes) => {
+    try {
+      await toggleStatus(role.id, !role.isActive);
+      alert(`角色已${role.isActive ? '禁用' : '启用'}`);
+      refetchRoles();
+    } catch (error) {
+      alert('状态切换失败');
+    }
+  };
 
   if (loading) {
     return (
@@ -110,12 +272,13 @@ export default function RolesPage() {
           <h1 className="text-3xl font-bold">角色管理</h1>
           <p className="text-muted-foreground">管理系统角色和权限分配</p>
         </div>
-        {hasPermission('system.role.add') && (
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            新增角色
-          </Button>
-        )}
+        <Button 
+          onClick={() => hasPermission('system.role.add') ? setShowCreateDialog(true) : alert('没有创建角色的权限')} 
+          className="gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          新增角色
+        </Button>
       </div>
 
       <Card>
@@ -124,114 +287,464 @@ export default function RolesPage() {
             <Users className="h-5 w-5" />
             角色列表
           </CardTitle>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Search className="h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="搜索角色名称或描述..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="筛选状态" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部状态</SelectItem>
+                  <SelectItem value="active">已启用</SelectItem>
+                  <SelectItem value="inactive">已禁用</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {(searchTerm || statusFilter !== 'all') && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSearchTerm('');
+                  setStatusFilter('all');
+                }}
+              >
+                清除筛选
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center space-x-2 mb-4">
-            <Input
-              placeholder="搜索角色名称、编码或描述..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
-            />
-          </div>
-
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>角色名称</TableHead>
+                <TableHead>描述</TableHead>
+                <TableHead>级别</TableHead>
+                <TableHead>权限数量</TableHead>
+                <TableHead>状态</TableHead>
+                <TableHead>创建时间</TableHead>
+                <TableHead className="text-right">操作</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredRoles.length === 0 ? (
                 <TableRow>
-                  <TableHead>角色名称</TableHead>
-                  <TableHead>角色编码</TableHead>
-                  <TableHead>层级</TableHead>
-                  <TableHead>状态</TableHead>
-                  <TableHead>描述</TableHead>
-                  <TableHead>用户数量</TableHead>
-                  <TableHead>创建时间</TableHead>
-                  {(hasPermission('system.role.edit') || hasPermission('system.role.delete')) && (
-                    <TableHead className="text-right">操作</TableHead>
-                  )}
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    暂无角色数据
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredRoles.length === 0 ? (
-                  <TableRow>
-                    <TableCell 
-                      colSpan={hasPermission('system.role.edit') || hasPermission('system.role.delete') ? 8 : 7} 
-                      className="h-24 text-center"
-                    >
-                      {searchTerm ? '没有找到匹配的角色' : '暂无角色数据'}
+              ) : (
+                filteredRoles.map((role) => (
+                  <TableRow key={role.id}>
+                    <TableCell className="font-medium">
+                      {role.name}
+                      {role.parent && (
+                        <div className="text-xs text-muted-foreground">
+                          继承自: {role.parent.name}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>{role.description || '-'}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        Level {role.level || 0}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Shield className="h-4 w-4" />
+                        {role.permissions?.length || 0}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={role.isActive ? 'default' : 'secondary'}>
+                        {role.isActive ? '已启用' : '已禁用'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {new Date(role.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => hasPermission('system.role.edit') ? handleEditRole(role) : alert('没有编辑权限')}
+                          className="h-8 w-8 p-0"
+                          title="编辑角色"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="更多操作">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem 
+                              onClick={() => hasPermission('system.role.edit') ? handleToggleStatus(role) : alert('没有编辑权限')}
+                            >
+                              {role.isActive ? (
+                                <>
+                                  <EyeOff className="h-4 w-4 mr-2" />
+                                  禁用
+                                </>
+                              ) : (
+                                <>
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  启用
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => hasPermission('system.role.delete') ? handleDeleteRole(role) : alert('没有删除权限')}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              删除
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  filteredRoles.map((role) => (
-                    <TableRow key={role.id}>
-                      <TableCell className="font-medium">{role.name}</TableCell>
-                      <TableCell>
-                        <code className="text-sm bg-muted px-1 py-0.5 rounded">
-                          {role.code}
-                        </code>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          Level {role.level || 0}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant={role.isActive ? "default" : "secondary"}
-                          className="cursor-pointer"
-                          onClick={() => hasPermission('system.role.edit') && handleToggleStatus(role.id, role.isActive)}
-                        >
-                          {role.isActive ? '启用' : '禁用'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="max-w-xs truncate">
-                        {role.description || '-'}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Users className="h-4 w-4 text-muted-foreground" />
-                          <span>{role.userCount || 0}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(role.createdAt).toLocaleDateString()}
-                      </TableCell>
-                      {(hasPermission('system.role.edit') || hasPermission('system.role.delete')) && (
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            {hasPermission('system.role.edit') && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  // TODO: 实现编辑功能
-                                  console.log('编辑角色:', role.id);
-                                }}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            )}
-                            {hasPermission('system.role.delete') && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDelete(role.id, role.name)}
-                                className="text-destructive hover:text-destructive"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      )}
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
+
+      {/* 创建角色对话框 */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>新增角色</DialogTitle>
+            <DialogDescription>
+              创建新的系统角色
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleCreateRole)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>角色名称 *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="如: 系统管理员" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="level"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>角色级别</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="0" 
+                          {...field} 
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        数值越大级别越高
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>角色描述</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="角色功能描述..."
+                        className="resize-none"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="parentId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>父角色</FormLabel>
+                    <Select onValueChange={(value) => field.onChange(value ? Number(value) : undefined)}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="选择父角色（可选）" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">无父角色</SelectItem>
+                        {roles?.data?.map((role) => (
+                          <SelectItem key={role.id} value={role.id.toString()}>
+                            {role.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="permissionIds"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>权限分配</FormLabel>
+                    <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto border rounded-md p-2">
+                      {permissions?.data?.map((permission) => (
+                        <div key={permission.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`permission-${permission.id}`}
+                            checked={field.value?.includes(permission.id) || false}
+                            onCheckedChange={(checked) => {
+                              const currentIds = field.value || [];
+                              if (checked) {
+                                field.onChange([...currentIds, permission.id]);
+                              } else {
+                                field.onChange(currentIds.filter(id => id !== permission.id));
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={`permission-${permission.id}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {permission.name}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowCreateDialog(false)}
+                >
+                  取消
+                </Button>
+                <Button type="submit" disabled={creating}>
+                  {creating ? '创建中...' : '创建'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* 编辑角色对话框 */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>编辑角色</DialogTitle>
+            <DialogDescription>
+              修改角色信息
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleUpdateRole)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>角色名称 *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="如: 系统管理员" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="level"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>角色级别</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="0" 
+                          {...field} 
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        数值越大级别越高
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>角色描述</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="角色功能描述..."
+                        className="resize-none"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="parentId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>父角色</FormLabel>
+                    <Select 
+                      onValueChange={(value) => field.onChange(value ? Number(value) : undefined)}
+                      value={field.value ? field.value.toString() : ''}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="选择父角色（可选）" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">无父角色</SelectItem>
+                        {roles?.data?.filter(role => role.id !== selectedRole?.id).map((role) => (
+                          <SelectItem key={role.id} value={role.id.toString()}>
+                            {role.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="permissionIds"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>权限分配</FormLabel>
+                    <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto border rounded-md p-2">
+                      {permissions?.data?.map((permission) => (
+                        <div key={permission.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`edit-permission-${permission.id}`}
+                            checked={field.value?.includes(permission.id) || false}
+                            onCheckedChange={(checked) => {
+                              const currentIds = field.value || [];
+                              if (checked) {
+                                field.onChange([...currentIds, permission.id]);
+                              } else {
+                                field.onChange(currentIds.filter(id => id !== permission.id));
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={`edit-permission-${permission.id}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {permission.name}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowEditDialog(false)}
+                >
+                  取消
+                </Button>
+                <Button type="submit" disabled={updating}>
+                  {updating ? '更新中...' : '更新'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* 删除确认对话框 */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>确认删除</DialogTitle>
+            <DialogDescription>
+              您确定要删除角色 "{selectedRole?.name}" 吗？此操作无法撤销。
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowDeleteDialog(false)}
+            >
+              取消
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmDeleteRole}
+              disabled={deleting}
+            >
+              {deleting ? '删除中...' : '确认删除'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 

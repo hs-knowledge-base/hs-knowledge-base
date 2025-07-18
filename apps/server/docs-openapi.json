@@ -38,11 +38,27 @@
             "description": "角色描述",
             "example": "系统管理员"
           },
+          "level": {
+            "type": "number",
+            "description": "角色级别",
+            "example": 3
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "是否启用",
+            "example": true
+          },
+          "parentId": {
+            "type": "number",
+            "description": "父角色ID",
+            "example": 1
+          },
           "permissionIds": {
             "description": "权限ID列表",
             "example": [
-              "permission-uuid-1",
-              "permission-uuid-2"
+              1,
+              2,
+              3
             ],
             "type": "array",
             "items": {
@@ -53,7 +69,6 @@
             "type": "object",
             "description": "角色属性",
             "example": {
-              "level": "high",
               "department": "IT"
             }
           }
@@ -129,41 +144,6 @@
           "isActive",
           "createdAt",
           "updatedAt"
-        ]
-      },
-      "SimpleRoleVo": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "角色ID"
-          },
-          "name": {
-            "type": "string",
-            "description": "角色名称"
-          },
-          "description": {
-            "type": "string",
-            "description": "角色描述"
-          },
-          "createdAtLocal": {
-            "type": "string",
-            "description": "创建时间（本地格式）",
-            "example": "2024/1/1"
-          },
-          "permissionCount": {
-            "type": "number",
-            "description": "权限数量"
-          },
-          "userCount": {
-            "type": "number",
-            "description": "用户数量"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "createdAtLocal"
         ]
       },
       "RoleDetailVo": {

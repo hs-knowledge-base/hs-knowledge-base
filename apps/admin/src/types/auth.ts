@@ -22,7 +22,12 @@ export interface UserRes {
   createdAt: string;
   updatedAt: string;
   roles: RoleRes[];
-  allPermissions?: string[]; // 用户拥有的所有权限编码
+  attributes: Attributes;
+}
+
+export interface Attributes {
+  level: number;
+  clearance: string;
 }
 
 /**

@@ -43,7 +43,7 @@ export class AuthAdminController {
     type: LoginResponseVo
   })
   @ApiResponse({ status: 401, description: '用户名或密码错误' })
-  @VoTransform({ voClass: LoginResponseVo })
+  // @VoTransform({ voClass: LoginResponseVo })
   async login(@Request() req: { user: User }, @Body() loginDto: LoginDto) {
     return this.authService.login(req.user);
   }
@@ -93,7 +93,7 @@ export class AuthAdminController {
   @ApiBearerAuth()
   @ApiOperation({ summary: '获取当前用户信息' })
   @ApiResponse({ status: 200, description: '获取用户信息成功', type: UserDetailVo })
-  @VoTransform({ voClass: UserDetailVo, excludeSensitive: true })
+  // @VoTransform({ voClass: UserDetailVo, excludeSensitive: true })
   async getProfile(@CurrentUser() user: User) {
     // 获取完整的用户信息（包含角色和权限）
     return this.userService.findOne(user.id);

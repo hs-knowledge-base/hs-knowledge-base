@@ -87,9 +87,7 @@ export default function RolesPage() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedRole, setSelectedRole] = useState<RoleRes | null>(null);
-  
-  const { hasPermission, withPermissionCheck, crud } = usePermission();
-  const rolePermissions = crud('system.role');
+
 
   // 获取角色列表
   const {

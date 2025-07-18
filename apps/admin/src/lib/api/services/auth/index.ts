@@ -1,8 +1,8 @@
 import { UserRes } from "@/types/auth";
 import { alovaClient } from "@/lib/api/client";
 import { ApiResponse } from "@/lib/api/types";
-import { RefreshTokenRes } from "./type";
-import { LoginReq, LoginRes } from "../users/type";
+import {RefreshTokenRes, RegisterReq, RegisterRes} from "./type";
+import { LoginReq, LoginRes } from "@/lib/api";
 
 export const authApi = {
   /**
@@ -50,4 +50,10 @@ export const authApi = {
    */
   getMenuPermissions: () =>
     alovaClient.Get<ApiResponse<any[]>>("/auth/menu-permissions"),
+
+  /**
+   * 注册用户
+   */
+  register: (registerData: RegisterReq) =>
+    alovaClient.Post<ApiResponse<RegisterRes>>("/auth/register", registerData),
 };

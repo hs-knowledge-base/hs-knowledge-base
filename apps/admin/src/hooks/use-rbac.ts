@@ -1,11 +1,12 @@
-import { useContext } from 'react';
-import { UserRes } from '@/types/auth';
+import { useAuth } from '@/contexts/auth-context';
 
 /**
  * RBAC权限检查Hook
  * 基于用户角色和权限进行访问控制
  */
-export const useRbac = (user?: UserRes) => {
+export const useRbac = () => {
+  const { user } = useAuth();
+
   /**
    * 检查用户是否拥有指定权限
    */
@@ -84,6 +85,7 @@ export const useRbac = (user?: UserRes) => {
   };
 
   return {
+    user,
     hasPermission,
     hasRole,
     hasLevel,

@@ -54,7 +54,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // 存储令牌
       localStorage.setItem('token', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
-      localStorage.setItem('currentUserId', response.data.user.id);
+      localStorage.setItem('currentUserId', String(response.data.user.id));
       
       setUser(response.data.user);
     } catch (error) {
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // 存储令牌
       localStorage.setItem('token', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
-      localStorage.setItem('currentUserId', response.data.user.id);
+      localStorage.setItem('currentUserId', String(response.data.user.id));
       
       setUser(response.data.user);
     } catch (error) {

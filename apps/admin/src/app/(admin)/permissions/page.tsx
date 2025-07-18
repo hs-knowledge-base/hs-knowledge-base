@@ -55,7 +55,8 @@ import { Textarea } from '@/components/ui/textarea';
 
 import { PermissionRes, PermissionType, PermissionTypeValues, CreatePermissionReq } from '@/types/auth';
 import { permissionApi } from '@/lib/api/services/permissions';
-import { useRbac } from '@/hooks/use-rbac';
+import { usePermission } from '@/hooks/use-permission';
+import { PermissionGuard } from '@/components/auth/permission-guard';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -97,7 +98,7 @@ function PermissionTreeNode({
   onToggleStatus
 }: PermissionTreeNodeProps) {
   const [isExpanded, setIsExpanded] = useState(level < 2);
-  const { hasPermission } = useRbac();
+  const { hasPermission } = usePermission();
   
   const isMatch = (perm: PermissionRes) => {
     const matchesSearch = !searchTerm || 
@@ -269,7 +270,7 @@ export default function PermissionsPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedPermission, setSelectedPermission] = useState<PermissionRes | null>(null);
   
-  const { hasPermission } = useRbac();
+  const { hasPermission, withPermissionCheck } = usePermission();
   
   // 调试权限信息
   console.log('权限检查结果:', {

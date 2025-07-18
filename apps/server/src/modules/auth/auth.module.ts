@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
@@ -43,6 +43,9 @@ import { LocalStrategy } from "./strategies/local.strategy";
 // Config
 import { JwtConfig } from "./config/jwt.config";
 
+// Modules
+import { UserModule } from "../user/user.module";
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Role, Permission, UserSession, RbacConstraint]),
@@ -62,6 +65,7 @@ import { JwtConfig } from "./config/jwt.config";
       },
       inject: [ConfigService],
     }),
+    forwardRef(() => UserModule),
   ],
   controllers: [
     RoleAdminController,

@@ -402,7 +402,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserVo"
+                  "$ref": "#/components/schemas/UserDetailVo"
                 }
               }
             }
@@ -1217,6 +1217,95 @@
         "required": [
           "accessToken",
           "refreshToken"
+        ]
+      },
+      "UserDetailVo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "用户ID",
+            "example": 1
+          },
+          "username": {
+            "type": "string",
+            "description": "用户名",
+            "example": "john_doe"
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱",
+            "example": "john@example.com"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "是否激活",
+            "example": true
+          },
+          "firstName": {
+            "type": "string",
+            "description": "名字",
+            "example": "张"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "姓氏",
+            "example": "三"
+          },
+          "attributes": {
+            "type": "object",
+            "description": "用户属性",
+            "example": {
+              "department": "IT",
+              "level": 3
+            }
+          },
+          "roles": {
+            "description": "用户角色列表",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleVo"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "创建时间",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "更新时间",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "全名",
+            "example": "张三"
+          },
+          "createdAtLocal": {
+            "type": "string",
+            "description": "创建时间（本地格式）",
+            "example": "2024/1/1"
+          },
+          "roleCount": {
+            "type": "number",
+            "description": "角色数量"
+          },
+          "allPermissions": {
+            "description": "用户拥有的所有权限（通过角色）",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "email",
+          "isActive",
+          "createdAt",
+          "updatedAt"
         ]
       },
       "TokenCheckResponseVo": {

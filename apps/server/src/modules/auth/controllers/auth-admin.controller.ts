@@ -7,6 +7,8 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
@@ -18,12 +20,17 @@ import { JwtAuthGuard, Public } from '../guards/jwt-auth.guard';
 import { User } from '../../user/entities/user.entity';
 import { VoTransform, CurrentUser } from '@/core/decorators';
 import { LoginResponseVo, RegisterResponseVo, RefreshTokenResponseVo, TokenCheckResponseVo } from '../vo';
-import {UserVo} from "@/modules/user/vo";
+import {UserVo, UserDetailVo} from "@/modules/user/vo";
+import { UserService } from '../../user/services/user.service';
 
 @ApiTags('admin', '认证管理')
 @Controller('admin/auth')
 export class AuthAdminController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
+  ) {}
 
   @Public()
   @UseGuards(LocalAuthGuard)
@@ -85,10 +92,11 @@ export class AuthAdminController {
   @Get('profile')
   @ApiBearerAuth()
   @ApiOperation({ summary: '获取当前用户信息' })
-  @ApiResponse({ status: 200, description: '获取用户信息成功', type: UserVo })
-  @VoTransform({ voClass: UserVo, excludeSensitive: true })
+  @ApiResponse({ status: 200, description: '获取用户信息成功', type: UserDetailVo })
+  @VoTransform({ voClass: UserDetailVo, excludeSensitive: true })
   async getProfile(@CurrentUser() user: User) {
-    return user;
+    // 获取完整的用户信息（包含角色和权限）
+    return this.userService.findOne(user.id);
   }
 
   @UseGuards(JwtAuthGuard)

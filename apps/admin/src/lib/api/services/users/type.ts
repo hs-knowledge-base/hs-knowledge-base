@@ -1,7 +1,7 @@
 import {UserRes} from "@/types/auth";
 
 /**
- * 更新用户请求
+ * 更新用户请求 - 对应服务端 CreateUserDto (用于更新)
  */
 export interface UpdateUserReq {
   username?: string;
@@ -11,10 +11,11 @@ export interface UpdateUserReq {
   lastName?: string;
   isActive?: boolean;
   roleIds?: number[];
+  attributes?: Record<string, any>;
 }
 
 /**
- * 创建用户请求
+ * 创建用户请求 - 对应服务端 CreateUserDto
  */
 export interface CreateUserReq {
   username: string;
@@ -24,10 +25,11 @@ export interface CreateUserReq {
   lastName?: string;
   isActive?: boolean;
   roleIds?: number[];
+  attributes?: Record<string, any>;
 }
 
 /**
- * 登录请求
+ * 登录请求 - 对应服务端 LoginDto
  */
 export interface LoginReq {
   usernameOrEmail: string;
@@ -35,7 +37,7 @@ export interface LoginReq {
 }
 
 /**
- * 登录响应
+ * 登录响应 - 对应服务端 LoginResponseVo
  */
 export interface LoginRes {
   accessToken: string;
@@ -51,5 +53,5 @@ export interface GetUsersReq {
   limit?: number;
   search?: string;
   isActive?: boolean;
-  roleId?: number;
+  role?: string;
 }

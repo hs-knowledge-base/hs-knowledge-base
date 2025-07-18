@@ -107,7 +107,7 @@ export interface UpdateUserReq {
 }
 
 /**
- * 创建角色请求
+ * 创建角色请求 - 对应服务端 CreateRoleDto
  */
 export interface CreateRoleReq {
   name: string;
@@ -116,10 +116,11 @@ export interface CreateRoleReq {
   isActive?: boolean;
   parentId?: number;
   permissionIds?: number[];
+  attributes?: Record<string, any>;
 }
 
 /**
- * 更新角色请求
+ * 更新角色请求 - 对应服务端 CreateRoleDto (用于更新)
  */
 export interface UpdateRoleReq {
   name?: string;
@@ -128,10 +129,11 @@ export interface UpdateRoleReq {
   isActive?: boolean;
   parentId?: number;
   permissionIds?: number[];
+  attributes?: Record<string, any>;
 }
 
 /**
- * 创建权限请求
+ * 创建权限请求 - 对应服务端 CreatePermissionDto
  */
 export interface CreatePermissionReq {
   code: string;
@@ -145,7 +147,7 @@ export interface CreatePermissionReq {
 }
 
 /**
- * 更新权限请求
+ * 更新权限请求 - 对应服务端 CreatePermissionDto (用于更新)
  */
 export interface UpdatePermissionReq {
   code?: string;

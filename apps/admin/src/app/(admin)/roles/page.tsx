@@ -63,7 +63,8 @@ import { PermissionTreeSelector } from '@/components/ui/permission-tree-selector
 import { RoleRes, CreateRoleReq, PermissionRes } from '@/types/auth';
 import { roleApi } from '@/lib/api/services/roles';
 import { permissionApi } from '@/lib/api/services/permissions';
-import { useRbac } from '@/hooks/use-rbac';
+import { usePermission } from '@/hooks/use-permission';
+import { PermissionGuard } from '@/components/auth/permission-guard';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -87,7 +88,8 @@ export default function RolesPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedRole, setSelectedRole] = useState<RoleRes | null>(null);
   
-  const { hasPermission } = useRbac();
+  const { hasPermission, withPermissionCheck, crud } = usePermission();
+  const rolePermissions = crud('system.role');
 
   // 获取角色列表
   const {
@@ -338,13 +340,15 @@ export default function RolesPage() {
                </Button>
              )}
            </div>
-            <Button
-              onClick={handleCreateNewRole}
-              className="gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              新增角色
-            </Button>
+            <PermissionGuard permission="system.role.add">
+              <Button
+                onClick={handleCreateNewRole}
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                新增角色
+              </Button>
+            </PermissionGuard>
           </div>
         </CardHeader>
         <CardContent>
@@ -400,47 +404,57 @@ export default function RolesPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() =>  handleEditRole(role) }
-                          className="h-8 w-8 p-0"
-                          title="编辑角色"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="更多操作">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem 
-                              onClick={() => handleToggleStatus(role)}
-                            >
-                              {role.isActive ? (
-                                <>
-                                  <EyeOff className="h-4 w-4 mr-2" />
-                                  禁用
-                                </>
-                              ) : (
-                                <>
-                                  <Eye className="h-4 w-4 mr-2" />
-                                  启用
-                                </>
-                              )}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              onClick={() => hasPermission('system.role.delete') ? handleDeleteRole(role) : alert('没有删除权限')}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              删除
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <PermissionGuard permission="system.role.edit">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleEditRole(role)}
+                            className="h-8 w-8 p-0"
+                            title="编辑角色"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </PermissionGuard>
+                        
+                        <PermissionGuard permissions={["system.role.edit", "system.role.delete"]}>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="更多操作">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <PermissionGuard permission="system.role.edit">
+                                <DropdownMenuItem 
+                                  onClick={() => handleToggleStatus(role)}
+                                >
+                                  {role.isActive ? (
+                                    <>
+                                      <EyeOff className="h-4 w-4 mr-2" />
+                                      禁用
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Eye className="h-4 w-4 mr-2" />
+                                      启用
+                                    </>
+                                  )}
+                                </DropdownMenuItem>
+                              </PermissionGuard>
+                              
+                              <PermissionGuard permission="system.role.delete">
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeleteRole(role)}
+                                  className="text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  删除
+                                </DropdownMenuItem>
+                              </PermissionGuard>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </PermissionGuard>
                       </div>
                     </TableCell>
                   </TableRow>

@@ -5,8 +5,7 @@ import { useRequest } from 'alova/client';
 import { 
   Plus, 
   Edit, 
-  Trash2, 
-  Users, 
+  Trash2,
   Shield, 
   MoreHorizontal,
   Eye,
@@ -25,7 +24,7 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
@@ -59,7 +58,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
+import { PermissionTreeSelector } from '@/components/ui/permission-tree-selector';
 
 import { RoleRes, CreateRoleReq, PermissionRes } from '@/types/auth';
 import { roleApi } from '@/lib/api/services/roles';
@@ -100,8 +99,11 @@ export default function RolesPage() {
     immediate: true,
   });
 
-  // 获取权限列表（用于角色权限选择）
-  const { data: permissions } = useRequest(() => permissionApi.getAllPermissions(), {
+  // 获取权限树
+  const {
+    data: permissionTree,
+    loading: permissionsLoading,
+  } = useRequest(() => permissionApi.getPermissionTree(), {
     immediate: true,
   });
 
@@ -173,11 +175,33 @@ export default function RolesPage() {
       await createRole(data);
       alert('角色创建成功');
       setShowCreateDialog(false);
-      form.reset();
+      setSelectedRole(null);
+      form.reset({
+        name: '',
+        description: '',
+        level: 0,
+        isActive: true,
+        parentId: undefined,
+        permissionIds: [],
+      });
       refetchRoles();
     } catch (error) {
       alert('角色创建失败');
     }
+  };
+
+  const handleCreateNewRole = () => {
+    // 重置表单为默认值
+    form.reset({
+      name: '',
+      description: '',
+      level: 0,
+      isActive: true,
+      parentId: undefined,
+      permissionIds: [],
+    });
+    setSelectedRole(null);
+    setShowCreateDialog(true);
   };
 
   const handleEditRole = (role: RoleRes) => {
@@ -201,7 +225,14 @@ export default function RolesPage() {
       alert('角色更新成功');
       setShowEditDialog(false);
       setSelectedRole(null);
-      form.reset();
+      form.reset({
+        name: '',
+        description: '',
+        level: 0,
+        isActive: true,
+        parentId: undefined,
+        permissionIds: [],
+      });
       refetchRoles();
     } catch (error) {
       alert('角色更新失败');
@@ -267,61 +298,53 @@ export default function RolesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">角色管理</h1>
-          <p className="text-muted-foreground">管理系统角色和权限分配</p>
-        </div>
-        <Button 
-          onClick={() => hasPermission('system.role.add') ? setShowCreateDialog(true) : alert('没有创建角色的权限')} 
-          className="gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          新增角色
-        </Button>
-      </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            角色列表
-          </CardTitle>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="搜索角色名称或描述..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="max-w-sm"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="筛选状态" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部状态</SelectItem>
-                  <SelectItem value="active">已启用</SelectItem>
-                  <SelectItem value="inactive">已禁用</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {(searchTerm || statusFilter !== 'all') && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSearchTerm('');
-                  setStatusFilter('all');
-                }}
-              >
-                清除筛选
-              </Button>
-            )}
+          <div className="flex justify-between items-center">
+           <div className="flex">
+             <div className="flex items-center gap-2">
+               <Search className="h-4 w-4 text-muted-foreground" />
+               <Input
+                 placeholder="搜索角色名称或描述..."
+                 value={searchTerm}
+                 onChange={(e) => setSearchTerm(e.target.value)}
+                 className="max-w-sm"
+               />
+             </div>
+             <div className="flex items-center gap-2">
+               <Filter className="h-4 w-4 text-muted-foreground" />
+               <Select value={statusFilter} onValueChange={setStatusFilter}>
+                 <SelectTrigger className="w-40">
+                   <SelectValue placeholder="筛选状态" />
+                 </SelectTrigger>
+                 <SelectContent>
+                   <SelectItem value="all">全部状态</SelectItem>
+                   <SelectItem value="active">已启用</SelectItem>
+                   <SelectItem value="inactive">已禁用</SelectItem>
+                 </SelectContent>
+               </Select>
+             </div>
+             {(searchTerm || statusFilter !== 'all') && (
+               <Button
+                 variant="outline"
+                 size="sm"
+                 onClick={() => {
+                   setSearchTerm('');
+                   setStatusFilter('all');
+                 }}
+               >
+                 清除筛选
+               </Button>
+             )}
+           </div>
+            <Button
+              onClick={handleCreateNewRole}
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              新增角色
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -380,7 +403,7 @@ export default function RolesPage() {
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          onClick={() => hasPermission('system.role.edit') ? handleEditRole(role) : alert('没有编辑权限')}
+                          onClick={() =>  handleEditRole(role) }
                           className="h-8 w-8 p-0"
                           title="编辑角色"
                         >
@@ -394,7 +417,7 @@ export default function RolesPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem 
-                              onClick={() => hasPermission('system.role.edit') ? handleToggleStatus(role) : alert('没有编辑权限')}
+                              onClick={() => handleToggleStatus(role)}
                             >
                               {role.isActive ? (
                                 <>
@@ -429,7 +452,23 @@ export default function RolesPage() {
       </Card>
 
       {/* 创建角色对话框 */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+      <Dialog 
+        open={showCreateDialog} 
+        onOpenChange={(open) => {
+          setShowCreateDialog(open);
+          if (!open) {
+            form.reset({
+              name: '',
+              description: '',
+              level: 0,
+              isActive: true,
+              parentId: undefined,
+              permissionIds: [],
+            });
+            setSelectedRole(null);
+          }
+        }}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>新增角色</DialogTitle>
@@ -500,14 +539,14 @@ export default function RolesPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>父角色</FormLabel>
-                    <Select onValueChange={(value) => field.onChange(value ? Number(value) : undefined)}>
+                    <Select onValueChange={(value) => field.onChange(value && value !== 'none' ? Number(value) : undefined)}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="选择父角色（可选）" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">无父角色</SelectItem>
+                        <SelectItem value="none">无父角色</SelectItem>
                         {roles?.data?.map((role) => (
                           <SelectItem key={role.id} value={role.id.toString()}>
                             {role.name}
@@ -526,30 +565,12 @@ export default function RolesPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>权限分配</FormLabel>
-                    <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto border rounded-md p-2">
-                      {permissions?.data?.map((permission) => (
-                        <div key={permission.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`permission-${permission.id}`}
-                            checked={field.value?.includes(permission.id) || false}
-                            onCheckedChange={(checked) => {
-                              const currentIds = field.value || [];
-                              if (checked) {
-                                field.onChange([...currentIds, permission.id]);
-                              } else {
-                                field.onChange(currentIds.filter(id => id !== permission.id));
-                              }
-                            }}
-                          />
-                          <label
-                            htmlFor={`permission-${permission.id}`}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            {permission.name}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
+                    <PermissionTreeSelector
+                      permissions={permissionTree?.data || []}
+                      selectedIds={field.value || []}
+                      onSelectionChange={field.onChange}
+                      isLoading={permissionsLoading}
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -573,7 +594,23 @@ export default function RolesPage() {
       </Dialog>
 
       {/* 编辑角色对话框 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+      <Dialog 
+        open={showEditDialog} 
+        onOpenChange={(open) => {
+          setShowEditDialog(open);
+          if (!open) {
+            form.reset({
+              name: '',
+              description: '',
+              level: 0,
+              isActive: true,
+              parentId: undefined,
+              permissionIds: [],
+            });
+            setSelectedRole(null);
+          }
+        }}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>编辑角色</DialogTitle>
@@ -645,8 +682,8 @@ export default function RolesPage() {
                   <FormItem>
                     <FormLabel>父角色</FormLabel>
                     <Select 
-                      onValueChange={(value) => field.onChange(value ? Number(value) : undefined)}
-                      value={field.value ? field.value.toString() : ''}
+                      onValueChange={(value) => field.onChange(value && value !== 'none' ? Number(value) : undefined)}
+                      value={field.value ? field.value.toString() : 'none'}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -654,7 +691,7 @@ export default function RolesPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">无父角色</SelectItem>
+                        <SelectItem value="none">无父角色</SelectItem>
                         {roles?.data?.filter(role => role.id !== selectedRole?.id).map((role) => (
                           <SelectItem key={role.id} value={role.id.toString()}>
                             {role.name}
@@ -673,30 +710,12 @@ export default function RolesPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>权限分配</FormLabel>
-                    <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto border rounded-md p-2">
-                      {permissions?.data?.map((permission) => (
-                        <div key={permission.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`edit-permission-${permission.id}`}
-                            checked={field.value?.includes(permission.id) || false}
-                            onCheckedChange={(checked) => {
-                              const currentIds = field.value || [];
-                              if (checked) {
-                                field.onChange([...currentIds, permission.id]);
-                              } else {
-                                field.onChange(currentIds.filter(id => id !== permission.id));
-                              }
-                            }}
-                          />
-                          <label
-                            htmlFor={`edit-permission-${permission.id}`}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            {permission.name}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
+                    <PermissionTreeSelector
+                      permissions={permissionTree?.data || []}
+                      selectedIds={field.value || []}
+                      onSelectionChange={field.onChange}
+                      isLoading={permissionsLoading}
+                    />
                     <FormMessage />
                   </FormItem>
                 )}

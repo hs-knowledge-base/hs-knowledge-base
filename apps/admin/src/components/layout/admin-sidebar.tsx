@@ -33,7 +33,7 @@ import { Button } from '@/components/ui/button'
 const menuItems = [
   {
     title: '仪表盘',
-    url: '/dashboard',
+    url: '/',
     icon: LayoutDashboard,
     permission: 'dashboard'
   },

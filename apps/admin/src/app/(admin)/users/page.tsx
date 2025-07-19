@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRequest } from 'alova/client';
+import { invalidateCache } from 'alova';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -80,17 +81,13 @@ export default function UsersPage() {
     loading,
     error,
     send: refetchUsers,
-  } = useRequest(() => userApi.getAllUsers(), {
-    immediate: true,
-  });
+  } = useRequest(() => userApi.getAllUsers());
 
   // 获取所有角色用于选择
   const {
     data: roles,
     loading: rolesLoading,
-  } = useRequest(() => roleApi.getAllRoles(), {
-    immediate: true,
-  });
+  } = useRequest(() => roleApi.getAllRoles());
 
   const { send: deleteUser } = useRequest(
     (id: number) => userApi.deleteUser(id),
@@ -120,6 +117,7 @@ export default function UsersPage() {
     if (confirm(`确定要删除用户"${username}"吗？`)) {
       try {
         await deleteUser(id);
+        await invalidateCache(userApi.getAllUsers());
         refetchUsers();
       } catch (error) {
         console.error('删除用户失败:', error);
@@ -130,6 +128,7 @@ export default function UsersPage() {
   const handleToggleStatus = async (id: number, currentStatus: boolean) => {
     try {
       await toggleStatus(id, !currentStatus);
+      await invalidateCache(userApi.getAllUsers());
       refetchUsers();
     } catch (error) {
       console.error('切换用户状态失败:', error);
@@ -165,7 +164,7 @@ export default function UsersPage() {
         isActive: true,
         roleIds: [],
       });
-      refetchUsers();
+      await refetchUsers();
     } catch (error) {
       alert('用户更新失败');
     }
@@ -209,19 +208,6 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">用户管理</h1>
-          <p className="text-muted-foreground">管理系统用户账号和权限</p>
-        </div>
-        <PermissionGuard permission="system.user.add">
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            新增用户
-          </Button>
-        </PermissionGuard>
-      </div>
-
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -230,13 +216,20 @@ export default function UsersPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center space-x-2 mb-4">
-            <Input
-              placeholder="搜索用户名、邮箱或姓名..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
-            />
+          <div className="flex items-center space-x-2 mb-4 justify-between">
+            <div>
+              <Input
+                placeholder="搜索用户名、邮箱或姓名..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <PermissionGuard permission="system.user.add">
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                新增用户
+              </Button>
+            </PermissionGuard>
           </div>
 
           <div className="rounded-md border">

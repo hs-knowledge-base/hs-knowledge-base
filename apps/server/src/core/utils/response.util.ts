@@ -29,20 +29,24 @@ export class ResponseUtil {
   /**
    * 构建错误响应
    * @param message 错误消息
-   * @param code 错误状态码
+   * @param code 业务错误码
    * @param errors 详细错误信息
+   * @param requestId 请求ID
    * @returns 标准错误响应格式
    */
   static error(
-    message: string, 
-    code = HttpStatus.BAD_REQUEST, 
-    errors: any = null
+    message: string,
+    code: number,
+    errors: any = null,
+    requestId?: string
   ): ApiResponseInterfaces<null> {
     return {
       code,
       data: null,
       message,
       errors,
+      requestId,
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -108,5 +112,33 @@ export class ResponseUtil {
       hasNext: page < totalPages,
       hasPrev: page > 1,
     }, message);
+  }
+
+  /**
+   * 检查响应是否为成功响应
+   * @param response 响应对象
+   * @returns 是否为成功响应
+   */
+  static isSuccess(response: ApiResponseInterfaces<any>): boolean {
+    return response.code >= 200 && response.code < 300;
+  }
+
+  /**
+   * 检查响应是否为错误响应
+   * @param response 响应对象
+   * @returns 是否为错误响应
+   */
+  static isError(response: ApiResponseInterfaces<any>): boolean {
+    return response.code >= 400;
+  }
+
+  /**
+   * 检查响应是否为业务错误码
+   * @param response 响应对象
+   * @returns 是否为业务错误码（非 HTTP 状态码）
+   */
+  static isBusinessError(response: ApiResponseInterfaces<any>): boolean {
+    // 业务错误码通常是 4 位数，HTTP 状态码是 3 位数
+    return response.code >= 1000;
   }
 }

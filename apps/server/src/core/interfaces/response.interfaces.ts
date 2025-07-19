@@ -9,7 +9,9 @@
  */
 export interface ApiResponseInterfaces<T = any> {
   /**
-   * 响应状态码
+   * 状态码
+   * - 成功时：HTTP 状态码 (200, 201, 204 等)
+   * - 异常时：业务错误码 (1001, 2001, 4001 等)
    */
   code: number;
 
@@ -27,6 +29,21 @@ export interface ApiResponseInterfaces<T = any> {
    * 错误信息（如果有）
    */
   errors: any;
+
+  /**
+   * 请求追踪ID（可选，异常时提供）
+   */
+  requestId?: string;
+
+  /**
+   * 时间戳（可选，异常时提供）
+   */
+  timestamp?: string;
+
+  /**
+   * 请求路径（可选，异常时提供）
+   */
+  path?: string;
 }
 
 /**

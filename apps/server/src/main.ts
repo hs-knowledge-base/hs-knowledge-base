@@ -5,7 +5,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { generateSwaggerDocument } from '@/config/swagger';
 import { BootstrapService } from '@/core/bootstrap/bootstrap.service';
 import { LoggerService } from '@/core/logger/logger.service';
-import { TransformInterceptor } from "@/core";
+import { TransformInterceptor, GlobalExceptionFilter } from "@/core";
 
 async function bootstrap() {
   const logger = new LoggerService().setContext('main');
@@ -22,6 +22,9 @@ async function bootstrap() {
 
     /*全局拦截器，统一响应*/
     app.useGlobalInterceptors(new TransformInterceptor());
+
+    /*全局异常过滤器，统一异常处理*/
+    app.useGlobalFilters(new GlobalExceptionFilter());
 
     await bootstrapService.setup(app);
 

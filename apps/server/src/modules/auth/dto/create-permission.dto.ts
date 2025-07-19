@@ -1,46 +1,68 @@
-import { IsString, IsOptional, IsBoolean, Length, IsObject } from 'class-validator';
+import { IsString, IsOptional, IsEnum, Length, IsNumber } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Action, Subject } from '../entities/permission.entity';
+import { PermissionType } from '../entities/permission.entity';
 
 export class CreatePermissionDto {
   @ApiProperty({
-    description: '操作类型',
-    example: Action.READ,
-    enum: Action
+    description: '权限编码',
+    example: 'system.user.view'
   })
   @IsString()
-  @Length(1, 50)
-  action: string;
+  @Length(1, 100)
+  code: string;
 
   @ApiProperty({
-    description: '资源类型',
-    example: Subject.USER,
-    enum: Subject
+    description: '权限名称',
+    example: '查看用户'
   })
   @IsString()
-  @Length(1, 50)
-  subject: string;
+  @Length(1, 100)
+  name: string;
 
-  @ApiPropertyOptional({
-    description: '条件限制 - ABAC 核心功能',
-    example: { department: 'IT', level: { $gte: 3 } }
+  @ApiProperty({
+    description: '权限类型',
+    example: PermissionType.BUTTON,
+    enum: PermissionType
+  })
+  @IsEnum(PermissionType)
+  type: PermissionType;
+
+  @ApiPropertyOptional({ 
+    description: '权限描述',
+    example: '允许查看用户详细信息'
   })
   @IsOptional()
-  @IsObject()
-  conditions?: Record<string, any>;
+  @IsString()
+  description?: string;
 
-  @ApiPropertyOptional({ description: '字段限制', example: 'name,email' })
+  @ApiPropertyOptional({ 
+    description: '前端路由路径',
+    example: '/system/user'
+  })
   @IsOptional()
   @IsString()
-  fields?: string;
+  path?: string;
 
-  @ApiPropertyOptional({ description: '是否为禁止权限', example: false })
-  @IsOptional()
-  @IsBoolean()
-  inverted?: boolean;
-
-  @ApiPropertyOptional({ description: '权限说明', example: '允许读取同部门用户信息' })
+  @ApiPropertyOptional({ 
+    description: '图标',
+    example: 'user-o'
+  })
   @IsOptional()
   @IsString()
-  reason?: string;
+  icon?: string;
+
+  @ApiPropertyOptional({ 
+    description: '排序值',
+    example: 1
+  })
+  @IsOptional()
+  @IsNumber()
+  sort?: number;
+
+  @ApiPropertyOptional({ 
+    description: '父权限ID'
+  })
+  @IsOptional()
+  @IsNumber()
+  parentId?: number;
 }

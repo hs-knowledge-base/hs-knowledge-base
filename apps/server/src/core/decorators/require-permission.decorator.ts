@@ -1,22 +1,26 @@
-import { CheckPolicies } from '@/modules/auth/guards/permissions.guard';
-import { Action, Subject } from '@/modules/auth/entities/permission.entity';
-import { AppAbility } from '@/modules/auth/casl/casl-ability.factory';
+import { SetMetadata } from '@nestjs/common';
 
 /**
- * 权限检查装饰器
- * 用于控制器方法的权限验证
+ * 权限元数据键
+ */
+export const REQUIRE_PERMISSION_KEY = 'require_permission';
+
+/**
+ * RBAC权限检查装饰器
+ * 用于控制器方法的权限验证，基于权限编码
  * 
- * @param action 操作类型
- * @param subject 资源类型
+ * @param permissionCode 权限编码，如 'system.user.view'
  * @returns 装饰器函数
  * 
  * @example
  * ```typescript
- * @RequirePermission(Action.READ, Subject.USER)
+ * @RequirePermission('system.user.view')
  * async findAll() {
- *   // ...
+ *   // 需要用户查看权限
  * }
  * ```
  */
-export const RequirePermission = (action: Action, subject: Subject) =>
-  CheckPolicies((ability: AppAbility) => ability.can(action, subject));
+export const RequirePermission = (permissionCode: string) =>
+  SetMetadata(REQUIRE_PERMISSION_KEY, permissionCode);
+
+

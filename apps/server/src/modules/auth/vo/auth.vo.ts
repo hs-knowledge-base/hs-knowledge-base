@@ -1,6 +1,6 @@
 import { Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { UserVo } from './user.vo';
+import {UserVo} from "@/modules/user/vo";
 
 /**
  * 登录响应 VO

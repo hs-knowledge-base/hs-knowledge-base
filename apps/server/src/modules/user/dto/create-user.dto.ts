@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsOptional, IsBoolean, MinLength } from 'class-validator';
+import { IsEmail, IsString, IsOptional, IsBoolean, MinLength, IsNumber } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateUserDto {
@@ -30,10 +30,10 @@ export class CreateUserDto {
   @IsString()
   lastName?: string;
 
-  @ApiPropertyOptional({ description: '角色ID列表', example: ['role-uuid-1', 'role-uuid-2'] })
+  @ApiPropertyOptional({ description: '角色ID列表', example: [1, 2] })
   @IsOptional()
-  @IsString({ each: true })
-  roleIds?: string[];
+  @IsNumber({}, { each: true })
+  roleIds?: number[];
 
   @ApiPropertyOptional({ description: '用户属性', example: { level: 3, clearance: 'high' } })
   @IsOptional()

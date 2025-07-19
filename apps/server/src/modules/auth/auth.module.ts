@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
@@ -6,18 +6,21 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 
 // Entities
 import { Permission } from "./entities/permission.entity";
+import { UserSession } from "./entities/session.entity";
+import { RbacConstraint } from "./entities/constraint.entity";
 
 // Services
 import { PermissionService } from "./services/permission.service";
 import { AuthService } from "./services/auth.service";
 import { RoleService } from "../user/services/role.service";
 import { RoleInitService } from "./services/role-init.service";
+import { SessionService } from "./services/session.service";
+import { RoleHierarchyService } from "./services/role-hierarchy.service";
 
 // Controllers
 import { AuthAdminController } from "./controllers/auth-admin.controller";
 import { RoleAdminController } from "@/modules/user/controllers/role-admin.controller";
 import { PermissionAdminController } from "@/modules/auth/controllers/permission-admin.controller";
-import { RoleInitAdminController } from "./controllers/role-init-admin.controller";
 
 // Repositories
 import { PermissionRepository } from "./repositories/permission.repository";
@@ -31,8 +34,7 @@ import { UserRepository } from "../user/repositories/user.repository";
 import { RoleRepository } from "../user/repositories/role.repository";
 
 // Guards
-import { CaslAbilityFactory } from "./casl/casl-ability.factory";
-import { PoliciesGuard } from "./guards/permissions.guard";
+import { RbacPermissionsGuard } from "./guards/rbac-permissions.guard";
 
 // Strategies
 import { JwtStrategy } from "./strategies/jwt.strategy";
@@ -41,9 +43,12 @@ import { LocalStrategy } from "./strategies/local.strategy";
 // Config
 import { JwtConfig } from "./config/jwt.config";
 
+// Modules
+import { UserModule } from "../user/user.module";
+
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Role, Permission]),
+    TypeOrmModule.forFeature([User, Role, Permission, UserSession, RbacConstraint]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -60,18 +65,21 @@ import { JwtConfig } from "./config/jwt.config";
       },
       inject: [ConfigService],
     }),
+    forwardRef(() => UserModule),
   ],
   controllers: [
     RoleAdminController,
     AuthAdminController,
     PermissionAdminController,
-    RoleInitAdminController],
+  ],
   providers: [
     // Services
     PermissionService,
     AuthService,
     RoleService,
     RoleInitService,
+    SessionService,
+    RoleHierarchyService,
 
     // Repositories
     UserRepository,
@@ -79,8 +87,7 @@ import { JwtConfig } from "./config/jwt.config";
     PermissionRepository,
 
     // Guards and Strategies
-    CaslAbilityFactory,
-    PoliciesGuard,
+    RbacPermissionsGuard,
     JwtStrategy,
     LocalStrategy,
 
@@ -92,11 +99,12 @@ import { JwtConfig } from "./config/jwt.config";
     AuthService,
     RoleService,
     RoleInitService,
+    SessionService,
+    RoleHierarchyService,
     UserRepository,
     RoleRepository,
     PermissionRepository,
-    CaslAbilityFactory,
-    PoliciesGuard,
+    RbacPermissionsGuard,
     JwtConfig,
   ],
 })

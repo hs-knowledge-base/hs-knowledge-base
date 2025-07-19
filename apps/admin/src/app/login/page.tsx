@@ -62,7 +62,7 @@ export default function LoginPage() {
     
     try {
       await login(data.usernameOrEmail, data.password);
-      router.push('/dashboard');
+      router.push('/');
     } catch (error: any) {
       setError(error.message || '登录失败');
     } finally {
@@ -76,7 +76,7 @@ export default function LoginPage() {
     
     try {
       await register(data);
-      router.push('/dashboard');
+      router.push('/');
     } catch (error: any) {
       setError(error.message || '注册失败');
     } finally {

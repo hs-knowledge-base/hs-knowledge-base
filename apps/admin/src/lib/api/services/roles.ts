@@ -1,64 +1,84 @@
-import { alovaClient } from '../client';
-import { QueryParams, PaginatedResponse, ApiResponse } from '../types';
-import { RoleRes, CreateRoleReq, UpdateRoleReq } from '../../../types/auth';
+import { RoleRes, CreateRoleReq, UpdateRoleReq } from "@/types/auth";
+import { alovaClient } from "@/lib/api/client";
+import { ApiResponse, PaginatedResponse } from "@/lib/api/types";
 
-/**
- * 角色管理 API 服务
- * 处理角色的 CRUD 操作和权限分配
- */
-
-
-
-/**
- * 角色查询参数
- */
-export interface RoleQueryParams extends QueryParams {
-  hasPermission?: string;
+export interface GetRolesReq {
+  page?: number;
+  limit?: number;
+  search?: string;
+  isActive?: boolean;
+  level?: number;
 }
 
-/**
- * 角色 API 服务
- */
 export const roleApi = {
   /**
    * 获取角色列表（支持分页和查询）
    */
-  getRoles: (params?: RoleQueryParams) =>
-    alovaClient.Get<PaginatedResponse<RoleRes>>('/roles', { params }),
+  getRoles: (params?: GetRolesReq) =>
+    alovaClient.Get<PaginatedResponse<RoleRes> | ApiResponse<RoleRes[]>>("/roles", { params }),
 
   /**
    * 获取所有角色（不分页）
    */
-  getAll: () =>
-    alovaClient.Get<ApiResponse<RoleRes[]>>('/roles'),
+  getAllRoles: () => 
+    alovaClient.Get<ApiResponse<RoleRes[]>>("/roles"),
+
+  /**
+   * 获取角色层次结构树
+   */
+  getRoleHierarchy: () =>
+    alovaClient.Get<ApiResponse<RoleRes[]>>("/roles/hierarchy"),
 
   /**
    * 根据 ID 获取角色详情
    */
-  getRole: (id: string) =>
-    alovaClient.Get<ApiResponse<RoleRes>>(`/roles/${id}`),
+  getRole: (id: number) =>
+    alovaClient.Get<ApiResponse<RoleRes>>(`/roles/detail?id=${id}`),
 
   /**
    * 创建新角色
    */
   createRole: (roleData: CreateRoleReq) =>
-    alovaClient.Post<ApiResponse<RoleRes>>('/roles', roleData),
+    alovaClient.Post<ApiResponse<RoleRes>>("/roles", roleData),
 
   /**
    * 更新角色信息
    */
-  updateRole: (id: string, roleData: UpdateRoleReq) =>
-    alovaClient.Patch<ApiResponse<RoleRes>>(`/roles/${id}`, roleData),
+  updateRole: (id: number, roleData: UpdateRoleReq) =>
+    alovaClient.Post<ApiResponse<RoleRes>>("/roles/update", { id, ...roleData }),
 
   /**
    * 删除角色
    */
-  deleteRole: (id: string) =>
-    alovaClient.Delete<ApiResponse<null>>(`/roles/${id}`),
+  deleteRole: (id: number) =>
+    alovaClient.Post<ApiResponse<null>>("/roles/delete", { id }),
 
   /**
-   * 为角色分配权限
+   * 启用/禁用角色
    */
-  assignPermissions: (id: string, permissionIds: string[]) =>
-    alovaClient.Patch<ApiResponse<RoleRes>>(`/roles/${id}/permissions`, { permissionIds }),
-};
+  toggleRoleStatus: (id: number, isActive: boolean) =>
+    alovaClient.Post<ApiResponse<RoleRes>>("/roles/toggle-status", { id, isActive }),
+
+  /**
+   * 建立角色继承关系
+   */
+  addRoleInheritance: (juniorRoleId: number, seniorRoleId: number) =>
+    alovaClient.Post<ApiResponse<null>>("/roles/inheritance", {
+      juniorRoleId,
+      seniorRoleId,
+    }),
+
+  /**
+   * 移除角色继承关系
+   */
+  removeRoleInheritance: (juniorRoleId: number) =>
+    alovaClient.Post<ApiResponse<null>>("/roles/remove-inheritance", {
+      juniorRoleId,
+    }),
+
+  /**
+   * 获取角色的有效权限
+   */
+  getRolePermissions: (id: number) =>
+    alovaClient.Get<ApiResponse<string[]>>(`/roles/permissions?id=${id}`),
+}; 

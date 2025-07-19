@@ -1,75 +1,67 @@
-import { alovaClient } from '../client';
-import { QueryParams, PaginatedResponse, ApiResponse } from '../types';
-import { PermissionRes, CreatePermissionReq, UpdatePermissionReq, PermissionCheckReq, PermissionCheckRes } from '../../../types/auth';
+import { PermissionRes, CreatePermissionReq, UpdatePermissionReq } from "@/types/auth";
+import { alovaClient } from "@/lib/api/client";
+import { ApiResponse, PaginatedResponse } from "@/lib/api/types";
 
-/**
- * 权限管理 API 服务
- * 处理权限的 CRUD 操作和权限检查
- */
-
-
-
-/**
- * 权限查询参数
- */
-export interface PermissionQueryParams extends QueryParams {
-  action?: string;
-  subject?: string;
+export interface GetPermissionsReq {
+  page?: number;
+  limit?: number;
+  search?: string;
+  type?: string;
+  parentId?: number;
 }
 
-/**
- * 权限 API 服务
- */
 export const permissionApi = {
   /**
    * 获取权限列表（支持分页和查询）
    */
-  getPermissions: (params?: PermissionQueryParams) =>
-    alovaClient.Get<PaginatedResponse<PermissionRes>>('/permissions', { params }),
+  getPermissions: (params?: GetPermissionsReq) =>
+    alovaClient.Get<PaginatedResponse<PermissionRes> | ApiResponse<PermissionRes[]>>("/permissions", { params }),
 
   /**
    * 获取所有权限（不分页）
    */
-  getAllPermissions: () =>
-    alovaClient.Get<ApiResponse<PermissionRes[]>>('/permissions'),
+  getAllPermissions: () => 
+    alovaClient.Get<ApiResponse<PermissionRes[]>>("/permissions"),
+
+  /**
+   * 获取权限树结构
+   */
+  getPermissionTree: () =>
+    alovaClient.Get<ApiResponse<PermissionRes[]>>("/permissions/tree"),
 
   /**
    * 根据 ID 获取权限详情
    */
-  getPermission: (id: string) =>
-    alovaClient.Get<ApiResponse<PermissionRes>>(`/permissions/${id}`),
+  getPermission: (id: number) =>
+    alovaClient.Get<ApiResponse<PermissionRes>>(`/permissions/detail?id=${id}`),
 
   /**
    * 创建新权限
    */
   createPermission: (permissionData: CreatePermissionReq) =>
-    alovaClient.Post<ApiResponse<PermissionRes>>('/permissions', permissionData),
+    alovaClient.Post<ApiResponse<PermissionRes>>("/permissions", permissionData),
 
   /**
    * 更新权限信息
    */
-  updatePermission: (id: string, permissionData: UpdatePermissionReq) =>
-    alovaClient.Patch<ApiResponse<PermissionRes>>(`/permissions/${id}`, permissionData),
+  updatePermission: (id: number, permissionData: UpdatePermissionReq) =>
+    alovaClient.Post<ApiResponse<PermissionRes>>("/permissions/update", { id, ...permissionData }),
 
   /**
    * 删除权限
    */
-  deletePermission: (id: string) =>
-    alovaClient.Delete<ApiResponse<null>>(`/permissions/${id}`),
+  deletePermission: (id: number) =>
+    alovaClient.Post<ApiResponse<null>>("/permissions/delete", { id }),
 
   /**
-   * 检查权限
+   * 启用/禁用权限
    */
-  checkPermission: (checkData: PermissionCheckReq) =>
-    alovaClient.Post<ApiResponse<PermissionCheckRes>>('/permissions/check', checkData),
-
-
+  togglePermissionStatus: (id: number, isActive: boolean) =>
+    alovaClient.Post<ApiResponse<PermissionRes>>("/permissions/toggle-status", { id, isActive }),
 
   /**
-   * 获取用户的所有权限
+   * 根据类型获取权限
    */
-  getUserPermissions: (userId: string) =>
-    alovaClient.Get<ApiResponse<PermissionRes[]>>(`/permissions/user/${userId}`),
-
-
-};
+  getPermissionsByType: (type: string) =>
+    alovaClient.Get<ApiResponse<PermissionRes[]>>(`/permissions/by-type?type=${type}`),
+}; 

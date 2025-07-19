@@ -23,3 +23,6 @@ export { AppConfig } from './config/app.config';
 // 日志
 export { LoggerModule } from './logger/logger.module';
 export { LoggerService } from './logger/logger.service';
+
+// 异常处理
+export * from './exceptions';

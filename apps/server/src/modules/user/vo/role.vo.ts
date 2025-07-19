@@ -4,82 +4,71 @@ import { SimpleUserVo } from './user.vo';
 import { DateTransformUtil } from '@/core/utils';
 
 /**
- * 权限简化 VO - 用于角色中显示权限信息
+ * 权限摘要信息
  */
-export class SimplePermissionVo {
+export class PermissionSummaryVo {
   @ApiProperty({ description: '权限ID' })
   @Expose()
-  id: string;
+  id: number;
 
-  @ApiProperty({ description: '操作类型' })
+  @ApiProperty({ description: '权限编码' })
   @Expose()
-  action: string;
+  code: string;
 
-  @ApiProperty({ description: '资源类型' })
+  @ApiProperty({ description: '权限名称' })
   @Expose()
-  subject: string;
+  name: string;
 
-  @ApiPropertyOptional({ description: '权限说明' })
+  @ApiProperty({ description: '权限类型' })
   @Expose()
-  reason?: string;
+  type: string;
 
   @ApiPropertyOptional({ description: '权限显示名称' })
   @Expose()
   @Transform(({ obj }) => {
-    const actionMap: Record<string, string> = {
-      'create': '创建',
-      'read': '读取',
-      'update': '更新',
-      'delete': '删除',
-      'manage': '管理'
-    };
-    
-    const subjectMap: Record<string, string> = {
-      'user': '用户',
-      'role': '角色',
-      'permission': '权限',
-      'document': '文档',
-      'knowledge_base': '知识库',
-      'all': '全部'
-    };
-
-    const actionText = actionMap[obj.action] || obj.action;
-    const subjectText = subjectMap[obj.subject] || obj.subject;
-    
-    return `${actionText}${subjectText}`;
+    return obj.name || obj.code;
   })
   displayName?: string;
 }
 
 /**
  * 角色 VO - User 模块专用
+ * 用于用户管理中的角色信息展示
  */
 export class RoleVo {
-  @ApiProperty({ description: '角色ID', example: 'uuid-string' })
+  @ApiProperty({ description: '角色ID', example: 1 })
   @Expose()
-  id: string;
+  id: number;
 
   @ApiProperty({ description: '角色名称', example: 'admin' })
   @Expose()
   name: string;
 
-  @ApiPropertyOptional({ description: '角色描述', example: '系统管理员' })
+  @ApiPropertyOptional({ description: '角色描述', example: '管理员角色' })
   @Expose()
   description?: string;
 
-  @ApiPropertyOptional({ description: '角色属性', example: { level: 'high', department: 'IT' } })
+  @ApiProperty({ description: '角色层级', example: 3 })
   @Expose()
-  attributes?: Record<string, any>;
+  level: number;
 
-  @ApiPropertyOptional({ description: '权限列表', type: [SimplePermissionVo] })
+  @ApiProperty({ description: '是否启用', example: true })
   @Expose()
-  @Type(() => SimplePermissionVo)
-  permissions?: SimplePermissionVo[];
+  isActive: boolean;
 
-  @ApiPropertyOptional({ description: '用户列表', type: [SimpleUserVo] })
+  @ApiPropertyOptional({ description: '父角色ID', example: 2 })
   @Expose()
-  @Type(() => SimpleUserVo)
-  users?: SimpleUserVo[];
+  @Transform(({ obj }) => obj.parent?.id || null)
+  parentId?: number;
+
+  @ApiPropertyOptional({ description: '父角色名称', example: 'super_admin' })
+  @Expose()
+  @Transform(({ obj }) => obj.parent?.name || null)
+  parentName?: string;
+
+  @ApiPropertyOptional({ description: '继承的角色ID列表', example: [1, 2] })
+  @Expose()
+  inheritedRoleIds?: number[];
 
   @ApiProperty({ description: '创建时间', example: '2024-01-01T00:00:00.000Z' })
   @Expose()
@@ -90,21 +79,6 @@ export class RoleVo {
   @Expose()
   @Transform(({ value }) => DateTransformUtil.toISOString(value))
   updatedAt: string;
-
-  @ApiProperty({ description: '创建时间（本地格式）', example: '2024/1/1' })
-  @Expose()
-  @Transform(({ value }) => DateTransformUtil.toLocaleDateString(value))
-  createdAtLocal: string;
-
-  @ApiPropertyOptional({ description: '权限数量' })
-  @Expose()
-  @Transform(({ obj }) => obj.permissions?.length || 0)
-  permissionCount?: number;
-
-  @ApiPropertyOptional({ description: '用户数量' })
-  @Expose()
-  @Transform(({ obj }) => obj.users?.length || 0)
-  userCount?: number;
 }
 
 /**
@@ -143,21 +117,21 @@ export class SimpleRoleVo {
  * 角色详情 VO - 包含完整的权限和用户信息
  */
 export class RoleDetailVo extends RoleVo {
-  @ApiPropertyOptional({ description: '角色拥有的权限分组' })
+  @ApiPropertyOptional({ description: '角色拥有的权限按类型分组' })
   @Expose()
   @Transform(({ obj }) => {
     if (!obj.permissions) return {};
     
     const grouped: Record<string, string[]> = {};
     obj.permissions.forEach((permission: any) => {
-      const subject = permission.subject;
-      if (!grouped[subject]) {
-        grouped[subject] = [];
+      const type = permission.type;
+      if (!grouped[type]) {
+        grouped[type] = [];
       }
-      grouped[subject].push(permission.action);
+      grouped[type].push(permission.code);
     });
     
     return grouped;
   })
-  permissionsBySubject?: Record<string, string[]>;
+  permissionsByType?: Record<string, string[]>;
 }

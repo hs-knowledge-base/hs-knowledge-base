@@ -1,20 +1,14 @@
-import {INestApplication, Injectable} from '@nestjs/common';
-import {AppConfig} from '../config/app.config';
-import {LoggerService} from '../logger/logger.service';
-import { getDocumentInfo } from '@/config/swagger';
+import { INestApplication, Injectable, Logger } from "@nestjs/common";
+import { AppConfig } from "@/core";
+import { getDocumentInfo } from "@/config/swagger";
 
-/**
- * 应用启动服务
- * 负责配置和启动 NestJS 应用
- */
 @Injectable()
 export class BootstrapService {
+  private readonly logger = new Logger(BootstrapService.name)
+
   constructor(
     private readonly appConfig: AppConfig,
-    private readonly logger: LoggerService,
-  ) {
-    this.logger.setContext('Bootstrap');
-  }
+  ) {}
 
   /**
    * 配置应用
@@ -28,12 +22,12 @@ export class BootstrapService {
     if (this.appConfig.enableCors) {
       app.enableCors({
         origin: this.appConfig.corsOrigin,
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
         credentials: true,
       });
     }
 
-    this.logger.log('应用配置完成');
+    this.logger.log("应用配置完成");
   }
 
   /**
@@ -42,9 +36,9 @@ export class BootstrapService {
    */
   async initializeData(app: INestApplication) {
     try {
-      this.logger.log('应用数据初始化完成');
+      this.logger.log("应用数据初始化完成");
     } catch (error) {
-      this.logger.error('应用数据初始化失败', error.stack);
+      this.logger.error("应用数据初始化失败", error.stack);
     }
   }
 
@@ -61,7 +55,7 @@ export class BootstrapService {
 
     this.logger.log(`应用已启动: ${baseUrl}`);
 
-    Object.values(documentInfo).forEach(doc => {
+    Object.values(documentInfo).forEach((doc) => {
       this.logger.log(`${doc.title}: ${doc.url}`);
     });
   }

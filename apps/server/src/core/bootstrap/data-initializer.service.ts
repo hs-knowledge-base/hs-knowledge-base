@@ -1,4 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { UserService } from '@/modules/user/services/user.service';
 import { RoleInitService } from '@/modules/auth/services/role-init.service';
 import { UserRepository } from '@/modules/user/repositories/user.repository';
@@ -13,6 +14,7 @@ export class DataInitializerService implements OnModuleInit {
   private readonly logger = new Logger(DataInitializerService.name);
 
   constructor(
+    private readonly configService: ConfigService,
     private readonly userService: UserService,
     private readonly roleInitService: RoleInitService,
     private readonly roleRepository: RoleRepository,
@@ -57,63 +59,52 @@ export class DataInitializerService implements OnModuleInit {
       return;
     }
 
-    const defaultUsers = [
-      {
-        username: 'superadmin',
-        email: 'superadmin@example.com',
-        password: 'admin123',
-        firstName: '超级',
-        lastName: '管理员',
-        department: 'IT',
-        position: '超级管理员',
-        attributes: { level: 10, clearance: 'highest' },
-        roleName: 'super_admin',
-      },
-      {
-        username: 'admin',
-        email: 'admin@example.com',
-        password: 'admin123',
-        firstName: '系统',
-        lastName: '管理员',
-        department: 'IT',
-        position: '系统管理员',
-        attributes: { level: 8, clearance: 'high' },
-        roleName: 'admin',
-      },
-      {
-        username: 'developer',
-        email: 'developer@example.com',
-        password: 'dev123',
-        firstName: '团队',
-        lastName: '开发者',
-        department: 'IT',
-        position: '开发工程师',
-        attributes: { level: 5, clearance: 'medium' },
-        roleName: 'team_developer',
-      },
-    ];
+    const superAdminPassword = this.configService.get<string>('SUPER_ADMIN_PASSWORD');
 
-    for (const userData of defaultUsers) {
-      try {
-        const existingUser = await this.userService.findByUsername(userData.username);
-        if (!existingUser) {
-          const { roleName, ...userCreateData } = userData;
+    if (!superAdminPassword) {
+      this.logger.warn('未设置 SUPER_ADMIN_PASSWORD 环境变量，跳过超级管理员创建');
+      return;
+    }
 
-          // 获取角色
-          const role = await this.roleRepository.findByName(roleName);
-          const roleIds = role ? [role.id] : [];
+    const superAdminData = {
+      username: 'superadmin',
+      email: 'superadmin@example.com',
+      password: superAdminPassword,
+      firstName: '超级',
+      lastName: '管理员',
+      department: 'IT',
+      position: '超级管理员',
+      attributes: { level: 10, clearance: 'highest' },
+      roleName: 'super_admin',
+    };
 
-          await this.userService.create({
-            ...userCreateData,
-            roleIds,
-          });
-          this.logger.log(`创建默认用户: ${userData.username}`);
-        } else {
-          this.logger.debug(`用户已存在: ${userData.username}`);
+    try {
+      const existingUser = await this.userService.findByUsername(superAdminData.username);
+      if (!existingUser) {
+        const { roleName, ...userCreateData } = superAdminData;
+
+        // 获取超级管理员角色
+        const role = await this.roleRepository.findByName(roleName);
+        if (!role) {
+          this.logger.error('未找到超级管理员角色，请确保角色初始化已完成');
+          return;
         }
-      } catch (error) {
-        this.logger.error(`创建用户失败: ${userData.username}`, error);
+
+        const roleIds = [role.id];
+
+        await this.userService.create({
+          ...userCreateData,
+          roleIds,
+        });
+
+        this.logger.log(`✅ 超级管理员账户创建成功: ${superAdminData.username}`);
+        this.logger.warn('🔐 请及时修改超级管理员密码！');
+      } else {
+        this.logger.debug(`超级管理员已存在: ${superAdminData.username}`);
       }
+    } catch (error) {
+      this.logger.error(`创建超级管理员失败: ${superAdminData.username}`, error);
+      throw error;
     }
   }
 }
